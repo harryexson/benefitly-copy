@@ -187,18 +187,19 @@ Deno.serve(async (req) => {
             break;
         }
 
-        case 'transfer.created':
         case 'payout.paid': {
             // Handle successful payouts to members
             const payout = event.data.object;
             const payoutId = payout.metadata?.payout_id;
-            
+
             if (payoutId) {
                 await base44.asServiceRole.entities.Payout.update(payoutId, {
                     status: 'Disbursed',
                     paid_at: new Date().toISOString(),
+                    stripe_payout_id: payout.id,
+                    estimated_arrival: payout.arrival_date ? new Date(payout.arrival_date * 1000).toISOString().split('T')[0] : null,
                 });
-                
+
                 console.log(`Payout ${payoutId} disbursed successfully`);
             }
             break;
@@ -207,13 +208,31 @@ Deno.serve(async (req) => {
         case 'payout.failed': {
             const payout = event.data.object;
             const payoutId = payout.metadata?.payout_id;
-            
+
             if (payoutId) {
                 await base44.asServiceRole.entities.Payout.update(payoutId, {
                     status: 'Failed',
+                    failure_reason: payout.failure_message || 'Payout failed',
+                    stripe_error_code: payout.failure_code || 'payout_failed',
+                    stripe_error_message: payout.failure_message || 'Payout failed',
                 });
-                
+
                 console.error(`Payout ${payoutId} failed: ${payout.failure_message}`);
+            }
+            break;
+        }
+
+        case 'payout.canceled': {
+            const payout = event.data.object;
+            const payoutId = payout.metadata?.payout_id;
+
+            if (payoutId) {
+                await base44.asServiceRole.entities.Payout.update(payoutId, {
+                    status: 'Failed',
+                    failure_reason: 'Payout was canceled',
+                });
+
+                console.log(`Payout ${payoutId} was canceled`);
             }
             break;
         }

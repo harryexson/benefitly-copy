@@ -132,6 +132,17 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Payout must be approved first' }, { status: 400 });
         }
 
+        // Idempotency check - prevent duplicate processing
+        if (payout.status === 'Disbursed' && payout.stripe_payout_id) {
+            console.log('Payout already processed, skipping:', payout.stripe_payout_id);
+            return Response.json({ 
+                success: true,
+                message: 'Payout already processed',
+                stripe_payout_id: payout.stripe_payout_id,
+                already_processed: true
+            });
+        }
+
         // Use payout's configured speed, or allow override from request
         const payout_method = body.payout_method || payout.payout_speed || 'standard';
 
@@ -160,8 +171,23 @@ Deno.serve(async (req) => {
             return Response.json({ error: errorMsg }, { status: 400 });
         }
 
-        if (!associationAccount.stripe_payouts_enabled) {
-            const errorMsg = 'Stripe account not verified for payouts';
+        // Verify Stripe account capabilities in real-time
+        const stripeAccount = await stripe.accounts.retrieve(associationAccount.stripe_account_id);
+        
+        if (!stripeAccount.charges_enabled) {
+            const errorMsg = 'Stripe account cannot accept charges';
+            await notifyAdminsOfFailure(base44, associationAccountId, payout, member, errorMsg);
+            return Response.json({ error: errorMsg }, { status: 400 });
+        }
+
+        if (!stripeAccount.payouts_enabled) {
+            const errorMsg = 'Stripe account cannot process payouts';
+            await notifyAdminsOfFailure(base44, associationAccountId, payout, member, errorMsg);
+            return Response.json({ error: errorMsg }, { status: 400 });
+        }
+
+        if (stripeAccount.capabilities?.transfers !== 'active') {
+            const errorMsg = 'Stripe account transfers capability not active';
             await notifyAdminsOfFailure(base44, associationAccountId, payout, member, errorMsg);
             return Response.json({ error: errorMsg }, { status: 400 });
         }
@@ -210,7 +236,13 @@ Deno.serve(async (req) => {
         
         const externalAccountId = externalAccount.id;
 
+        // Mark payout as processing before Stripe call
+        await base44.asServiceRole.entities.Payout.update(payout_id, {
+            status: 'Processing'
+        });
+
         // Create payout from the association's Stripe balance to member's bank
+        // Using payout_id as idempotency key to prevent duplicate charges
         const stripePayout = await stripe.payouts.create({
             amount: payoutAmount,
             currency: 'usd',
@@ -224,6 +256,7 @@ Deno.serve(async (req) => {
             },
         }, {
             stripeAccount: associationAccount.stripe_account_id,
+            idempotencyKey: payout_id, // Prevent duplicate Stripe charges
         });
 
         console.log('Payout created:', stripePayout.id);
