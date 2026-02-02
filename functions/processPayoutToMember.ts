@@ -177,49 +177,38 @@ Deno.serve(async (req) => {
 
         const payoutAmount = Math.round(payout.amount * 100);
 
-        console.log('=== Global Payout Flow Start ===');
+        console.log('=== Payout Processing Start ===');
         console.log('Amount:', payoutAmount, 'cents');
-        console.log('Platform Account');
+        console.log('Connected Account:', associationAccount.stripe_account_id);
+        console.log('Member Bank Details - Last4:', member.bank_account_last4);
 
-        // Check if member already has an external account ID saved
-        let externalAccountId = member.stripe_bank_account_id;
+        // CRITICAL: Always create a fresh external account for the connected account
+        // Bank account IDs are scoped to specific Stripe accounts and cannot be reused across accounts
+        console.log('Creating fresh external bank account for this payout...');
 
-        if (!externalAccountId) {
-            console.log('Creating and attaching new external bank account...');
+        // Create bank account token
+        const bankToken = await stripe.tokens.create({
+            bank_account: {
+                country: 'US',
+                currency: 'usd',
+                account_holder_name: member.payout_account_holder || `${member.first_name} ${member.last_name}`,
+                account_holder_type: member.payout_account_type || 'individual',
+                routing_number: member.payout_routing_number,
+                account_number: member.payout_account_number,
+            },
+        });
 
-            // Create bank account token
-            const bankToken = await stripe.tokens.create({
-                bank_account: {
-                    country: 'US',
-                    currency: 'usd',
-                    account_holder_name: member.payout_account_holder || `${member.first_name} ${member.last_name}`,
-                    account_holder_type: member.payout_account_type || 'individual',
-                    routing_number: member.payout_routing_number,
-                    account_number: member.payout_account_number,
-                },
-            });
+        console.log('Bank token created:', bankToken.id);
 
-            console.log('Bank token created:', bankToken.id);
+        // Attach the bank account as an external account to the connected account
+        const externalAccount = await stripe.accounts.createExternalAccount(
+            associationAccount.stripe_account_id,
+            { external_account: bankToken.id }
+        );
 
-            // Attach the bank account as an external account to the connected account
-            const externalAccount = await stripe.accounts.createExternalAccount(
-                associationAccount.stripe_account_id,
-                { external_account: bankToken.id }
-            );
-
-            console.log('External account created:', externalAccount.id);
-
-            externalAccountId = externalAccount.id;
-
-            // Save the external account ID to member record for future use
-            await base44.asServiceRole.entities.Member.update(member.id, {
-                stripe_bank_account_id: externalAccountId,
-                bank_account_last4: externalAccount.last4,
-                bank_name: externalAccount.bank_name || 'Bank Account'
-            });
-        } else {
-            console.log('Using existing external account:', externalAccountId);
-        }
+        console.log('External account attached:', externalAccount.id);
+        
+        const externalAccountId = externalAccount.id;
 
         // Create payout from the association's Stripe balance to member's bank
         const stripePayout = await stripe.payouts.create({
