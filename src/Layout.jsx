@@ -208,29 +208,33 @@ export default function Layout({ children, currentPageName }) {
                 const userTier = tiers.find(t => t.id === userAccount.subscription_tier_id);
                 setSubscriptionTier(userTier);
 
-                // Check subscription status for non-admin association members
+                // CRITICAL: Only administrators should handle subscription issues
+                // Regular members use their association's subscription and should NEVER be redirected
                 const isAssociationAdmin = currentUser.association_role === 'Administrator';
-                const isSubscriptionRestrictedPage = currentPageName === 'SubscriptionRestricted';
-                const isBillingPage = currentPageName === 'Billing';
-                const isDashboardPage = currentPageName === 'Dashboard';
+                
+                if (isAssociationAdmin) {
+                    const isSubscriptionRestrictedPage = currentPageName === 'SubscriptionRestricted';
+                    const isBillingPage = currentPageName === 'Billing';
+                    const isDashboardPage = currentPageName === 'Dashboard';
 
-                // Determine if subscription is invalid
-                const isTrialExpired = userAccount.account_status === 'trial' && 
-                  userAccount.trial_end_date && 
-                  new Date(userAccount.trial_end_date) < new Date();
+                    // Determine if subscription is invalid
+                    const isTrialExpired = userAccount.account_status === 'trial' && 
+                      userAccount.trial_end_date && 
+                      new Date(userAccount.trial_end_date) < new Date();
 
-                const isAccountSuspended = userAccount.account_status === 'suspended';
-                const isAccountCancelled = userAccount.account_status === 'cancelled';
-                const hasNoTier = !userAccount.subscription_tier_id && userAccount.account_status !== 'trial';
+                    const isAccountSuspended = userAccount.account_status === 'suspended';
+                    const isAccountCancelled = userAccount.account_status === 'cancelled';
+                    const hasNoTier = !userAccount.subscription_tier_id && userAccount.account_status !== 'trial';
 
-                const subscriptionInvalid = isTrialExpired || isAccountSuspended || isAccountCancelled || hasNoTier;
+                    const subscriptionInvalid = isTrialExpired || isAccountSuspended || isAccountCancelled || hasNoTier;
 
-                // CRITICAL: Only block ADMINISTRATORS when subscription is invalid
-                // Regular members should see dashboard with alert to contact admin
-                if (subscriptionInvalid && isAssociationAdmin && !isSubscriptionRestrictedPage && !isBillingPage && !isDashboardPage) {
-                  navigate(createPageUrl('SubscriptionRestricted'));
-                  return;
+                    // Only redirect admin when subscription is invalid
+                    if (subscriptionInvalid && !isSubscriptionRestrictedPage && !isBillingPage && !isDashboardPage) {
+                      navigate(createPageUrl('SubscriptionRestricted'));
+                      return;
+                    }
                 }
+                // Regular members: no subscription checks, they use association's subscription
             }
         } else if (currentUser && !currentUser.association_account_id) {
             // User exists but has no association - allow them to access Dashboard to sign up
