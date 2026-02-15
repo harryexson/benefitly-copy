@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { base44 } from '@/api/base44Client';
 import { AssociationAccount } from '@/entities/all';
-import { CreditCard, Landmark, Settings2, Loader2, CheckCircle, Link as LinkIcon, DollarSign, Users, AlertTriangle } from 'lucide-react';
+import { CreditCard, Landmark, Settings2, Loader2, CheckCircle, Link as LinkIcon, DollarSign, Users, AlertTriangle, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 import PageTooltip from '../components/onboarding/PageTooltip';
 import { OnboardingProgress } from '@/entities/all';
@@ -55,6 +55,7 @@ export default function Settings({ user }) {
   const [isLoading, setIsLoading] = useState(true);
   const [associationAccount, setAssociationAccount] = useState(null);
   const [isConnectingStripe, setIsConnectingStripe] = useState(false);
+  const [isConnectingTremendous, setIsConnectingTremendous] = useState(false);
   const [onboardingProgress, setOnboardingProgress] = useState(null);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -184,6 +185,27 @@ export default function Settings({ user }) {
           
           setIsConnectingStripe(false);
       }
+  };
+
+  const handleConnectTremendous = async () => {
+    setIsConnectingTremendous(true);
+    try {
+      const redirectUri = `${window.location.origin}/api/functions/tremendousOAuthCallback`;
+      const response = await base44.functions.invoke('initiateTremendousConnect', {
+        redirect_uri: redirectUri
+      });
+
+      if (response.data.success && response.data.authorization_url) {
+        window.location.href = response.data.authorization_url;
+      } else {
+        toast.error('Failed to initiate Tremendous connection');
+        setIsConnectingTremendous(false);
+      }
+    } catch (error) {
+      console.error('Failed to connect Tremendous:', error);
+      toast.error(error.message || 'Failed to connect Tremendous');
+      setIsConnectingTremendous(false);
+    }
   };
 
   const handleSaveCollection = async (e) => {
@@ -363,57 +385,194 @@ export default function Settings({ user }) {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Landmark className="h-5 w-5" />
-                Member Benefit Funding Account
+                <Zap className="h-5 w-5" />
+                Member Benefit Payout Platform
               </CardTitle>
               <CardDescription>
-                This is the central bank account from which all member benefit payouts will be disbursed.
-                This account sends money TO your members for covered events.
+                Choose how you send benefit payouts to members globally. Connect Tremendous for flexible payment options including bank transfers, PayPal, Venmo, and gift cards.
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSaveFunding} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fundingAccountHolder">Account Holder Name</Label>
-                  <Input
-                    id="fundingAccountHolder"
-                    value={fundingAccount.accountHolder}
-                    onChange={(e) => setFundingAccount({ ...fundingAccount, accountHolder: e.target.value })}
-                    disabled={!isEditingFunding}
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fundingRoutingNumber">Routing Number</Label>
-                    <Input
-                      id="fundingRoutingNumber"
-                      value={fundingAccount.routingNumber}
-                      onChange={(e) => setFundingAccount({ ...fundingAccount, routingNumber: e.target.value })}
-                      disabled={!isEditingFunding}
-                    />
+            <CardContent className="space-y-6">
+              {associationAccount ? (
+                <>
+                  {/* Payout Provider Selection */}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      associationAccount.payout_provider === 'stripe' || associationAccount.payout_provider === 'both'
+                        ? 'border-blue-500 bg-blue-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Landmark className="h-5 w-5 text-blue-600" />
+                          <h4 className="font-semibold">Stripe Payouts</h4>
+                        </div>
+                        {associationAccount.stripe_payouts_enabled && (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Direct bank transfers to US members via Stripe Connect
+                      </p>
+                      <ul className="text-xs text-gray-500 space-y-1">
+                        <li>• US bank accounts only</li>
+                        <li>• Standard (free) or instant payouts</li>
+                        <li>• 1-2 day delivery</li>
+                      </ul>
+                    </div>
+
+                    <div className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                      associationAccount.payout_provider === 'tremendous' || associationAccount.payout_provider === 'both'
+                        ? 'border-purple-500 bg-purple-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}>
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-5 w-5 text-purple-600" />
+                          <h4 className="font-semibold">Tremendous Payouts</h4>
+                        </div>
+                        {associationAccount.tremendous_connected && (
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        )}
+                      </div>
+                      <p className="text-sm text-gray-600 mb-3">
+                        Global payouts with multiple payment options
+                      </p>
+                      <ul className="text-xs text-gray-500 space-y-1">
+                        <li>• Bank transfer, PayPal, Venmo, cards</li>
+                        <li>• 200+ countries supported</li>
+                        <li>• $0.75 per payout + optional % fee</li>
+                      </ul>
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="fundingAccountNumber">Account Number</Label>
-                    <Input
-                      id="fundingAccountNumber"
-                      type="password"
-                      value={fundingAccount.accountNumber}
-                      onChange={(e) => setFundingAccount({ ...fundingAccount, accountNumber: e.target.value })}
-                      disabled={!isEditingFunding}
-                    />
-                  </div>
-                </div>
-                <div className="flex justify-end gap-2 pt-4">
-                  {isEditingFunding ? (
-                    <>
-                      <Button type="button" variant="ghost" onClick={() => setIsEditingFunding(false)}>Cancel</Button>
-                      <Button type="submit">Save Funding Details</Button>
-                    </>
+
+                  {/* Tremendous Connection Section */}
+                  {associationAccount.tremendous_connected ? (
+                    <Alert className="bg-purple-50 border-purple-200">
+                      <CheckCircle className="h-4 w-4 text-purple-600" />
+                      <AlertDescription className="text-purple-800">
+                        <div className="space-y-2">
+                          <div className="font-semibold">Tremendous Account Connected</div>
+                          <div className="text-sm">Organization ID: {associationAccount.tremendous_organization_id}</div>
+                          <div className="grid grid-cols-2 gap-4 mt-3 text-sm">
+                            <div>
+                              <span className="font-medium">KYB Status:</span>{' '}
+                              <span className={
+                                associationAccount.tremendous_kyb_status === 'approved' ? 'text-green-600' :
+                                associationAccount.tremendous_kyb_status === 'pending' ? 'text-orange-600' :
+                                'text-red-600'
+                              }>
+                                {associationAccount.tremendous_kyb_status === 'approved' ? '✓ Approved' :
+                                 associationAccount.tremendous_kyb_status === 'pending' ? '⏳ Pending' :
+                                 '⚠️ ' + (associationAccount.tremendous_kyb_status || 'Unknown')}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="font-medium">Connected:</span>{' '}
+                              <span className="text-purple-600">
+                                {new Date(associationAccount.tremendous_connected_at).toLocaleDateString()}
+                              </span>
+                            </div>
+                          </div>
+                          
+                          <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                            <h5 className="font-semibold text-purple-900 mb-2 text-sm">Transaction Fees</h5>
+                            <div className="space-y-1 text-xs">
+                              <div className="flex justify-between">
+                                <span>Fixed fee per payout:</span>
+                                <span className="font-mono">${(associationAccount.tremendous_transaction_fee || 0.75).toFixed(2)}</span>
+                              </div>
+                              {associationAccount.tremendous_percentage_fee > 0 && (
+                                <div className="flex justify-between">
+                                  <span>Enterprise percentage fee:</span>
+                                  <span className="font-mono">{associationAccount.tremendous_percentage_fee}%</span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="mt-4 p-3 bg-white rounded border border-purple-200">
+                            <h5 className="font-semibold text-purple-900 mb-2 text-sm">Usage Statistics</h5>
+                            <div className="space-y-1 text-xs">
+                              <div className="flex justify-between">
+                                <span>Total payouts:</span>
+                                <span className="font-mono">{associationAccount.total_tremendous_payouts || 0}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Total volume:</span>
+                                <span className="font-mono">${(associationAccount.total_tremendous_volume || 0).toFixed(2)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span>Platform fees collected:</span>
+                                <span className="font-mono">${(associationAccount.total_tremendous_fees_collected || 0).toFixed(2)}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </AlertDescription>
+                    </Alert>
                   ) : (
-                    <Button type="button" onClick={() => setIsEditingFunding(true)}>Edit Funding Details</Button>
+                    <div className="space-y-6">
+                      <Alert className="bg-yellow-50 border-yellow-200">
+                        <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                        <AlertDescription className="text-yellow-800">
+                          <strong>Tremendous Not Connected</strong>
+                          <p className="mt-1 text-sm">Connect Tremendous to enable global payouts with multiple payment options.</p>
+                        </AlertDescription>
+                      </Alert>
+
+                      <div className="p-4 bg-gray-50 rounded-lg">
+                        <h4 className="font-semibold mb-3">Why connect Tremendous?</h4>
+                        <ul className="space-y-2 text-sm text-gray-600">
+                          <li className="flex items-start gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <span><strong>Global reach:</strong> Send payouts to 200+ countries</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <span><strong>Flexible options:</strong> Bank, PayPal, Venmo, prepaid cards, gift cards</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <span><strong>Compliance built-in:</strong> KYB verification and tax reporting handled</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                            <span><strong>Simple pricing:</strong> $0.75 per payout (no hidden fees)</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="flex justify-center">
+                        <Button
+                          size="lg"
+                          onClick={handleConnectTremendous}
+                          disabled={isConnectingTremendous}
+                          className="gap-2 bg-purple-600 hover:bg-purple-700"
+                        >
+                          {isConnectingTremendous ? (
+                            <>
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                              Connecting to Tremendous...
+                            </>
+                          ) : (
+                            <>
+                              <Zap className="h-5 w-5" />
+                              Connect Tremendous Account
+                            </>
+                          )}
+                        </Button>
+                      </div>
+
+                      <p className="text-xs text-center text-gray-500">
+                        You'll be redirected to Tremendous to complete the secure OAuth connection
+                      </p>
+                    </div>
                   )}
-                </div>
-              </form>
+                </>
+              ) : (
+                <p className="text-sm text-gray-500">Loading association details...</p>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
