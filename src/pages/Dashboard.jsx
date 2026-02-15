@@ -812,6 +812,23 @@ export default function Dashboard({ user: currentUser }) {
         </Alert>
       )}
 
+      {/* Tremendous Connection Prompt */}
+      {isAdmin && associationAccount?.stripe_connected && !associationAccount?.tremendous_connected && (
+        <Alert className="border-purple-200 bg-purple-50">
+          <Sparkles className="h-4 w-4 text-purple-600" />
+          <AlertDescription className="text-purple-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <strong>Unlock Global Payouts:</strong> Connect Tremendous to offer members flexible payout options including PayPal, Venmo, prepaid cards, and international transfers.
+              </div>
+              <Button onClick={() => navigate(createPageUrl('Settings'))} variant="outline" size="sm" className="border-purple-300 hover:bg-purple-100">
+                Connect Tremendous
+              </Button>
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Check for overdue payments */}
       {associationAccount && associationAccount.next_billing_date && (
         new Date(associationAccount.next_billing_date) < new Date() &&

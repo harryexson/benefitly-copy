@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { User, Member, EventContribution, Event, Payout, ForumThread, ProposalVote, MemberOnboarding } from '@/entities/all';
+import { User, Member, EventContribution, Event, Payout, ForumThread, ProposalVote, MemberOnboarding, AssociationAccount } from '@/entities/all';
 import MemberOnboardingWizard from '../components/onboarding/MemberOnboardingWizard';
 import MemberPayoutsSection from '../components/member/MemberPayoutsSection';
+import TremendousPayoutGuide from '../components/member/TremendousPayoutGuide';
 import { base44 } from '@/api/base44Client';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -51,6 +52,7 @@ export default function MemberPortal() {
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [associationAccount, setAssociationAccount] = useState(null);
 
   useEffect(() => {
     // Request notification permissions on component mount
@@ -92,15 +94,22 @@ export default function MemberPortal() {
           payoutList,
           threadList,
           voteList,
-          onboardingRecords
+          onboardingRecords,
+          accounts
         ] = await Promise.all([
           EventContribution.filter({ member_id: currentMember.id }, '-created_date'),
           Event.list(),
           Payout.filter({ payee_member_id: currentMember.id }),
           ForumThread.filter({ author_user_id: currentUser.id }, '-created_date', 5),
           ProposalVote.filter({ voter_user_id: currentUser.id }, '-created_date'),
-          MemberOnboarding.filter({ member_id: currentMember.id })
+          MemberOnboarding.filter({ member_id: currentMember.id }),
+          currentUser.association_account_id ? AssociationAccount.list() : Promise.resolve([])
         ]);
+        
+        if (currentUser.association_account_id && accounts) {
+          const userAccount = accounts.find(a => a.id === currentUser.association_account_id);
+          setAssociationAccount(userAccount);
+        }
 
         setContributions(contributionList);
         setEvents(eventList);
@@ -274,6 +283,9 @@ export default function MemberPortal() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Tremendous Payout Guide */}
+      <TremendousPayoutGuide associationAccount={associationAccount} />
 
       {/* Quick Stats */}
       <div className="grid md:grid-cols-3 gap-6">

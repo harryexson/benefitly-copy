@@ -101,6 +101,12 @@ export default function Settings({ user }) {
             await OnboardingProgress.update(currentOnboardingProgress.id, { stripe_connected: true });
             setOnboardingProgress(prev => ({ ...prev, stripe_connected: true })); // Update local state too
           }
+          
+          // Check if Tremendous is connected and update onboarding
+          if (currentAccount?.tremendous_connected && currentOnboardingProgress && !currentOnboardingProgress.tremendous_connected) {
+            await OnboardingProgress.update(currentOnboardingProgress.id, { tremendous_connected: true });
+            setOnboardingProgress(prev => ({ ...prev, tremendous_connected: true }));
+          }
       }
 
       if (savedCollection) setCollectionAccount(savedCollection);

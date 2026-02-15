@@ -22,9 +22,14 @@ const OnboardingStep = ({ step, isCompleted, onClick }) => {
         <Circle className="h-5 w-5 text-gray-300 flex-shrink-0 mt-0.5" />
       )}
       <div className="flex-1">
-        <p className={cn("font-medium text-sm", isCompleted && "line-through text-gray-500")}>
-          {step.title}
-        </p>
+        <div className="flex items-center gap-2">
+          <p className={cn("font-medium text-sm", isCompleted && "line-through text-gray-500")}>
+            {step.title}
+          </p>
+          {step.optional && !isCompleted && (
+            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded">Optional</span>
+          )}
+        </div>
         {!isCompleted && (
           <p className="text-xs text-gray-500 mt-1">{step.description}</p>
         )}
@@ -50,6 +55,14 @@ export default function OnboardingChecklist({ progress, onDismiss, onNavigate })
       description: 'Set up payment processing to collect contributions',
       action: () => onNavigate('Settings'),
       completed: progress?.stripe_connected
+    },
+    {
+      id: 'tremendous_connected',
+      title: 'Connect Tremendous for Global Payouts',
+      description: 'Enable flexible payout options (bank, PayPal, Venmo, cards)',
+      action: () => onNavigate('Settings'),
+      completed: progress?.tremendous_connected,
+      optional: true
     },
     {
       id: 'first_member_added',
