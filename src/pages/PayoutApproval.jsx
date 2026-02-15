@@ -36,6 +36,8 @@ export default function PayoutApproval({ user }) {
   const [rejectionReason, setRejectionReason] = useState('');
   const [approveDialog, setApproveDialog] = useState({ open: false, payout: null });
   const [selectedPayoutSpeed, setSelectedPayoutSpeed] = useState('standard');
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('ACH');
+  const [selectedDeliveryMethod, setSelectedDeliveryMethod] = useState('EMAIL');
 
   useEffect(() => {
     loadPendingPayouts();
@@ -94,6 +96,8 @@ export default function PayoutApproval({ user }) {
   const handleApproveClick = (payout) => {
     setApproveDialog({ open: true, payout });
     setSelectedPayoutSpeed('standard');
+    setSelectedPaymentMethod('ACH');
+    setSelectedDeliveryMethod('EMAIL');
   };
 
   const handleApprove = async () => {
@@ -114,10 +118,12 @@ export default function PayoutApproval({ user }) {
         net_amount: netAmount
       });
 
-      // Call the backend function to process the payout
-      const response = await base44.functions.invoke('processPayoutToMember', {
+      // Call the orchestrator to route to correct provider
+      const response = await base44.functions.invoke('orchestratePayoutToMember', {
         payout_id: payout.id,
-        payout_method: selectedPayoutSpeed
+        payout_method: selectedPayoutSpeed,
+        payment_method: selectedPaymentMethod,
+        delivery_method: selectedDeliveryMethod
       });
 
       if (response.data.success) {
@@ -372,41 +378,87 @@ export default function PayoutApproval({ user }) {
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="payout_speed">Payout Speed</Label>
-                <Select value={selectedPayoutSpeed} onValueChange={setSelectedPayoutSpeed}>
-                  <SelectTrigger id="payout_speed">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="standard">
-                      <div className="flex items-center gap-2">
-                        <Landmark className="h-4 w-4" />
-                        <div>
-                          <p className="font-medium">Standard (Free)</p>
-                          <p className="text-xs text-gray-500">1-2 business days</p>
+              {associationAccount?.payout_provider === 'tremendous' || associationAccount?.payout_provider === 'both' ? (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="payment_method">Payment Method</Label>
+                    <Select value={selectedPaymentMethod} onValueChange={setSelectedPaymentMethod}>
+                      <SelectTrigger id="payment_method">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="ACH">ACH Bank Transfer</SelectItem>
+                        <SelectItem value="PAYPAL">PayPal</SelectItem>
+                        <SelectItem value="VENMO">Venmo</SelectItem>
+                        <SelectItem value="PREPAID_VISA">Prepaid Visa Card</SelectItem>
+                        <SelectItem value="GIFT_CARD">Gift Card</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="delivery_method">Delivery Method</Label>
+                    <Select value={selectedDeliveryMethod} onValueChange={setSelectedDeliveryMethod}>
+                      <SelectTrigger id="delivery_method">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="EMAIL">Email</SelectItem>
+                        <SelectItem value="LINK">Direct Link</SelectItem>
+                        <SelectItem value="PHONE">SMS/Phone</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-2">
+                  <Label htmlFor="payout_speed">Payout Speed</Label>
+                  <Select value={selectedPayoutSpeed} onValueChange={setSelectedPayoutSpeed}>
+                    <SelectTrigger id="payout_speed">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="standard">
+                        <div className="flex items-center gap-2">
+                          <Landmark className="h-4 w-4" />
+                          <div>
+                            <p className="font-medium">Standard (Free)</p>
+                            <p className="text-xs text-gray-500">1-2 business days</p>
+                          </div>
                         </div>
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="instant">
-                      <div className="flex items-center gap-2">
-                        <Zap className="h-4 w-4" />
-                        <div>
-                          <p className="font-medium">Instant</p>
-                          <p className="text-xs text-gray-500">Within 30 minutes</p>
+                      </SelectItem>
+                      <SelectItem value="instant">
+                        <div className="flex items-center gap-2">
+                          <Zap className="h-4 w-4" />
+                          <div>
+                            <p className="font-medium">Instant</p>
+                            <p className="text-xs text-gray-500">Within 30 minutes</p>
+                          </div>
                         </div>
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
 
               {/* Fee Breakdown */}
               {(() => {
-                const { feeAmount, feePercentage, netAmount } = calculateFee(
-                  approveDialog.payout.amount,
-                  selectedPayoutSpeed
-                );
+                // Calculate fees based on provider
+                let feeAmount, netAmount, feeDescription;
+                
+                if (associationAccount?.payout_provider === 'tremendous' || associationAccount?.payout_provider === 'both') {
+                  const fixedFee = associationAccount.tremendous_transaction_fee || 0.75;
+                  const percentageFee = associationAccount.tremendous_percentage_fee || 0;
+                  const percentageFeeAmount = (approveDialog.payout.amount * percentageFee) / 100;
+                  feeAmount = fixedFee + percentageFeeAmount;
+                  netAmount = approveDialog.payout.amount - feeAmount;
+                  feeDescription = `$${fixedFee.toFixed(2)} fixed${percentageFee > 0 ? ` + ${percentageFee}%` : ''}`;
+                } else {
+                  const result = calculateFee(approveDialog.payout.amount, selectedPayoutSpeed);
+                  feeAmount = result.feeAmount;
+                  netAmount = result.netAmount;
+                  feeDescription = `${result.feePercentage}%`;
+                }
 
                 return (
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
@@ -421,7 +473,7 @@ export default function PayoutApproval({ user }) {
                       </div>
                       <div className="flex justify-between">
                         <span className="text-gray-700">
-                          Fee ({feePercentage}%):
+                          Fee ({feeDescription}):
                         </span>
                         <span className="font-semibold text-red-600">
                           -${feeAmount.toFixed(2)}
@@ -434,11 +486,6 @@ export default function PayoutApproval({ user }) {
                         </span>
                       </div>
                     </div>
-                    {selectedPayoutSpeed === 'instant' && (
-                      <p className="text-xs text-blue-700 mt-2">
-                        Instant payout fee: {feePercentage}% (max ${associationAccount?.instant_payout_fee_cap?.toFixed(2) || '10.00'})
-                      </p>
-                    )}
                   </div>
                 );
               })()}

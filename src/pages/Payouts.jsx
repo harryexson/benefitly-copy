@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Payout, Event, Member } from '@/entities/all';
+import { Payout, Event, Member, AssociationAccount } from '@/entities/all';
 import { User } from '@/entities/User';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -83,7 +83,7 @@ export default function Payouts() {
       try {
         // Get the payout to check its configured speed
         const payout = payouts.find(p => p.id === payoutId);
-        const response = await base44.functions.invoke('processPayoutToMember', {
+        const response = await base44.functions.invoke('orchestratePayoutToMember', {
           payout_id: payoutId,
           // Use payout's configured speed if available
           payout_method: payout?.payout_speed || 'standard',
@@ -133,7 +133,7 @@ export default function Payouts() {
 
       // Attempt to process the payout again
       const payout = payouts.find(p => p.id === payoutId);
-      const response = await base44.functions.invoke('processPayoutToMember', {
+      const response = await base44.functions.invoke('orchestratePayoutToMember', {
         payout_id: payoutId,
         // Use payout's configured speed if available
         payout_method: payout?.payout_speed || 'standard',
@@ -195,9 +195,20 @@ export default function Payouts() {
 
     setIsBulkProcessing(true);
     try {
-      const response = await base44.functions.invoke('bulkProcessPayouts', {
+      // Check association's payout provider and call appropriate bulk function
+      const user = await User.me();
+      const accounts = await AssociationAccount.list();
+      const assocAccount = accounts.find(a => a.id === user.association_account_id);
+      
+      const functionName = (assocAccount?.payout_provider === 'tremendous' || assocAccount?.payout_provider === 'both')
+        ? 'bulkProcessTremendousPayouts'
+        : 'bulkProcessPayouts';
+      
+      const response = await base44.functions.invoke(functionName, {
         payout_ids: selectedPayouts,
-        payout_method: 'standard', // Can be made configurable
+        payout_method: 'standard',
+        payment_method: 'ACH',
+        delivery_method: 'EMAIL'
       });
 
       if (response.data.success) {
