@@ -64,6 +64,12 @@ export default function Settings({ user }) {
       setIsLoading(true);
       
       let currentOnboardingProgress = null;
+      
+      // Handle URL params for Tremendous OAuth callback
+      const urlParams = new URLSearchParams(window.location.search);
+      const tremendousConnected = urlParams.get('tremendous_connected') === 'true';
+      const tremendousError = urlParams.get('tremendous_error');
+      
       // Load onboarding progress
       if (user?.association_account_id) {
         const progressRecords = await OnboardingProgress.filter({ 
@@ -112,6 +118,19 @@ export default function Settings({ user }) {
       if (savedCollection) setCollectionAccount(savedCollection);
       if (savedFunding) setFundingAccount(savedFunding);
       if (savedPayment) setPaymentSettings(savedPayment);
+      
+      // Handle Tremendous OAuth callback notifications
+      if (tremendousConnected) {
+        toast.success('Tremendous account connected successfully!');
+        if (currentOnboardingProgress && !currentOnboardingProgress.tremendous_connected) {
+          await OnboardingProgress.update(currentOnboardingProgress.id, { tremendous_connected: true });
+          setOnboardingProgress(prev => ({ ...prev, tremendous_connected: true }));
+        }
+        window.history.replaceState({}, '', window.location.pathname);
+      } else if (tremendousError) {
+        toast.error(`Tremendous connection failed: ${tremendousError}`);
+        window.history.replaceState({}, '', window.location.pathname);
+      }
       
       setIsLoading(false);
     };

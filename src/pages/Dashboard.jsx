@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Member, Event, EventContribution, Payout, AssociationAccount, OnboardingProgress } from '@/entities/all';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, DollarSign, ArrowRight, CreditCard, Ban, Sparkles, TrendingUp, TrendingDown, AlertTriangle, Calendar } from 'lucide-react';
+import { Users, DollarSign, ArrowRight, CreditCard, Ban, Sparkles, TrendingUp, TrendingDown, AlertTriangle, Calendar, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useNavigate, Link } from 'react-router-dom';
@@ -762,6 +762,7 @@ export default function Dashboard({ user: currentUser }) {
   const isAdmin = currentUser?.association_role === 'Administrator';
   const stripeNotConnected = associationAccount && !associationAccount.stripe_account_id;
   const stripeNotVerified = associationAccount && associationAccount.stripe_account_id && !associationAccount.stripe_charges_enabled;
+  const tremendousNotConnected = associationAccount && !associationAccount.tremendous_connected;
 
   return (
     <div className="space-y-8">
@@ -807,6 +808,23 @@ export default function Dashboard({ user: currentUser }) {
                   Check Status
                 </Button>
               )}
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Tremendous Connection Prompt */}
+      {isAdmin && associationAccount?.stripe_account_id && tremendousNotConnected && (
+        <Alert className="border-purple-200 bg-purple-50">
+          <Zap className="h-4 w-4 text-purple-600" />
+          <AlertDescription className="text-purple-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <strong>🌍 Unlock Global Payouts:</strong> Connect Tremendous to offer members flexible payout options including PayPal, Venmo, prepaid cards, and international transfers.
+              </div>
+              <Button onClick={() => navigate(createPageUrl('Settings'))} variant="outline" size="sm" className="border-purple-300 hover:bg-purple-100">
+                Connect Tremendous
+              </Button>
             </div>
           </AlertDescription>
         </Alert>
