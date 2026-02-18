@@ -374,15 +374,17 @@ export default function LandingPage() {
           <div className="mt-12">
             <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-gray-700">
               <CardContent className="p-8">
-                <div className="grid md:grid-cols-3 gap-8 items-center">
-                  <div className="text-center">
-                    <Badge className="mb-3 bg-blue-900 text-white">Enterprise</Badge>
-                    <h3 className="text-3xl font-bold text-white mb-2">Custom Pricing</h3>
-                    <p className="text-gray-300">Tailored for your needs</p>
-                    <p className="text-gray-400 text-sm mt-2">Over 1,000 members</p>
-                  </div>
-                  
-                  <div className="md:col-span-1">
+                {/* Centered Header */}
+                <div className="text-center mb-8">
+                  <Badge className="mb-3 bg-blue-900 text-white">Enterprise</Badge>
+                  <h3 className="text-3xl font-bold text-white mb-2">Custom Pricing</h3>
+                  <p className="text-gray-300">Tailored for your needs</p>
+                  <p className="text-gray-400 text-sm mt-2">Over 1,000 members</p>
+                </div>
+                
+                {/* Features and CTA */}
+                <div className="grid md:grid-cols-2 gap-8 items-center">
+                  <div>
                     <ul className="space-y-2 text-sm">
                       <li className="flex items-center text-gray-200">
                         <Check className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
