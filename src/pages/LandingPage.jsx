@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Check, Star, Users, CreditCard, Phone, TrendingDown, Shield, Zap } from 'lucide-react';
+import { Check, Star, Users, CreditCard, Phone, TrendingDown, Shield, Zap, Lock, FileText, AlertTriangle, Globe, CheckCircle, XCircle, Building2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import AssociationSignupForm from '../components/public/AssociationSignupForm';
 import { toast } from 'sonner';
@@ -210,36 +210,50 @@ export default function LandingPage() {
 
       {/* Hero Section */}
       <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <Badge className="mb-4 bg-green-100 text-green-800 border-green-300">
-            <TrendingDown className="w-3 h-3 mr-1" />
-            50-90% cheaper than competitors
+        <div className="max-w-5xl mx-auto text-center">
+          <Badge className="mb-6 bg-blue-600 text-white px-4 py-2 text-sm">
+            <Shield className="w-4 h-4 mr-2" />
+            Enterprise-Grade Benefits Management Platform
           </Badge>
-          <h2 className="text-5xl font-bold text-gray-900 mb-6">
-            The Only Platform Built for Mutual Aid Associations
+          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+            Secure Benefits & Entitlement Management Platform for Mutual Benefit Associations
           </h2>
-          <p className="text-xl text-gray-600 mb-8 leading-relaxed">
-            Stop overpaying for generic software. Benefitly is purpose-built for the contribution→event→payout 
-            workflow your association needs. From $35/month.
+          <p className="text-xl md:text-2xl text-gray-600 mb-4 leading-relaxed max-w-4xl mx-auto">
+            Benefitly is a secure, enterprise-grade SaaS platform that enables mutual benefit associations, membership organizations, and structured groups to manage, distribute, and track member benefits and entitlements in a compliant and transparent manner.
           </p>
-          <div className="flex flex-wrap justify-center gap-6 text-sm text-gray-500 mb-12">
-            <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm">
-              <Shield className="h-5 w-5 text-blue-500 mr-2" />
-              Secure Member Management
+          <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 max-w-3xl mx-auto mb-8">
+            <p className="text-yellow-900 font-semibold text-lg">
+              ⚠️ We provide administrative technology — not financial services.
+            </p>
+            <p className="text-yellow-800 text-sm mt-2">
+              Benefitly does not operate as a payment processor, remittance service, wallet, gig marketplace, or financial institution.
+            </p>
+          </div>
+          <div className="flex flex-wrap justify-center gap-4 text-sm mb-12">
+            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
+              <Shield className="h-5 w-5 text-blue-600 mr-2" />
+              <span className="font-medium">Compliance-First Infrastructure</span>
             </div>
-            <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm">
-              <Zap className="h-5 w-5 text-yellow-500 mr-2" />
-              Automated Contributions
+            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
+              <Lock className="h-5 w-5 text-green-600 mr-2" />
+              <span className="font-medium">Bank-Level Security</span>
             </div>
-            <div className="flex items-center bg-white px-4 py-2 rounded-full shadow-sm">
-              <CreditCard className="h-5 w-5 text-green-500 mr-2" />
-              Integrated Bank Payouts
+            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
+              <FileText className="h-5 w-5 text-purple-600 mr-2" />
+              <span className="font-medium">Audit-Ready Reporting</span>
+            </div>
+            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
+              <Globe className="h-5 w-5 text-orange-600 mr-2" />
+              <span className="font-medium">Global Payout Support</span>
             </div>
           </div>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 max-w-2xl mx-auto">
-            <p className="text-blue-800 font-medium">
-              🎯 <strong>Unique Feature:</strong> We're the ONLY platform with integrated benefit payouts directly to member bank accounts.
-            </p>
+          <div className="flex gap-4 justify-center">
+            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8" onClick={() => handleSelectPlan(publicTiers[1])}>
+              Start Free Trial
+            </Button>
+            <Button size="lg" variant="outline" className="text-lg px-8">
+              View Compliance Overview
+            </Button>
           </div>
         </div>
       </section>
@@ -367,13 +381,304 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* What We Do Section */}
+      <section className="py-20 px-6 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-4" variant="outline">What We Do</Badge>
+            <h3 className="text-4xl font-bold text-gray-900 mb-6">
+              Administrative Technology for Benefits Management
+            </h3>
+            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+              Benefitly is a multi-tenant SaaS platform that allows verified mutual benefit associations to manage and track member benefits through structured workflows.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 mb-12">
+            <Card className="border-green-200 bg-green-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-green-900">
+                  <CheckCircle className="h-6 w-6" />
+                  What Benefitly Does
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Manage member benefits and entitlements</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Automate benefit allocation workflows</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Maintain structured approval processes</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Track benefit disbursement records</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Maintain audit-ready reporting</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-red-200 bg-red-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-red-900">
+                  <XCircle className="h-6 w-6" />
+                  What Benefitly Does NOT Do
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-gray-700">
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Hold consumer deposits</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Store end-user funds</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Facilitate peer-to-peer transfers</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Operate wallets</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Provide lending, credit, or financial tools</span>
+                  </li>
+                </ul>
+                <div className="mt-4 p-3 bg-white rounded border border-red-200">
+                  <p className="text-sm font-semibold text-red-900">
+                    All financial transactions are processed through regulated third-party providers.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Industries We Serve */}
+      <section className="py-20 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+              Industries We Serve
+            </h3>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
+              Benefitly exclusively serves structured, verified organizations
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card className="border-blue-200 bg-blue-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-blue-900">
+                  <CheckCircle className="h-6 w-6" />
+                  Who We Serve
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-center gap-2">
+                    <Check className="h-5 w-5 text-blue-600" />
+                    Mutual Benefit Associations
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-5 w-5 text-blue-600" />
+                    Member-based Organizations
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-5 w-5 text-blue-600" />
+                    Structured Associations
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-5 w-5 text-blue-600" />
+                    Faith-based Membership Communities
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="h-5 w-5 text-blue-600" />
+                    Professional Associations
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="border-red-200 bg-red-50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-red-900">
+                  <XCircle className="h-6 w-6" />
+                  Prohibited Industries
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-center gap-2">
+                    <XCircle className="h-5 w-5 text-red-600" />
+                    Cryptocurrency businesses
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <XCircle className="h-5 w-5 text-red-600" />
+                    Gambling platforms
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <XCircle className="h-5 w-5 text-red-600" />
+                    Adult content providers
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <XCircle className="h-5 w-5 text-red-600" />
+                    Sweepstakes operators
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <XCircle className="h-5 w-5 text-red-600" />
+                    High-risk financial services
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <XCircle className="h-5 w-5 text-red-600" />
+                    Remittance or money transfer businesses
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Compliance Commitment Section */}
+      <section className="py-20 px-6 bg-gradient-to-br from-blue-900 to-indigo-900 text-white">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <Badge className="mb-4 bg-white text-blue-900">Our Compliance Commitment</Badge>
+            <h3 className="text-4xl font-bold mb-6">
+              Built for Regulatory Alignment
+            </h3>
+            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+              Benefitly maintains strong compliance standards aligned with U.S. regulatory expectations
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <Card className="bg-white/10 backdrop-blur border-white/20">
+              <CardHeader>
+                <div className="bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <Building2 className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle className="text-white text-xl">1. Business Verification</CardTitle>
+              </CardHeader>
+              <CardContent className="text-blue-100 space-y-2 text-sm">
+                <p>We conduct verification and due diligence on all tenant organizations before activation:</p>
+                <ul className="space-y-1 ml-4">
+                  <li>• Legal entity verification</li>
+                  <li>• EIN confirmation</li>
+                  <li>• Organizational documentation review</li>
+                  <li>• Review of intended platform use</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/10 backdrop-blur border-white/20">
+              <CardHeader>
+                <div className="bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle className="text-white text-xl">2. AML & Fraud Prevention</CardTitle>
+              </CardHeader>
+              <CardContent className="text-blue-100 space-y-2 text-sm">
+                <p>Internal controls appropriate for a SaaS infrastructure provider:</p>
+                <ul className="space-y-1 ml-4">
+                  <li>• Tenant onboarding screening</li>
+                  <li>• Prohibited industry filtering</li>
+                  <li>• Transaction monitoring via partners</li>
+                  <li>• Risk-based review processes</li>
+                  <li>• Suspicious activity escalation</li>
+                  <li>• Immediate policy violation suspension</li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card className="bg-white/10 backdrop-blur border-white/20">
+              <CardHeader>
+                <div className="bg-white/20 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
+                  <Lock className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle className="text-white text-xl">3. No Custody of Funds</CardTitle>
+              </CardHeader>
+              <CardContent className="text-blue-100 space-y-2 text-sm">
+                <p className="font-semibold mb-2">Benefitly does NOT:</p>
+                <ul className="space-y-1 ml-4">
+                  <li>• Hold customer funds</li>
+                  <li>• Pool funds</li>
+                  <li>• Maintain stored-value accounts</li>
+                  <li>• Operate as a wallet</li>
+                </ul>
+                <p className="pt-2 border-t border-white/20 mt-4 font-medium">
+                  Funds originate from verified organizations and are processed through third-party regulated payment providers.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Risk Statement Section */}
+      <section className="py-16 px-6 bg-gradient-to-r from-gray-900 to-gray-800">
+        <div className="max-w-5xl mx-auto">
+          <div className="bg-yellow-900/20 border-2 border-yellow-500/50 rounded-xl p-8">
+            <div className="flex items-start gap-4">
+              <AlertTriangle className="h-8 w-8 text-yellow-400 flex-shrink-0" />
+              <div className="text-white">
+                <h4 className="text-2xl font-bold mb-4">Risk & Regulatory Statement</h4>
+                <p className="text-lg text-gray-200 mb-4">
+                  <strong>Benefitly operates exclusively as a software service provider.</strong>
+                </p>
+                <div className="grid md:grid-cols-2 gap-6 text-sm text-gray-300">
+                  <div>
+                    <p className="font-semibold text-white mb-2">We are NOT:</p>
+                    <ul className="space-y-1">
+                      <li>• A payment processor</li>
+                      <li>• A remittance provider</li>
+                      <li>• A money transmitter</li>
+                      <li>• A financial institution</li>
+                      <li>• A bank</li>
+                      <li>• A gig marketplace</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-semibold text-white mb-2">We provide:</p>
+                    <ul className="space-y-1">
+                      <li>• Administrative benefit management tools only</li>
+                      <li>• Internal risk controls and compliance oversight</li>
+                      <li>• Responsible platform usage monitoring</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features Section */}
       <section className="py-20 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h3 className="text-3xl font-bold text-gray-900 mb-4">
-              Everything You Need to Run Your Association
+              Enterprise-Grade Platform Features
             </h3>
+            <p className="text-lg text-gray-600">
+              Built for compliance-forward organizations
+            </p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-8">
@@ -381,30 +686,209 @@ export default function LandingPage() {
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Users className="h-8 w-8 text-blue-600" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 mb-2">Member Management</h4>
+              <h4 className="text-xl font-semibold text-gray-900 mb-2">Secure Member Management</h4>
               <p className="text-gray-600">
-                Easily manage member profiles, track contributions, and handle membership status changes.
+                Role-based access controls, encrypted data storage, and audit-ready member tracking.
               </p>
             </div>
             
             <div className="text-center">
               <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <CreditCard className="h-8 w-8 text-green-600" />
+                <FileText className="h-8 w-8 text-green-600" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 mb-2">Automated Collections</h4>
+              <h4 className="text-xl font-semibold text-gray-900 mb-2">Transparent Documentation</h4>
               <p className="text-gray-600">
-                Streamline contribution collection with automated reminders and payment tracking.
+                Complete audit trails, transaction records, and compliance-ready reporting infrastructure.
               </p>
             </div>
             
             <div className="text-center">
               <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Phone className="h-8 w-8 text-purple-600" />
+                <Globe className="h-8 w-8 text-purple-600" />
               </div>
-              <h4 className="text-xl font-semibold text-gray-900 mb-2">24/7 Support</h4>
+              <h4 className="text-xl font-semibold text-gray-900 mb-2">Third-Party Payment Integration</h4>
               <p className="text-gray-600">
-                Get help when you need it with our dedicated customer support team.
+                Secure integrations with regulated payment providers (Stripe, Tremendous) for compliant disbursements.
               </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Acceptable Use Policy Section */}
+      <section className="py-20 px-6 bg-white border-t-4 border-red-600">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <Badge className="mb-4 bg-red-600 text-white">Acceptable Use Policy</Badge>
+            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+              Platform Usage Restrictions
+            </h3>
+          </div>
+
+          <Card className="border-2 border-red-200">
+            <CardHeader className="bg-red-50">
+              <CardTitle className="text-red-900">Benefitly Strictly Prohibits Use For:</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-6">
+              <div className="grid md:grid-cols-2 gap-6 text-gray-700">
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Cryptocurrency transactions</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Gambling or betting services</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Adult content distribution</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Sweepstakes or prize schemes</span>
+                  </li>
+                </ul>
+                <ul className="space-y-2">
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>High-risk financial instruments</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Money transmission or remittance services</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <span>Unlicensed financial activity</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="mt-6 p-4 bg-red-50 rounded-lg border border-red-200">
+                <p className="text-red-900 font-bold text-center">
+                  ⚠️ Violation of this policy results in immediate suspension and termination.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
+
+      {/* Privacy & Security Section */}
+      <section className="py-20 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-16">
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+              Privacy & Data Security
+            </h3>
+            <p className="text-lg text-gray-600">
+              Your data is protected with industry-leading security practices
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Lock className="h-5 w-5 text-blue-600" />
+                  Privacy Commitment
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ul className="space-y-3 text-gray-700 text-sm">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Collect only necessary administrative information</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Do not sell user data</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Encrypt data in transit and at rest</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Use role-based access controls</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Maintain secure cloud infrastructure</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span>Provide data deletion upon request</span>
+                  </li>
+                </ul>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5 text-purple-600" />
+                  Terms of Service
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 mb-4 text-sm">
+                  By using Benefitly, organizations agree that:
+                </p>
+                <ul className="space-y-3 text-gray-700 text-sm">
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span>They are legally registered entities</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span>They will not use the platform for restricted activities</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span>All benefit distributions are legitimate and lawful</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <Check className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <span>They will comply with applicable regulations</span>
+                  </li>
+                </ul>
+                <p className="text-xs text-gray-500 mt-4 pt-4 border-t">
+                  Benefitly reserves the right to suspend accounts that violate compliance policies.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Enterprise Positioning Section */}
+      <section className="py-20 px-6 bg-gradient-to-br from-indigo-50 to-purple-50">
+        <div className="max-w-5xl mx-auto text-center">
+          <Badge className="mb-6 bg-indigo-600 text-white px-4 py-2">Enterprise Ready</Badge>
+          <h3 className="text-4xl font-bold text-gray-900 mb-6">
+            Built for Compliance-Forward Organizations
+          </h3>
+          <p className="text-lg text-gray-700 mb-12 max-w-3xl mx-auto">
+            Benefitly is designed for structured associations that require transparent benefit administration, audit-ready documentation, secure entitlement tracking, and compliant third-party payment integrations.
+          </p>
+
+          <div className="grid md:grid-cols-4 gap-6 text-center">
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <Shield className="h-10 w-10 text-blue-600 mx-auto mb-3" />
+              <p className="font-semibold text-gray-900">Regulatory Alignment</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <Lock className="h-10 w-10 text-green-600 mx-auto mb-3" />
+              <p className="font-semibold text-gray-900">Partner Compliance</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <FileText className="h-10 w-10 text-purple-600 mx-auto mb-3" />
+              <p className="font-semibold text-gray-900">Risk Mitigation</p>
+            </div>
+            <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+              <CheckCircle className="h-10 w-10 text-orange-600 mx-auto mb-3" />
+              <p className="font-semibold text-gray-900">Best Practices</p>
             </div>
           </div>
         </div>
@@ -414,16 +898,79 @@ export default function LandingPage() {
       <section className="py-20 px-6 bg-blue-900 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-3xl font-bold mb-4">
-            Ready to Transform Your Association?
+            Ready to Get Started?
           </h3>
           <p className="text-xl mb-8 text-blue-100">
-            Join hundreds of associations already using Benefitly to better serve their members.
+            Join verified mutual benefit associations using Benefitly's compliant administrative platform.
           </p>
-          <Button size="lg" variant="secondary" className="text-blue-900" onClick={() => handleSelectPlan(publicTiers[1])}>
-            Start Your Free Trial Today
-          </Button>
+          <div className="flex gap-4 justify-center">
+            <Button size="lg" variant="secondary" className="text-blue-900 text-lg px-8" onClick={() => handleSelectPlan(publicTiers[1])}>
+              Start Free Trial
+            </Button>
+            <Button size="lg" variant="outline" className="border-white text-white hover:bg-white/10 text-lg px-8">
+              Contact Sales
+            </Button>
+          </div>
+          <p className="text-sm text-blue-200 mt-6">
+            14-day free trial • No credit card required • Full platform access
+          </p>
         </div>
       </section>
+
+      {/* Footer - Legal Links */}
+      <footer className="py-12 px-6 bg-gray-900 text-gray-400">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            <div>
+              <h5 className="text-white font-semibold mb-4">Product</h5>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Features</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Pricing</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Security</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Integrations</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-white font-semibold mb-4">Compliance</h5>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Acceptable Use Policy</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">AML & Compliance</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-white font-semibold mb-4">Resources</h5>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">Documentation</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">API Reference</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Support Center</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
+              </ul>
+            </div>
+            <div>
+              <h5 className="text-white font-semibold mb-4">Company</h5>
+              <ul className="space-y-2 text-sm">
+                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
+                <li><a href="#" className="hover:text-white transition-colors">Press Kit</a></li>
+              </ul>
+            </div>
+          </div>
+          
+          <div className="border-t border-gray-800 pt-8">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm">
+                © 2026 Benefitly. All rights reserved.
+              </p>
+              <p className="text-xs text-gray-500 max-w-2xl text-center">
+                Benefitly is a SaaS administrative platform only. We do not transmit money, hold funds, or operate as a financial institution. All payment processing is handled by regulated third-party providers.
+              </p>
+            </div>
+          </div>
+        </div>
+      </footer>
 
       {/* Signup Modal - This is now triggered from the Dashboard */}
       <Dialog open={isSignupOpen} onOpenChange={setIsSignupOpen}>
