@@ -186,32 +186,32 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-600 p-2 rounded-lg">
+              <div className="bg-blue-900 p-2 rounded-lg">
                 <Users className="h-8 w-8 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Benefitly</h1>
-                <p className="text-sm text-gray-500">Mutual Aid Association Platform</p>
+                <p className="text-sm text-gray-600">Benefits Management Platform</p>
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <Button variant="ghost" onClick={handleSignIn}>Sign In</Button>
-              <Button>Contact Sales</Button>
+              <Button variant="ghost" onClick={handleSignIn} className="text-gray-700 hover:text-gray-900">Sign In</Button>
+              <Button className="bg-blue-900 hover:bg-blue-800">Contact Sales</Button>
             </div>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-12 px-6">
+      <section className="py-12 px-6 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-5xl mx-auto text-center">
-          <Badge className="mb-6 bg-blue-600 text-white px-4 py-2 text-sm">
+          <Badge className="mb-6 bg-blue-900 text-white px-4 py-2 text-sm">
             <Shield className="w-4 h-4 mr-2" />
             Enterprise-Grade Benefits Management Platform
           </Badge>
@@ -230,28 +230,28 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="flex flex-wrap justify-center gap-4 text-sm mb-12">
-            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
-              <Shield className="h-5 w-5 text-blue-600 mr-2" />
-              <span className="font-medium">Compliance-First Infrastructure</span>
+            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-sm border border-gray-200">
+              <Shield className="h-5 w-5 text-blue-900 mr-2" />
+              <span className="font-medium text-gray-700">Compliance-First Infrastructure</span>
             </div>
-            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
-              <Lock className="h-5 w-5 text-green-600 mr-2" />
-              <span className="font-medium">Bank-Level Security</span>
+            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-sm border border-gray-200">
+              <Lock className="h-5 w-5 text-blue-900 mr-2" />
+              <span className="font-medium text-gray-700">Bank-Level Security</span>
             </div>
-            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
-              <FileText className="h-5 w-5 text-purple-600 mr-2" />
-              <span className="font-medium">Audit-Ready Reporting</span>
+            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-sm border border-gray-200">
+              <FileText className="h-5 w-5 text-blue-900 mr-2" />
+              <span className="font-medium text-gray-700">Audit-Ready Reporting</span>
             </div>
-            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-md border border-gray-200">
-              <Globe className="h-5 w-5 text-orange-600 mr-2" />
-              <span className="font-medium">Global Payout Support</span>
+            <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-sm border border-gray-200">
+              <Globe className="h-5 w-5 text-blue-900 mr-2" />
+              <span className="font-medium text-gray-700">Global Payout Support</span>
             </div>
           </div>
           <div className="flex gap-4 justify-center">
-            <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-lg px-8" onClick={() => handleSelectPlan(publicTiers[1])}>
+            <Button size="lg" className="bg-blue-900 hover:bg-blue-800 text-lg px-8" onClick={() => handleSelectPlan(publicTiers[1])}>
               Start Free Trial
             </Button>
-            <Button size="lg" variant="outline" className="text-lg px-8">
+            <Button size="lg" variant="outline" className="text-lg px-8 border-gray-300 text-gray-700 hover:bg-gray-50">
               View Compliance Overview
             </Button>
           </div>
@@ -289,12 +289,13 @@ export default function LandingPage() {
             {publicTiers.map((tier, index) => {
               const pricing = getPriceDisplay(tier);
               const isPopular = tier.id === 'starter'; // Set 'Starter' as popular - best entry point
+              const isEnterprise = tier.id === 'enterprise';
               
               return (
-                <Card key={tier.id} className={`relative flex flex-col ${isPopular ? 'ring-2 ring-blue-500 shadow-lg scale-105' : 'hover:shadow-lg'} transition-all`}>
+                <Card key={tier.id} className={`relative flex flex-col ${isPopular ? 'ring-2 ring-blue-900 shadow-lg scale-105' : isEnterprise ? 'bg-gray-50 border-gray-300' : 'hover:shadow-lg'} transition-all`}>
                   {isPopular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                      <Badge className="bg-blue-500 text-white px-4 py-1">
+                      <Badge className="bg-blue-900 text-white px-4 py-1">
                         <Star className="w-3 h-3 mr-1" />
                         Most Popular
                       </Badge>
@@ -350,12 +351,12 @@ export default function LandingPage() {
                     
                     <div className="mt-auto">
                       {tier.is_custom ? (
-                        <Button className="w-full bg-gray-800 hover:bg-gray-900" size="lg">
+                        <Button className="w-full bg-gray-700 hover:bg-gray-800 text-white" size="lg" variant="outline">
                           Contact Sales
                         </Button>
                       ) : (
                         <Button 
-                          className={`w-full ${isPopular ? 'bg-blue-600 hover:bg-blue-700' : ''}`}
+                          className={`w-full ${isPopular ? 'bg-blue-900 hover:bg-blue-800' : ''}`}
                           variant={isPopular ? 'default' : 'outline'}
                           size="lg"
                           onClick={() => handleSelectPlan(tier)}
@@ -395,9 +396,9 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 gap-8 mb-12">
-            <Card className="border-green-200 bg-green-50">
+            <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-green-900">
+                <CardTitle className="flex items-center gap-2 text-blue-900">
                   <CheckCircle className="h-6 w-6" />
                   What Benefitly Does
                 </CardTitle>
@@ -405,23 +406,23 @@ export default function LandingPage() {
               <CardContent>
                 <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-blue-900 flex-shrink-0 mt-0.5" />
                     <span>Manage member benefits and entitlements</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-blue-900 flex-shrink-0 mt-0.5" />
                     <span>Automate benefit allocation workflows</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-blue-900 flex-shrink-0 mt-0.5" />
                     <span>Maintain structured approval processes</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-blue-900 flex-shrink-0 mt-0.5" />
                     <span>Track benefit disbursement records</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <Check className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                    <Check className="h-5 w-5 text-blue-900 flex-shrink-0 mt-0.5" />
                     <span>Maintain audit-ready reporting</span>
                   </li>
                 </ul>
@@ -684,7 +685,7 @@ export default function LandingPage() {
           <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Users className="h-8 w-8 text-blue-600" />
+                <Users className="h-8 w-8 text-blue-900" />
               </div>
               <h4 className="text-xl font-semibold text-gray-900 mb-2">Secure Member Management</h4>
               <p className="text-gray-600">
@@ -693,8 +694,8 @@ export default function LandingPage() {
             </div>
             
             <div className="text-center">
-              <div className="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <FileText className="h-8 w-8 text-green-600" />
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <FileText className="h-8 w-8 text-blue-900" />
               </div>
               <h4 className="text-xl font-semibold text-gray-900 mb-2">Transparent Documentation</h4>
               <p className="text-gray-600">
@@ -703,8 +704,8 @@ export default function LandingPage() {
             </div>
             
             <div className="text-center">
-              <div className="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Globe className="h-8 w-8 text-purple-600" />
+              <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Globe className="h-8 w-8 text-blue-900" />
               </div>
               <h4 className="text-xl font-semibold text-gray-900 mb-2">Third-Party Payment Integration</h4>
               <p className="text-gray-600">
@@ -863,9 +864,9 @@ export default function LandingPage() {
       </section>
 
       {/* Enterprise Positioning Section */}
-      <section className="py-12 px-6 bg-gradient-to-br from-indigo-50 to-purple-50">
+      <section className="py-12 px-6 bg-gray-50">
         <div className="max-w-5xl mx-auto text-center">
-          <Badge className="mb-6 bg-indigo-600 text-white px-4 py-2">Enterprise Ready</Badge>
+          <Badge className="mb-6 bg-blue-900 text-white px-4 py-2">Enterprise Ready</Badge>
           <h3 className="text-4xl font-bold text-gray-900 mb-6">
             Built for Compliance-Forward Organizations
           </h3>
@@ -875,19 +876,19 @@ export default function LandingPage() {
 
           <div className="grid md:grid-cols-4 gap-6 text-center">
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <Shield className="h-10 w-10 text-blue-600 mx-auto mb-3" />
+              <Shield className="h-10 w-10 text-blue-900 mx-auto mb-3" />
               <p className="font-semibold text-gray-900">Regulatory Alignment</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <Lock className="h-10 w-10 text-green-600 mx-auto mb-3" />
+              <Lock className="h-10 w-10 text-blue-900 mx-auto mb-3" />
               <p className="font-semibold text-gray-900">Partner Compliance</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <FileText className="h-10 w-10 text-purple-600 mx-auto mb-3" />
+              <FileText className="h-10 w-10 text-blue-900 mx-auto mb-3" />
               <p className="font-semibold text-gray-900">Risk Mitigation</p>
             </div>
             <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-              <CheckCircle className="h-10 w-10 text-orange-600 mx-auto mb-3" />
+              <CheckCircle className="h-10 w-10 text-blue-900 mx-auto mb-3" />
               <p className="font-semibold text-gray-900">Best Practices</p>
             </div>
           </div>
