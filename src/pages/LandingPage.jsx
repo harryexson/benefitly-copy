@@ -375,7 +375,7 @@ export default function LandingPage() {
             <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-gray-700">
               <CardContent className="p-8">
                 <div className="grid md:grid-cols-3 gap-8 items-center">
-                  <div className="text-center md:text-left">
+                  <div className="text-center">
                     <Badge className="mb-3 bg-blue-900 text-white">Enterprise</Badge>
                     <h3 className="text-3xl font-bold text-white mb-2">Custom Pricing</h3>
                     <p className="text-gray-300">Tailored for your needs</p>
