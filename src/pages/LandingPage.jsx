@@ -209,7 +209,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-6">
+      <section className="py-12 px-6">
         <div className="max-w-5xl mx-auto text-center">
           <Badge className="mb-6 bg-blue-600 text-white px-4 py-2 text-sm">
             <Shield className="w-4 h-4 mr-2" />
@@ -259,9 +259,9 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-12 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <Badge className="mb-4" variant="outline">Simple, Transparent Pricing</Badge>
             <h3 className="text-3xl font-bold text-gray-900 mb-4">
               Pricing That Makes Sense for Your Budget
@@ -382,9 +382,9 @@ export default function LandingPage() {
       </section>
 
       {/* What We Do Section */}
-      <section className="py-20 px-6 bg-white">
+      <section className="py-12 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <Badge className="mb-4" variant="outline">What We Do</Badge>
             <h3 className="text-4xl font-bold text-gray-900 mb-6">
               Administrative Technology for Benefits Management
@@ -470,9 +470,9 @@ export default function LandingPage() {
       </section>
 
       {/* Industries We Serve */}
-      <section className="py-20 px-6 bg-gray-50">
+      <section className="py-12 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <h3 className="text-3xl font-bold text-gray-900 mb-4">
               Industries We Serve
             </h3>
@@ -556,9 +556,9 @@ export default function LandingPage() {
       </section>
 
       {/* Compliance Commitment Section */}
-      <section className="py-20 px-6 bg-gradient-to-br from-blue-900 to-indigo-900 text-white">
+      <section className="py-12 px-6 bg-gradient-to-br from-blue-900 to-indigo-900 text-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <Badge className="mb-4 bg-white text-blue-900">Our Compliance Commitment</Badge>
             <h3 className="text-4xl font-bold mb-6">
               Built for Regulatory Alignment
@@ -632,7 +632,7 @@ export default function LandingPage() {
       </section>
 
       {/* Risk Statement Section */}
-      <section className="py-16 px-6 bg-gradient-to-r from-gray-900 to-gray-800">
+      <section className="py-10 px-6 bg-gradient-to-r from-gray-900 to-gray-800">
         <div className="max-w-5xl mx-auto">
           <div className="bg-yellow-900/20 border-2 border-yellow-500/50 rounded-xl p-8">
             <div className="flex items-start gap-4">
@@ -670,9 +670,9 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 px-6 bg-gray-50">
+      <section className="py-12 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <h3 className="text-3xl font-bold text-gray-900 mb-4">
               Enterprise-Grade Platform Features
             </h3>
@@ -716,9 +716,9 @@ export default function LandingPage() {
       </section>
 
       {/* Acceptable Use Policy Section */}
-      <section className="py-20 px-6 bg-white border-t-4 border-red-600">
+      <section className="py-12 px-6 bg-white border-t-4 border-red-600">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-8">
             <Badge className="mb-4 bg-red-600 text-white">Acceptable Use Policy</Badge>
             <h3 className="text-3xl font-bold text-gray-900 mb-6">
               Platform Usage Restrictions
@@ -775,9 +775,9 @@ export default function LandingPage() {
       </section>
 
       {/* Privacy & Security Section */}
-      <section className="py-20 px-6 bg-gray-50">
+      <section className="py-12 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div className="text-center mb-10">
             <h3 className="text-3xl font-bold text-gray-900 mb-4">
               Privacy & Data Security
             </h3>
@@ -863,7 +863,7 @@ export default function LandingPage() {
       </section>
 
       {/* Enterprise Positioning Section */}
-      <section className="py-20 px-6 bg-gradient-to-br from-indigo-50 to-purple-50">
+      <section className="py-12 px-6 bg-gradient-to-br from-indigo-50 to-purple-50">
         <div className="max-w-5xl mx-auto text-center">
           <Badge className="mb-6 bg-indigo-600 text-white px-4 py-2">Enterprise Ready</Badge>
           <h3 className="text-4xl font-bold text-gray-900 mb-6">
@@ -895,7 +895,7 @@ export default function LandingPage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6 bg-blue-900 text-white">
+      <section className="py-12 px-6 bg-blue-900 text-white">
         <div className="max-w-4xl mx-auto text-center">
           <h3 className="text-3xl font-bold mb-4">
             Ready to Get Started?
