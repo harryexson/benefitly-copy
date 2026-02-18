@@ -286,13 +286,12 @@ export default function LandingPage() {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {publicTiers.map((tier, index) => {
+            {publicTiers.filter(tier => tier.id !== 'enterprise').map((tier, index) => {
               const pricing = getPriceDisplay(tier);
               const isPopular = tier.id === 'starter'; // Set 'Starter' as popular - best entry point
-              const isEnterprise = tier.id === 'enterprise';
               
               return (
-                <Card key={tier.id} className={`relative flex flex-col ${isPopular ? 'ring-2 ring-blue-900 shadow-lg scale-105' : isEnterprise ? 'bg-gray-50 border-gray-300' : 'hover:shadow-lg'} transition-all`}>
+                <Card key={tier.id} className={`relative flex flex-col ${isPopular ? 'ring-2 ring-blue-900 shadow-lg scale-105' : 'hover:shadow-lg'} transition-all`}>
                   {isPopular && (
                     <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                       <Badge className="bg-blue-900 text-white px-4 py-1">
@@ -370,13 +369,54 @@ export default function LandingPage() {
               );
             })}
           </div>
+
+          {/* Enterprise Tier - Horizontal Banner */}
+          <div className="mt-12">
+            <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-gray-700">
+              <CardContent className="p-8">
+                <div className="grid md:grid-cols-3 gap-8 items-center">
+                  <div className="text-center md:text-left">
+                    <Badge className="mb-3 bg-blue-900 text-white">Enterprise</Badge>
+                    <h3 className="text-3xl font-bold text-white mb-2">Custom Pricing</h3>
+                    <p className="text-gray-300">Tailored for your needs</p>
+                    <p className="text-gray-400 text-sm mt-2">Over 1,000 members</p>
+                  </div>
+                  
+                  <div className="md:col-span-1">
+                    <ul className="space-y-2 text-sm">
+                      <li className="flex items-center text-gray-200">
+                        <Check className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                        <span>All Scale features, plus:</span>
+                      </li>
+                      <li className="flex items-center text-gray-200">
+                        <Check className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                        <span>Dedicated Infrastructure</span>
+                      </li>
+                      <li className="flex items-center text-gray-200">
+                        <Check className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                        <span>Custom Integrations</span>
+                      </li>
+                      <li className="flex items-center text-gray-200">
+                        <Check className="h-4 w-4 text-blue-400 mr-2 flex-shrink-0" />
+                        <span>Custom SSO Integration</span>
+                      </li>
+                    </ul>
+                  </div>
+                  
+                  <div className="text-center md:text-right">
+                    <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100">
+                      Contact Sales
+                    </Button>
+                    <p className="text-gray-400 text-xs mt-3">24/7 Phone Support • SLA Guarantee</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
           
           <div className="text-center mt-12">
             <p className="text-gray-600 mb-4">
               All plans include a 14-day free trial. No credit card required.
-            </p>
-            <p className="text-sm text-gray-500">
-              Need more members? <Button variant="link" className="p-0 h-auto text-blue-600">Contact us</Button> for custom enterprise pricing.
             </p>
           </div>
         </div>
