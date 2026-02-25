@@ -9,7 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { AlertCircle, Loader2, Building2, KeyRound } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { toast } from 'sonner';
+import { toast, Toaster } from 'sonner';
 
 export default function BackOfficeLogin() {
     const [username, setUsername] = useState('');
@@ -75,6 +75,7 @@ export default function BackOfficeLogin() {
 
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-100">
+            <Toaster position="top-right" />
             <Card className="w-full max-w-sm shadow-xl">
                 <CardHeader className="text-center">
                     <Building2 className="mx-auto h-12 w-12 text-gray-400" />
