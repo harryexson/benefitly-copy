@@ -471,9 +471,9 @@ export default function LandingPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-900">
+                <CardTitle className="flex items-center gap-2 text-blue-900">
                   <XCircle className="h-6 w-6" />
                   What Benefitly Does NOT Do
                 </CardTitle>
@@ -481,28 +481,28 @@ export default function LandingPage() {
               <CardContent>
                 <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Hold consumer deposits</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Store end-user funds</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Facilitate peer-to-peer transfers</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Operate wallets</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Provide lending, credit, or financial tools</span>
                   </li>
                 </ul>
-                <div className="mt-4 p-3 bg-white rounded border border-red-200">
-                  <p className="text-sm font-semibold text-red-900">
+                <div className="mt-4 p-3 bg-white rounded border border-blue-200">
+                  <p className="text-sm font-semibold text-blue-900">
                     All financial transactions are processed through regulated third-party providers.
                   </p>
                 </div>
@@ -558,9 +558,9 @@ export default function LandingPage() {
               </CardContent>
             </Card>
 
-            <Card className="border-red-200 bg-red-50">
+            <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-red-900">
+                <CardTitle className="flex items-center gap-2 text-blue-900">
                   <XCircle className="h-6 w-6" />
                   Prohibited Industries
                 </CardTitle>
@@ -568,27 +568,27 @@ export default function LandingPage() {
               <CardContent>
                 <ul className="space-y-2 text-gray-700">
                   <li className="flex items-center gap-2">
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-blue-600" />
                     Cryptocurrency businesses
                   </li>
                   <li className="flex items-center gap-2">
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-blue-600" />
                     Gambling platforms
                   </li>
                   <li className="flex items-center gap-2">
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-blue-600" />
                     Adult content providers
                   </li>
                   <li className="flex items-center gap-2">
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-blue-600" />
                     Sweepstakes operators
                   </li>
                   <li className="flex items-center gap-2">
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-blue-600" />
                     High-risk financial services
                   </li>
                   <li className="flex items-center gap-2">
-                    <XCircle className="h-5 w-5 text-red-600" />
+                    <XCircle className="h-5 w-5 text-blue-600" />
                     Remittance or money transfer businesses
                   </li>
                 </ul>
@@ -759,56 +759,56 @@ export default function LandingPage() {
       </section>
 
       {/* Acceptable Use Policy Section */}
-      <section className="py-12 px-6 bg-white border-t-4 border-red-600">
+      <section className="py-12 px-6 bg-white border-t-4 border-blue-600">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-8">
-            <Badge className="mb-4 bg-red-600 text-white">Acceptable Use Policy</Badge>
+            <Badge className="mb-4 bg-blue-600 text-white">Acceptable Use Policy</Badge>
             <h3 className="text-3xl font-bold text-gray-900 mb-6">
               Platform Usage Restrictions
             </h3>
           </div>
 
-          <Card className="border-2 border-red-200">
-            <CardHeader className="bg-red-50">
-              <CardTitle className="text-red-900">Benefitly Strictly Prohibits Use For:</CardTitle>
+          <Card className="border-2 border-blue-200">
+            <CardHeader className="bg-blue-50">
+              <CardTitle className="text-blue-900">Benefitly Strictly Prohibits Use For:</CardTitle>
             </CardHeader>
             <CardContent className="pt-6">
               <div className="grid md:grid-cols-2 gap-6 text-gray-700">
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Cryptocurrency transactions</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Gambling or betting services</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Adult content distribution</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Sweepstakes or prize schemes</span>
                   </li>
                 </ul>
                 <ul className="space-y-2">
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>High-risk financial instruments</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Money transmission or remittance services</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <XCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                    <XCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                     <span>Unlicensed financial activity</span>
                   </li>
                 </ul>
               </div>
-              <div className="mt-6 p-4 bg-red-50 rounded-lg border border-red-200">
-                <p className="text-red-900 font-bold text-center">
+              <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-blue-900 font-bold text-center">
                   ⚠️ Violation of this policy results in immediate suspension and termination.
                 </p>
               </div>
