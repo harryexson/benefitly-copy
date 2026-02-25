@@ -209,27 +209,27 @@ export default function LandingPage() {
       </header>
 
       {/* Hero Section */}
-      <section className="py-8 px-6 bg-gradient-to-b from-gray-50 to-white">
+      <section className="py-6 px-6 bg-gradient-to-b from-gray-50 to-white">
         <div className="max-w-5xl mx-auto text-center">
-          <Badge className="mb-6 bg-blue-900 text-white px-4 py-2 text-sm">
+          <Badge className="mb-4 bg-blue-900 text-white px-4 py-2 text-sm">
             <Shield className="w-4 h-4 mr-2" />
             Enterprise-Grade Benefits Management Platform
           </Badge>
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
             Secure Benefits & Entitlement Management Platform for Mutual Benefit Associations
           </h2>
-          <p className="text-xl md:text-2xl text-gray-600 mb-4 leading-relaxed max-w-4xl mx-auto">
+          <p className="text-lg md:text-xl text-gray-600 mb-3 leading-relaxed max-w-4xl mx-auto">
             Benefitly is a secure, enterprise-grade SaaS platform that enables mutual benefit associations, membership organizations, and structured groups to manage, distribute, and track member benefits and entitlements in a compliant and transparent manner.
           </p>
-          <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 max-w-3xl mx-auto mb-8">
-            <p className="text-blue-900 font-semibold text-lg">
+          <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-3 max-w-3xl mx-auto mb-6">
+            <p className="text-blue-900 font-semibold text-base">
               ⚠️ We provide administrative technology — not financial services.
             </p>
-            <p className="text-blue-800 text-sm mt-2">
+            <p className="text-blue-800 text-sm mt-1">
               Benefitly does not operate as a payment processor, remittance service, wallet, gig marketplace, or financial institution.
             </p>
           </div>
-          <div className="flex flex-wrap justify-center gap-4 text-sm mb-12">
+          <div className="flex flex-wrap justify-center gap-3 text-sm mb-8">
             <div className="flex items-center bg-white px-5 py-3 rounded-lg shadow-sm border border-gray-200">
               <Shield className="h-5 w-5 text-blue-900 mr-2" />
               <span className="font-medium text-gray-700">Compliance-First Infrastructure</span>
@@ -259,14 +259,14 @@ export default function LandingPage() {
       </section>
 
       {/* Pricing Section */}
-      <section className="py-10 px-6 bg-white">
+      <section className="py-8 px-6 bg-white">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10">
-            <Badge className="mb-4" variant="outline">Simple, Transparent Pricing</Badge>
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-8">
+            <Badge className="mb-3" variant="outline">Simple, Transparent Pricing</Badge>
+            <h3 className="text-3xl font-bold text-gray-900 mb-3">
               Pricing That Makes Sense for Your Budget
             </h3>
-            <p className="text-lg text-gray-600 mb-4">
+            <p className="text-base text-gray-600 mb-3">
               45% cheaper than Wild Apricot and Bloomerang
             </p>
             <div className="flex justify-center gap-8 text-sm">
@@ -285,7 +285,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {publicTiers.filter(tier => tier.id !== 'enterprise').map((tier, index) => {
               const pricing = getPriceDisplay(tier);
               const isPopular = tier.id === 'starter'; // Set 'Starter' as popular - best entry point
@@ -371,13 +371,13 @@ export default function LandingPage() {
           </div>
 
           {/* Enterprise Tier - Horizontal Banner */}
-          <div className="mt-12">
+          <div className="mt-8">
             <Card className="bg-gradient-to-r from-gray-900 to-gray-800 border-gray-700">
-              <CardContent className="p-8">
+              <CardContent className="p-6">
                 {/* Centered Header */}
-                <div className="text-center mb-8">
-                  <Badge className="mb-3 bg-blue-900 text-white">Enterprise</Badge>
-                  <h3 className="text-3xl font-bold text-white mb-2">Custom Pricing</h3>
+                <div className="text-center mb-6">
+                  <Badge className="mb-2 bg-blue-900 text-white">Enterprise</Badge>
+                  <h3 className="text-2xl font-bold text-white mb-2">Custom Pricing</h3>
                   <p className="text-gray-300">Tailored for your needs</p>
                   <p className="text-gray-400 text-sm mt-2">Over 1,000 members</p>
                 </div>
@@ -427,17 +427,17 @@ export default function LandingPage() {
       {/* What We Do Section */}
       <section className="py-8 px-6 bg-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <Badge className="mb-3" variant="outline">What We Do</Badge>
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+          <div className="text-center mb-6">
+            <Badge className="mb-2" variant="outline">What We Do</Badge>
+            <h3 className="text-3xl font-bold text-gray-900 mb-3">
               Administrative Technology for Benefits Management
             </h3>
-            <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+            <p className="text-base text-gray-600 max-w-3xl mx-auto">
               Benefitly is a multi-tenant SaaS platform that allows verified mutual benefit associations to manage and track member benefits through structured workflows.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8 mb-8">
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
             <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-blue-900">
@@ -515,8 +515,8 @@ export default function LandingPage() {
       {/* Industries We Serve */}
       <section className="py-8 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-6">
-            <h3 className="text-3xl font-bold text-gray-900 mb-3">
+          <div className="text-center mb-5">
+            <h3 className="text-3xl font-bold text-gray-900 mb-2">
               Industries We Serve
             </h3>
             <p className="text-base text-gray-600 max-w-2xl mx-auto">
@@ -524,7 +524,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-6">
             <Card className="border-blue-200 bg-blue-50">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-blue-900">
@@ -601,12 +601,12 @@ export default function LandingPage() {
       {/* Compliance Commitment Section */}
       <section className="py-10 px-6 bg-gradient-to-br from-blue-900 to-indigo-900 text-white">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <Badge className="mb-3 bg-white text-blue-900">Our Compliance Commitment</Badge>
-            <h3 className="text-3xl font-bold mb-4">
+          <div className="text-center mb-6">
+            <Badge className="mb-2 bg-white text-blue-900">Our Compliance Commitment</Badge>
+            <h3 className="text-3xl font-bold mb-3">
               Built for Regulatory Alignment
             </h3>
-            <p className="text-xl text-blue-100 max-w-3xl mx-auto">
+            <p className="text-lg text-blue-100 max-w-3xl mx-auto">
               Benefitly maintains strong compliance standards aligned with U.S. regulatory expectations
             </p>
           </div>
@@ -677,15 +677,15 @@ export default function LandingPage() {
       {/* Risk Statement Section */}
       <section className="py-8 px-6 bg-gradient-to-r from-gray-900 to-gray-800">
         <div className="max-w-5xl mx-auto">
-          <div className="bg-blue-900/20 border-2 border-blue-500/50 rounded-xl p-8">
+          <div className="bg-blue-900/20 border-2 border-blue-500/50 rounded-xl p-6">
             <div className="flex items-start gap-4">
-              <AlertTriangle className="h-8 w-8 text-blue-400 flex-shrink-0" />
-              <div className="text-white">
-                <h4 className="text-2xl font-bold mb-4">Risk & Regulatory Statement</h4>
-                <p className="text-lg text-gray-200 mb-4">
+            <AlertTriangle className="h-7 w-7 text-blue-400 flex-shrink-0" />
+            <div className="text-white">
+              <h4 className="text-xl font-bold mb-3">Risk & Regulatory Statement</h4>
+              <p className="text-base text-gray-200 mb-3">
                   <strong>Benefitly operates exclusively as a software service provider.</strong>
                 </p>
-                <div className="grid md:grid-cols-2 gap-6 text-sm text-gray-300">
+                <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-300">
                   <div>
                     <p className="font-semibold text-white mb-2">We are NOT:</p>
                     <ul className="space-y-1">
@@ -715,11 +715,11 @@ export default function LandingPage() {
       {/* Features Section */}
       <section className="py-8 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold text-gray-900 mb-3">
+          <div className="text-center mb-6">
+            <h3 className="text-3xl font-bold text-gray-900 mb-2">
               Enterprise-Grade Platform Features
             </h3>
-            <p className="text-lg text-gray-600">
+            <p className="text-base text-gray-600">
               Built for compliance-forward organizations
             </p>
           </div>
@@ -761,9 +761,9 @@ export default function LandingPage() {
       {/* Acceptable Use Policy Section */}
       <section className="py-10 px-6 bg-white border-t-4 border-blue-600">
         <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-8">
-            <Badge className="mb-4 bg-blue-600 text-white">Acceptable Use Policy</Badge>
-            <h3 className="text-3xl font-bold text-gray-900 mb-6">
+          <div className="text-center mb-6">
+            <Badge className="mb-3 bg-blue-600 text-white">Acceptable Use Policy</Badge>
+            <h3 className="text-3xl font-bold text-gray-900 mb-3">
               Platform Usage Restrictions
             </h3>
           </div>
@@ -820,16 +820,16 @@ export default function LandingPage() {
       {/* Privacy & Security Section */}
       <section className="py-8 px-6 bg-gray-50">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-8">
-            <h3 className="text-3xl font-bold text-gray-900 mb-3">
+          <div className="text-center mb-6">
+            <h3 className="text-3xl font-bold text-gray-900 mb-2">
               Privacy & Data Security
             </h3>
-            <p className="text-lg text-gray-600">
+            <p className="text-base text-gray-600">
               Your data is protected with industry-leading security practices
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -908,11 +908,11 @@ export default function LandingPage() {
       {/* Enterprise Positioning Section */}
       <section className="py-8 px-6 bg-gray-50">
         <div className="max-w-5xl mx-auto text-center">
-          <Badge className="mb-6 bg-blue-900 text-white px-4 py-2">Enterprise Ready</Badge>
-          <h3 className="text-4xl font-bold text-gray-900 mb-6">
+          <Badge className="mb-4 bg-blue-900 text-white px-4 py-2">Enterprise Ready</Badge>
+          <h3 className="text-3xl font-bold text-gray-900 mb-4">
             Built for Compliance-Forward Organizations
           </h3>
-          <p className="text-lg text-gray-700 mb-12 max-w-3xl mx-auto">
+          <p className="text-base text-gray-700 mb-8 max-w-3xl mx-auto">
             Benefitly is designed for structured associations that require transparent benefit administration, audit-ready documentation, secure entitlement tracking, and compliant third-party payment integrations.
           </p>
 
