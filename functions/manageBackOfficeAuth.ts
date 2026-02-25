@@ -62,6 +62,31 @@ Deno.serve(async (req) => {
             return new Response(JSON.stringify({ success: true, user: newUser }), { status: 201 });
         }
 
+        // Reset password action - requires Super Admin role
+        if (action === 'reset_password') {
+            if (currentUser.back_office_role !== 'Super Admin') {
+                return new Response(JSON.stringify({ error: 'Forbidden: Only Super Admins can reset passwords.' }), { status: 403 });
+            }
+            if (!username || !password) {
+                return new Response(JSON.stringify({ error: 'Username and new password are required' }), { status: 400 });
+            }
+
+            const users = await base44.asServiceRole.entities.BackOfficeUser.filter({ username: username });
+            
+            if (users.length === 0) {
+                return new Response(JSON.stringify({ error: 'User not found' }), { status: 404 });
+            }
+
+            const backOfficeUser = users[0];
+            const new_password_hash = await hashPassword(password);
+            
+            await base44.asServiceRole.entities.BackOfficeUser.update(backOfficeUser.id, {
+                password_hash: new_password_hash
+            });
+
+            return new Response(JSON.stringify({ success: true, message: 'Password reset successfully' }), { status: 200 });
+        }
+
         return new Response(JSON.stringify({ error: 'Invalid action' }), { status: 400 });
 
     } catch (error) {
