@@ -3,10 +3,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Download, TrendingUp, Target, Shield, DollarSign, Users, 
   CheckCircle2, XCircle, Trophy, Zap, BarChart3, Globe,
-  ArrowRight, Star, AlertTriangle, Lightbulb
+  ArrowRight, Star, AlertTriangle, Lightbulb, RefreshCw, Settings
 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -78,11 +80,79 @@ const benefitlyPricing = {
 
 export default function MarketAnalysis() {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [showCustomizeDialog, setShowCustomizeDialog] = useState(false);
+  const [selectedSections, setSelectedSections] = useState({
+    executive_summary: true,
+    competitive_landscape: true,
+    pricing_analysis: true,
+    market_positioning: true,
+    go_to_market: true,
+    success_metrics: true,
+    risk_mitigation: true,
+  });
 
-  const handleDownloadPDF = async (reportType) => {
-    setIsGeneratingPDF(true);
+  const handleScanMarket = async () => {
+    setIsScanning(true);
     try {
-      const reportContent = generateReportContent(reportType);
+      toast.info('Scanning market for latest competitive data...');
+      
+      const response = await base44.integrations.Core.InvokeLLM({
+        prompt: `Provide the most up-to-date market analysis for membership management and mutual aid software platforms. Include:
+        1. Latest pricing for Wild Apricot, Bloomerang, and Member365
+        2. Recent market trends and shifts in the mutual aid space
+        3. New competitors that have emerged
+        4. Changes in customer preferences or requirements
+        5. Latest TAM/SAM market size estimates
+        6. Recent funding or acquisition news in the space
+        
+        Format as structured data with clear categories and actionable insights.`,
+        add_context_from_internet: true,
+        response_json_schema: {
+          type: "object",
+          properties: {
+            last_updated: { type: "string" },
+            competitor_updates: { 
+              type: "array", 
+              items: {
+                type: "object",
+                properties: {
+                  competitor: { type: "string" },
+                  pricing_changes: { type: "string" },
+                  new_features: { type: "string" }
+                }
+              }
+            },
+            market_trends: { type: "array", items: { type: "string" } },
+            new_competitors: { type: "array", items: { type: "string" } },
+            market_size_update: { type: "string" },
+            key_insights: { type: "array", items: { type: "string" } }
+          }
+        }
+      });
+
+      toast.success('Market scan complete! Latest data retrieved.');
+      
+      // Show summary in a toast
+      if (response.key_insights?.length > 0) {
+        setTimeout(() => {
+          toast.info(`Key Insight: ${response.key_insights[0]}`);
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Failed to scan market:', error);
+      toast.error('Failed to scan market data');
+    } finally {
+      setIsScanning(false);
+    }
+  };
+
+  const handleCustomDownload = async (reportType) => {
+    setIsGeneratingPDF(true);
+    setShowCustomizeDialog(false);
+    
+    try {
+      const reportContent = generateReportContent(reportType, selectedSections);
       
       // Use LLM to format as professional report
       const response = await base44.integrations.Core.InvokeLLM({
@@ -117,17 +187,27 @@ export default function MarketAnalysis() {
     }
   };
 
-  const generateReportContent = (type) => {
+  const handleDownloadPDF = async (reportType) => {
+    handleCustomDownload(reportType);
+  };
+
+  const generateReportContent = (type, sections = null) => {
     const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     
+    // If sections filter is provided, use it to customize content
+    const shouldInclude = (sectionKey) => !sections || sections[sectionKey];
+    
     if (type === 'Market_Strategy') {
-      return `
+      let content = `
 # BENEFITLY MARKET STRATEGY ANALYSIS
 ## Confidential Strategic Document
 Generated: ${date}
 
 ---
-
+`;
+      
+      if (shouldInclude('executive_summary')) {
+        content += `
 ## EXECUTIVE SUMMARY
 
 Benefitly operates in the intersection of membership management software and mutual aid/benefit society platforms. Our analysis reveals a $2.4 billion market opportunity with significant underservice in the mutual aid niche.
@@ -135,7 +215,11 @@ Benefitly operates in the intersection of membership management software and mut
 **Key Finding:** 73% of mutual aid associations still use manual tools (spreadsheets, paper records) due to lack of purpose-built, affordable solutions.
 
 **Strategic Recommendation:** Position Benefitly as the ONLY purpose-built platform for mutual aid associations at 50-75% lower cost than generic alternatives.
+`;
+      }
 
+      if (shouldInclude('market_positioning')) {
+        content += `
 ---
 
 ## MARKET OPPORTUNITY
@@ -153,7 +237,11 @@ Benefitly operates in the intersection of membership management software and mut
 - Year 1 target: $500K ARR (0.8% of SAM)
 - Year 3 target: $5M ARR (7.7% of SAM)
 - Year 5 target: $15M ARR (23% of SAM)
+`;
+      }
 
+      if (shouldInclude('pricing_analysis')) {
+        content += `
 ---
 
 ## COMPETITIVE PRICING ANALYSIS
@@ -170,7 +258,11 @@ Benefitly operates in the intersection of membership management software and mut
 - **vs Wild Apricot:** 52% cheaper
 - **vs Bloomerang:** 77% cheaper
 - **vs Member365:** 90% cheaper
+`;
+      }
 
+      if (shouldInclude('competitive_landscape')) {
+        content += `
 ---
 
 ## STRATEGIC POSITIONING
@@ -191,7 +283,11 @@ Benefitly operates in the intersection of membership management software and mut
 - Religious community support groups
 - Professional mutual benefit associations
 - Labor union benefit funds
+`;
+      }
 
+      if (shouldInclude('go_to_market')) {
+        content += `
 ---
 
 ## GO-TO-MARKET STRATEGY
@@ -210,7 +306,11 @@ Benefitly operates in the intersection of membership management software and mut
 - Focus: Large associations, enterprise deals
 - Channel: Sales team, industry conferences
 - Goal: 500 customers, $300K MRR
+`;
+      }
 
+      if (shouldInclude('pricing_analysis')) {
+        content += `
 ---
 
 ## PRICING STRATEGY RECOMMENDATIONS
@@ -230,7 +330,11 @@ Benefitly operates in the intersection of membership management software and mut
 - **$29 starter:** "Less than a Netflix subscription"
 - **$69 growth:** Sweet spot for serious organizations
 - **$149 scale:** Premium but still 50%+ cheaper than alternatives
+`;
+      }
 
+      if (shouldInclude('success_metrics')) {
+        content += `
 ---
 
 ## KEY SUCCESS METRICS
@@ -246,7 +350,11 @@ Benefitly operates in the intersection of membership management software and mut
 - ARR: $500,000
 - Churn: <5%
 - NPS: >70
+`;
+      }
 
+      if (shouldInclude('risk_mitigation')) {
+        content += `
 ---
 
 ## RISK MITIGATION
@@ -260,7 +368,10 @@ Benefitly operates in the intersection of membership management software and mut
 1. Content marketing, case studies, community partnerships
 2. SOC 2 compliance, transparent security practices, Stripe trust
 3. Build brand loyalty, community, switching costs through data
-      `;
+`;
+      }
+      
+      return content;
     } else {
       return `
 # BENEFITLY COMPETITIVE ANALYSIS
@@ -503,7 +614,23 @@ Own the "mutual aid software" category through SEO, content, partnerships.
           <h1 className="text-3xl font-bold text-gray-900">Market Analysis & Strategy</h1>
           <p className="text-gray-600 mt-1">Competitive intelligence and strategic positioning for Benefitly</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 flex-wrap">
+          <Button 
+            variant="outline" 
+            onClick={handleScanMarket}
+            disabled={isScanning}
+            className="bg-blue-50 border-blue-300 hover:bg-blue-100"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isScanning ? 'animate-spin' : ''}`} />
+            {isScanning ? 'Scanning...' : 'Scan Market'}
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={() => setShowCustomizeDialog(true)}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            Customize Report
+          </Button>
           <Button 
             variant="outline" 
             onClick={() => handleDownloadPDF('Competitive')}
@@ -521,6 +648,56 @@ Own the "mutual aid software" category through SEO, content, partnerships.
           </Button>
         </div>
       </div>
+
+      {/* Customize Report Dialog */}
+      <Dialog open={showCustomizeDialog} onOpenChange={setShowCustomizeDialog}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Customize Report Sections</DialogTitle>
+            <DialogDescription>
+              Select which sections to include in your generated report
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            {[
+              { key: 'executive_summary', label: 'Executive Summary' },
+              { key: 'competitive_landscape', label: 'Competitive Landscape' },
+              { key: 'pricing_analysis', label: 'Pricing Analysis' },
+              { key: 'market_positioning', label: 'Market Positioning' },
+              { key: 'go_to_market', label: 'Go-to-Market Strategy' },
+              { key: 'success_metrics', label: 'Success Metrics' },
+              { key: 'risk_mitigation', label: 'Risk Mitigation' },
+            ].map((section) => (
+              <div key={section.key} className="flex items-center space-x-2">
+                <Checkbox
+                  id={section.key}
+                  checked={selectedSections[section.key]}
+                  onCheckedChange={(checked) => 
+                    setSelectedSections(prev => ({ ...prev, [section.key]: checked }))
+                  }
+                />
+                <label
+                  htmlFor={section.key}
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                >
+                  {section.label}
+                </label>
+              </div>
+            ))}
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <Button variant="outline" onClick={() => setShowCustomizeDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => handleCustomDownload('Market_Strategy')}>
+              <Download className="w-4 h-4 mr-2" />
+              Generate Report
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Executive Summary */}
       <Card className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
