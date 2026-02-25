@@ -221,11 +221,11 @@ export default function LandingPage() {
           <p className="text-xl md:text-2xl text-gray-600 mb-4 leading-relaxed max-w-4xl mx-auto">
             Benefitly is a secure, enterprise-grade SaaS platform that enables mutual benefit associations, membership organizations, and structured groups to manage, distribute, and track member benefits and entitlements in a compliant and transparent manner.
           </p>
-          <div className="bg-yellow-50 border-2 border-yellow-300 rounded-lg p-4 max-w-3xl mx-auto mb-8">
-            <p className="text-yellow-900 font-semibold text-lg">
+          <div className="bg-blue-50 border-2 border-blue-300 rounded-lg p-4 max-w-3xl mx-auto mb-8">
+            <p className="text-blue-900 font-semibold text-lg">
               ⚠️ We provide administrative technology — not financial services.
             </p>
-            <p className="text-yellow-800 text-sm mt-2">
+            <p className="text-blue-800 text-sm mt-2">
               Benefitly does not operate as a payment processor, remittance service, wallet, gig marketplace, or financial institution.
             </p>
           </div>
@@ -677,9 +677,9 @@ export default function LandingPage() {
       {/* Risk Statement Section */}
       <section className="py-10 px-6 bg-gradient-to-r from-gray-900 to-gray-800">
         <div className="max-w-5xl mx-auto">
-          <div className="bg-yellow-900/20 border-2 border-yellow-500/50 rounded-xl p-8">
+          <div className="bg-blue-900/20 border-2 border-blue-500/50 rounded-xl p-8">
             <div className="flex items-start gap-4">
-              <AlertTriangle className="h-8 w-8 text-yellow-400 flex-shrink-0" />
+              <AlertTriangle className="h-8 w-8 text-blue-400 flex-shrink-0" />
               <div className="text-white">
                 <h4 className="text-2xl font-bold mb-4">Risk & Regulatory Statement</h4>
                 <p className="text-lg text-gray-200 mb-4">
