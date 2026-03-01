@@ -191,12 +191,16 @@ export default function LandingPage() {
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-3">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/68be40f63856b42432577413/75159e6a6_BenefitlyOriginallogoBLUE.jpg" 
                 alt="Benefit Association Logo" 
                 className="h-16 w-auto"
               />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900">Benefitly</h1>
+                <p className="text-sm text-gray-600">Benefits Management Platform</p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <Button variant="ghost" onClick={handleSignIn} className="text-gray-700 hover:text-gray-900">Sign In</Button>
