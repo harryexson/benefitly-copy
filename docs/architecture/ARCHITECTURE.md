@@ -11,7 +11,8 @@ apps/
   web/          Next.js App Router, public fundraising + authenticated workspaces
   mobile/       Expo Router native application
 packages/
-  domain/       campaign, membership, benefit, ledger and permission rules
+  domain/       campaign, membership, benefit, ledger, trust/moderation and permission rules
+  payments/     PaymentProviderAdapter implementations (Stripe Connect, Adyen for Platforms), fee engine, provider router
   ui/           accessible, shared design tokens and web primitives
   validation/   shared Zod schemas
   types/        public TypeScript contracts

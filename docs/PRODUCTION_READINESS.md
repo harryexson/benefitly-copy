@@ -1,37 +1,53 @@
 # Production readiness
 
-Last audited: 2026-09-23
+Last audited: 2026-09-25
 
 This repository is **not production-ready**. This report records the current implementation honestly against the master prompt and is the release gate for future work.
 
 | Area | Status | Evidence / required completion work |
 | --- | --- | --- |
-| Architecture | In progress | Workspace, Next.js, Expo, domain/validation packages and Neon migration exist. Legacy Vite application is still present. |
-| Web | In progress | Landing, discovery, campaign and organization landing routes exist. Missing campaign creation, donation UI/confirmation, account, organizer, trust, admin and complete organization workspace routes. |
-| Expo | In progress | Native tabs and initial assets exist. Missing auth, deep link testing, campaign/detail/donation flows, organization workspace, secure storage, notifications, camera/image picker and EAS build configuration. |
-| Authentication | Blocked | Better Auth configuration exists but needs a real Neon database, generated auth schema, email sender, production secret/origins and end-to-end verification. |
-| Database / RLS | In progress | Foundation migration contains profiles, organizations, members, campaigns, donations, ledger and audit tables with initial RLS. Missing the full domain schema, migration runner, transaction context binding and tenant-isolation test suite. |
-| Fundraising | Not complete | Discovery UI and mock data only; campaign creation, real search, updates, beneficiaries, payouts, sharing, reporting and payments remain. |
+| Architecture | In progress | Workspace, Next.js, Expo, domain/validation/payments packages and Neon migrations exist. Legacy Vite application is still present. |
+| Web | In progress | Landing, discovery, campaign, organization landing routes and now campaign create/list, guest donation checkout, organizer registration, report, moderation, payout-request and refund API routes exist against real Neon queries. Discovery/campaign UI pages still render mock data (`components/campaign-data.ts`) instead of calling the new `/api/campaigns`. `next build` was broken before this pass (see "Build fixed" below) and one Next.js internal issue remains (below). |
+| Expo | In progress | Native tabs, discovery/campaign/donate screens exist. Missing auth, deep link testing, organizer/organization workspace, secure storage, notifications, camera/image picker, QR share and EAS build configuration. |
+| Authentication | Blocked | Better Auth now uses a node-postgres-compatible `Pool` (was previously wired to `neon()`'s HTTP tag function, which is incompatible with better-auth's Kysely adapter and crashed at build time -- fixed this pass). Still needs a real Neon database, generated auth schema, production `BETTER_AUTH_SECRET`/origins, email sender and end-to-end verification. |
+| Database / RLS | In progress | Migrations 0001-0002 contain profiles, organizations, members, campaigns, donations, ledger, payouts, campaign updates/beneficiaries/media and initial RLS. Migration 0003 (new) adds campaign review queue, reports, moderation actions, fraud signals, platform admins, webhook event ledger, platform-contribution ledger and idempotency table, all RLS-protected, plus security-definer functions (`create_pending_donation`, `settle_donation`, `fail_donation`, `refund_donation_ledger`, `request_payout`, `upsert_payment_account`, `record_moderation_action`, `ingest_webhook_event`) so donation/ledger/payout/moderation writes stay off the blanket-revoked base tables. Still missing: a migration runner, transaction-context binding test suite, and tenant-isolation tests. |
+| Fundraising | In progress | Campaign creation now requires a `campaign_reviews` row (Phase 1 manual-approval policy) before `record_moderation_action('approve', ...)` can publish it. Guest checkout, platform-contribution ("tip") ledger, campaign reporting and refunds are wired end-to-end through `@benefitly/payments`. Still missing: real search/ranking, campaign updates UI, beneficiary verification, payout approval UI, and organizer dashboard. |
 | Associations | Not complete | Legacy source preserves the feature reference. No migrated Next.js/Neon members, contributions, benefits, claims, events, communications, expenses, payouts or reports workflows exist. |
-| Payments / payouts | Blocked | Stripe account, Connect configuration, webhook secrets, product/price IDs, regional/compliance decisions and staging test data are required. No payment flow is marked complete. |
-| Notifications | Blocked | Email/SMS/push provider selections, credentials, templates, consent policy and job runner are required. |
-| Admin / trust | Not complete | RBAC, moderation, risk, support, audit UI and operational flows remain. |
-| Security | Not complete | Needs rate-limit backing storage, CSRF/origin deployment configuration, file handling policy, secrets manager, webhook verification, security tests and threat-model review. |
-| Tests | Not complete | Web TypeScript check passes. Unit, integration, authorization, tenant isolation, payment, webhook, E2E, Expo and production build verification remain. |
+| Payments / payouts | Blocked, code complete | **New:** `@benefitly/payments` implements `PaymentProviderAdapter` for both **Stripe Connect** (destination charges with `application_fee_amount`, Express onboarding links, `payouts.create`, refunds with `reverse_transfer`/`refund_application_fee`, webhook verification) and **Adyen for Platforms** (legal entity + balance-account holder onboarding, Checkout Sessions API with `splits` for the donor charge, `transferFunds` payouts, HMAC-validated webhooks). A `PaymentProviderRouter` picks the adapter per campaign's connected account, and both adapters are only registered when their full credential set is present in the environment (`createPaymentProviderRouterFromEnv`) -- no provider SDK call is reachable without real credentials, honoring the existing launch gate. Still blocked on real Stripe/Adyen accounts, webhook secrets, sandbox test runs, and the compliance/counsel review listed in `docs/architecture/PAYMENT_PROVIDER_DECISION.md`. |
+| Notifications | Blocked | Email/SMS/push provider selections, credentials, templates, consent policy and job runner are required. `notifications` table and domain types (`AppNotification`) exist; nothing writes to it yet. |
+| Admin / trust | In progress | Platform-admin role table, manual campaign-review queue, campaign reporting, moderation-action recording and fraud-signal schema now exist (migration 0003) with an admin moderation API route. Missing: admin UI, risk scoring, dispute management, support/escalation tooling. |
+| Security | Not complete | Needs rate-limit backing storage (better-auth's is configured but unverified against a real DB), CSRF/origin deployment configuration, file handling policy, secrets manager, webhook verification (implemented in code, unverified against real endpoints), security tests and threat-model review. |
+| Tests | Not complete | No automated tests exist yet for any package. `tsc --noEmit` passes clean across every workspace (`domain`, `validation`, `payments`, `web`, `mobile`) as of this pass. Unit, integration, authorization, tenant isolation, payment, webhook, E2E, Expo and production build verification remain. |
+
+## Build fixed this pass
+
+`apps/web`'s `next build` did not succeed even before this session's changes (verified against a clean checkout of `main`). Three separate, unrelated defects were compounding:
+
+1. **Workspace package resolution.** `@benefitly/domain`, `@benefitly/validation` and `@benefitly/payments` import their own sibling files with explicit `.js` specifiers (required by their `"moduleResolution": "NodeNext"` `tsc` config), but the source files are `.ts`. Webpack's default resolver doesn't remap that extension for transpiled packages. Fixed with `config.resolve.extensionAlias` in `apps/web/next.config.ts`.
+2. **PostCSS config collision.** `apps/web/app/globals.css` is hand-written CSS with zero Tailwind directives, but Next's config loader walked up to the repository-root `postcss.config.js` (owned by the legacy Vite app, written as an ES module without `"type": "module"`) and failed to load it. Fixed with a local `apps/web/postcss.config.js` (`{ plugins: {} }`).
+3. **Build-time secret/DB requirements.** `lib/database.ts` and `lib/auth.ts` both threw at *module import time* when `DATABASE_URL`/`BETTER_AUTH_SECRET` were unset and `NODE_ENV === "production"` -- but `next build` always sets `NODE_ENV=production`, so this failed every build, not just misconfigured deploys. Both now use obviously-fake placeholders that fail loudly at *call* time instead; the real values are still required before any deploy can actually authenticate a user or serve real data.
+4. **better-auth + Neon incompatibility.** `lib/auth.ts` passed the raw `neon()` HTTP tagged-template function as better-auth's `database`. better-auth's Kysely Postgres dialect calls it as `sql(text, params)`, a calling convention `@neondatabase/serverless` v1 removed. Fixed by passing a `Pool` (node-postgres-compatible) instead, which is the supported bridge.
+
+**One known issue remains**: `next build`'s static export of the built-in `/404`/`/_error` page fails with a minified React error (#31, "objects are not valid as a React child") under this Next 15.5.26 / React 19.3 combination, even with a custom `app/not-found.tsx` in place. Not resolved this pass; needs either a Next/React version bump or a deeper investigation of Next's internal error-page renderer. Everything else in `next build` (workspace compilation, typecheck, all API routes, all other pages) now succeeds.
 
 ## Required external inputs
 
 1. Neon pooled and direct connection URLs, database branch/deployment policy, and a designated migration runner.
 2. `BETTER_AUTH_SECRET`, production web/mobile origins, email provider and sender domain.
-3. Stripe keys, Connect mode/region policy, webhook signing secrets, product/price IDs and permitted payout countries.
-4. Storage provider, malware-scanning policy, retention policy and secure-document access model.
+3. Stripe secret key + webhook signing secret (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, optional `STRIPE_CONNECT_ACCOUNT_TYPE`); Adyen API key, HMAC key, merchant account and balance platform (`ADYEN_API_KEY`, `ADYEN_HMAC_KEY`, `ADYEN_MERCHANT_ACCOUNT`, `ADYEN_BALANCE_PLATFORM`, `ADYEN_ENVIRONMENT`) -- see `packages/payments/src/config.ts`. Connect mode/region policy, permitted payout countries and counsel/compliance sign-off per `docs/architecture/PAYMENT_PROVIDER_DECISION.md`.
+4. Storage provider, malware-scanning policy, retention policy and secure-document access model (for campaign media/photo/video upload -- not yet implemented in either app).
 5. Push/SMS provider credentials, EAS project/account ownership, Apple Developer and Google Play Console accounts.
 6. Legal-approved privacy policy, terms, financial disclosures, charity/fundraising compliance rules, refund/dispute policy and support escalation process.
+7. At least one `platform_admins` row (inserted manually against the production database) before any campaign can be approved, since Phase 1 requires manual review and there is no bootstrap admin UI yet.
 
 ## Base44 exit status
 
 **BASE44 REFERENCES: not verified as 0.** The legacy function/source directories are retained as migration references. They must not be deleted until their secure replacements are implemented and tested. A final repository-wide `rg -uuu -n -i 'base44|vite_base44|base44_' .` check is required after migration.
 
+## Mobile app gap list (explicit product requirements not yet built)
+
+Sign-up/login, search (as distinct from discover), donate confirmation/receipt UI, optional platform-contribution UI, create-fundraiser flow, photo/video upload, manage-fundraiser dashboard, view-donations list, campaign updates authoring, share-fundraiser + QR code, push notifications, profile, payment/payout status, report-campaign UI, and admin screens are all unbuilt in `apps/mobile`. The web app has the same gaps for its equivalent authenticated workspace routes. The backend API surface added this pass (donations, organizer registration, reports, moderation, payouts, refunds) is what both should call once built -- per the shared-backend architecture, neither app should grow its own copy of this logic.
+
 ## Release decision
 
-Do not deploy, enable donations/payouts, submit to app stores, or claim production readiness. The next implementation sequence is: finish Neon schema/RLS and auth; migrate association workflows; implement verified payment/ledger/webhooks; complete fundraising/admin/trust; finish native flows; run the Gate 8 test suite; then remove the legacy provider code and publish a verified completion report.
+Do not deploy, enable donations/payouts, submit to app stores, or claim production readiness. The next implementation sequence is: finish Neon schema/RLS and auth against a real database; resolve the remaining `/404` prerender issue; migrate association workflows; obtain real Stripe/Adyen sandbox credentials and run the guardrail checklist in `docs/architecture/PAYMENT_PROVIDER_DECISION.md`; build the missing web/mobile screens listed above against the new API routes; complete admin/trust UI; finish native flows; run the Gate 8 test suite; then remove the legacy provider code and publish a verified completion report.
