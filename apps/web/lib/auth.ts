@@ -1,5 +1,6 @@
 import { Pool } from "@neondatabase/serverless";
 import { betterAuth } from "better-auth";
+import { expo } from "@better-auth/expo";
 
 const databaseUrl = process.env.DATABASE_URL;
 // See lib/database.ts: this must not throw at module scope, or `next build` fails outright.
@@ -15,7 +16,10 @@ export const auth = betterAuth({
   // the placeholder DATABASE_URL above -- BETTER_AUTH_SECRET is still required at deploy time.
   secret: process.env.BETTER_AUTH_SECRET || "insecure-build-placeholder-set-BETTER_AUTH_SECRET",
   emailAndPassword: { enabled: true },
-  trustedOrigins: (process.env.BETTER_AUTH_TRUSTED_ORIGINS || "http://localhost:3000").split(","),
+  // The Expo app has no cookie jar, so better-auth's expo() plugin issues a bearer token instead
+  // and stores it in SecureStore; "benefitly://" is the app's deep-link scheme (apps/mobile/app.json).
+  plugins: [expo()],
+  trustedOrigins: [...(process.env.BETTER_AUTH_TRUSTED_ORIGINS || "http://localhost:3000").split(","), "benefitly://"],
   rateLimit: { enabled: true, storage: "database", customRules: { "/sign-in/email": { window: 60, max: 5 }, "/sign-up/email": { window: 60, max: 3 } } },
   advanced: { useSecureCookies: process.env.NODE_ENV === "production", disableCSRFCheck: false, disableOriginCheck: false, ipAddress: { ipAddressHeaders: ["x-forwarded-for", "x-real-ip"] } },
   session: { expiresIn: 60 * 60 * 24 * 7, updateAge: 60 * 60 * 24, cookieCache: { enabled: true, maxAge: 300, strategy: "jwe" } },
