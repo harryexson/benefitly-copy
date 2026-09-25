@@ -2,10 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { reportCampaignSchema } from "@benefitly/validation";
 import { sql, withUserContext } from "@/lib/database";
 import { requireSession } from "@/lib/session";
+import { withRouteErrorHandling } from "@/lib/api-errors";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const POST = withRouteErrorHandling(async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: campaignId } = await params;
   const body = await request.json().catch(() => null);
   const parsed = reportCampaignSchema.safeParse({ ...body, campaignId });
@@ -35,4 +36,4 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   }
 
   return NextResponse.json({ data: report }, { status: 201 });
-}
+});

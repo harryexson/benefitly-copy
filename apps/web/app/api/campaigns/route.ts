@@ -1,30 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { campaignSearchSchema, campaignCreateSchema } from "@benefitly/validation";
-import { sql, withUserContext } from "@/lib/database";
+import { withUserContext } from "@/lib/database";
+import { listPublishedCampaigns } from "@/lib/campaigns";
 import { requireSession } from "@/lib/session";
+import { withRouteErrorHandling } from "@/lib/api-errors";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(request: NextRequest) {
+export const GET = withRouteErrorHandling(async function GET(request: NextRequest) {
   const parsed = campaignSearchSchema.safeParse(Object.fromEntries(request.nextUrl.searchParams));
   if (!parsed.success) {
     return NextResponse.json({ error: { code: "INVALID_QUERY", message: "Search parameters are invalid." } }, { status: 400 });
   }
-  const { q, category } = parsed.data;
   // Anonymous, RLS-scoped read: only status = 'published' rows are visible without app.user_id bound.
-  const rows = await sql`
-    select id, slug, title, story, category, location, currency, goal_amount, raised_amount, supporter_count, status
-    from public.campaigns
-    where status = 'published'
-      and (${category ?? null}::text is null or category = ${category ?? null})
-      and (${q ?? null}::text is null or title ilike ${q ? `%${q}%` : null} or story ilike ${q ? `%${q}%` : null})
-    order by published_at desc
-    limit 60
-  `;
+  const rows = await listPublishedCampaigns(parsed.data);
   return NextResponse.json({ data: rows });
-}
+});
 
-export async function POST(request: NextRequest) {
+export const POST = withRouteErrorHandling(async function POST(request: NextRequest) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Sign in to create a campaign." } }, { status: 401 });
 
@@ -56,7 +49,7 @@ export async function POST(request: NextRequest) {
   ]);
 
   return NextResponse.json({ data: campaign }, { status: 201 });
-}
+});
 
 function slugify(title: string): string {
   return title

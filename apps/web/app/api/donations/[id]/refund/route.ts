@@ -3,10 +3,11 @@ import { refundRequestSchema } from "@benefitly/validation";
 import { sql, withUserContext } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
 import { requireSession } from "@/lib/session";
+import { withRouteErrorHandling } from "@/lib/api-errors";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export const POST = withRouteErrorHandling(async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Sign in required." } }, { status: 401 });
 
@@ -39,4 +40,4 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const message = error instanceof Error ? error.message : "Refund ledger update failed";
     return NextResponse.json({ error: { code: message.includes("not authorized") ? "FORBIDDEN" : "REFUND_FAILED", message } }, { status: message.includes("not authorized") ? 403 : 400 });
   }
-}
+});

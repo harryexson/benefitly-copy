@@ -3,6 +3,7 @@ import { organizerRegistrationSchema } from "@benefitly/validation";
 import { sql } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
 import { requireSession } from "@/lib/session";
+import { withRouteErrorHandling } from "@/lib/api-errors";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ export const dynamic = "force-dynamic";
  * connected account, persist its id, and return a hosted onboarding link for the organizer to
  * complete identity verification and bank details directly with the provider.
  */
-export async function POST(request: NextRequest) {
+export const POST = withRouteErrorHandling(async function POST(request: NextRequest) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Sign in to register as an organizer." } }, { status: 401 });
 
@@ -45,4 +46,4 @@ export async function POST(request: NextRequest) {
   );
 
   return NextResponse.json({ data: { provider: input.provider, providerAccountId: account.providerAccountId, onboardingUrl } }, { status: 201 });
-}
+});

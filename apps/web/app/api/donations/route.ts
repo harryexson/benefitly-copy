@@ -5,10 +5,11 @@ import type { PaymentProvider } from "@benefitly/domain";
 import { sql } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
 import { requireSession } from "@/lib/session";
+import { withRouteErrorHandling } from "@/lib/api-errors";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(request: NextRequest) {
+export const POST = withRouteErrorHandling(async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
   const parsed = donationIntentSchema.safeParse(body);
   if (!parsed.success) {
@@ -61,4 +62,4 @@ export async function POST(request: NextRequest) {
       currency: split.currency,
     },
   }, { status: 201 });
-}
+});
