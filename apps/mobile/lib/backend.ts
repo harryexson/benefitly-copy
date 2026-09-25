@@ -87,3 +87,32 @@ export type MyCampaignsResult = {
 export function getMyCampaigns() {
   return api<MyCampaignsResult>("/api/me/campaigns");
 }
+
+export type CampaignMediaItem = { id: string; storage_key: string; alt_text: string | null; media_type: "image" | "video"; position: number };
+
+export function uploadCampaignMedia(campaignId: string, file: { uri: string; name: string; type: string }) {
+  const form = new FormData();
+  // React Native's fetch/FormData accepts this shape directly; it is not a real Blob/File.
+  form.append("file", file as unknown as Blob);
+  return api<CampaignMediaItem>(`/api/campaigns/${campaignId}/media`, { method: "POST", body: form });
+}
+
+export type CampaignUpdateItem = { id: string; body: string; created_at: string };
+
+export function postCampaignUpdate(campaignId: string, body: string) {
+  return api<CampaignUpdateItem>(`/api/campaigns/${campaignId}/updates`, { method: "POST", body: JSON.stringify({ body }) });
+}
+
+export function registerPushToken(token: string, platform: "ios" | "android") {
+  return api<{ registered: true }>("/api/me/push-tokens", { method: "POST", body: JSON.stringify({ token, platform }) });
+}
+
+export type AppNotification = { id: string; type: string; payload: Record<string, unknown>; read_at: string | null; created_at: string };
+
+export function getMyNotifications() {
+  return api<AppNotification[]>("/api/me/notifications");
+}
+
+export function markNotificationRead(id: string) {
+  return api<AppNotification>(`/api/me/notifications/${id}/read`, { method: "POST" });
+}

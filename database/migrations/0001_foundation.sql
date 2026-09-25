@@ -23,7 +23,10 @@ alter table public.audit_logs enable row level security;
 
 -- The API must issue `set_config('app.user_id', verified_session_user_id, true)` per transaction.
 create function public.current_user_id() returns uuid language sql stable as $$ select nullif(current_setting('app.user_id', true), '')::uuid $$;
-create function public.is_org_member(target_org uuid) returns boolean language sql stable as $$ select exists (select 1 from public.organization_members where organization_id = target_org and user_id = public.current_user_id() and status = 'active') $$;
+-- security definer: this is called from inside RLS policies evaluated as arbitrary querying
+-- roles (which must not need a direct grant on organization_members to ask "am I a member?"),
+-- and from inside other security-definer functions. Returns only a boolean, never row data.
+create function public.is_org_member(target_org uuid) returns boolean language sql stable security definer set search_path = public as $$ select exists (select 1 from public.organization_members where organization_id = target_org and user_id = public.current_user_id() and status = 'active') $$;
 create policy organization_members_select on public.organization_members for select using (user_id = public.current_user_id() or public.is_org_member(organization_id));
 create policy organizations_select on public.organizations for select using (public.is_org_member(id) or created_by = public.current_user_id());
 create policy campaigns_public_read on public.campaigns for select using (status = 'published' or owner_id = public.current_user_id() or (organization_id is not null and public.is_org_member(organization_id)));

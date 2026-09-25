@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { ModerationActions } from "@/components/moderation-actions";
-import { listPendingReviews, listOpenReports } from "@/lib/admin";
+import { PayoutApproveButton } from "@/components/payout-approve-button";
+import { listPendingReviews, listOpenReports, listPendingPayouts } from "@/lib/admin";
 import { requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -25,9 +26,10 @@ export default async function ModerationPage() {
 
   let reviews: Awaited<ReturnType<typeof listPendingReviews>> = [];
   let reports: Awaited<ReturnType<typeof listOpenReports>> = [];
+  let payouts: Awaited<ReturnType<typeof listPendingPayouts>> = [];
   let forbidden = false;
   try {
-    [reviews, reports] = await Promise.all([listPendingReviews(session.user.id), listOpenReports(session.user.id)]);
+    [reviews, reports, payouts] = await Promise.all([listPendingReviews(session.user.id), listOpenReports(session.user.id), listPendingPayouts(session.user.id)]);
   } catch {
     forbidden = true;
   }
@@ -42,6 +44,24 @@ export default async function ModerationPage() {
 
         {!forbidden && (
           <>
+            <section className="section" style={{ padding: "24px 0" }}>
+              <h2>Pending payouts ({payouts.length})</h2>
+              {payouts.length === 0 && <p className="muted">Nothing waiting on a payout decision.</p>}
+              {payouts.map((payout) => (
+                <article className="campaign-card" key={payout.id} style={{ padding: 16, marginBottom: 12 }}>
+                  <div className="campaign-copy">
+                    <h3>
+                      <Link href={`/f/${payout.campaign_slug}`}>{payout.campaign_title}</Link>
+                    </h3>
+                    <p className="muted">
+                      ${(payout.amount / 100).toLocaleString()} {payout.currency} via {payout.provider} · requested by {payout.requester_name ?? "Unknown"}
+                    </p>
+                    <PayoutApproveButton payoutId={payout.id} />
+                  </div>
+                </article>
+              ))}
+            </section>
+
             <section className="section" style={{ padding: "24px 0" }}>
               <h2>Pending campaign reviews ({reviews.length})</h2>
               {reviews.length === 0 && <p className="muted">Nothing waiting on review.</p>}

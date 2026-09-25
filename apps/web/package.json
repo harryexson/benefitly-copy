@@ -14,6 +14,7 @@
     "@benefitly/validation": "*",
     "@better-auth/expo": "^1.7.6",
     "@neondatabase/serverless": "^1.0.1",
+    "@vercel/blob": "^2.8.0",
     "better-auth": "^1.7.6",
     "next": "15.3.9",
     "react": "19.0.0",

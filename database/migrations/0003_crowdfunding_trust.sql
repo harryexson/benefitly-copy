@@ -14,7 +14,9 @@ create table public.platform_admins (
   granted_at timestamptz not null default now()
 );
 
-create function public.is_platform_admin() returns boolean language sql stable as
+-- security definer: same reasoning as is_org_member (0001) -- called from RLS policies
+-- evaluated as arbitrary querying roles, which have no direct grant on platform_admins.
+create function public.is_platform_admin() returns boolean language sql stable security definer set search_path = public as
   $$ select exists (select 1 from public.platform_admins where profile_id = public.current_user_id()) $$;
 
 -- payment_accounts (0002) carries no public-read policy: donors are never org members, so a
@@ -133,7 +135,7 @@ create table public.idempotent_requests (
 
 create function public.create_pending_donation(
   target_campaign uuid, donor uuid, gross_amount integer, platform_contribution integer, currency_code char(3),
-  idempotency_key uuid, provider_payment_id text, suggested_rate numeric
+  donation_idempotency_key uuid, donation_provider_payment_id text, suggested_rate numeric
 ) returns public.donations language plpgsql security definer set search_path = public as $$
 declare inserted public.donations;
 begin
@@ -141,7 +143,7 @@ begin
     raise exception 'campaign % is not accepting donations', target_campaign;
   end if;
   insert into public.donations (campaign_id, donor_id, gross_amount, platform_contribution, processor_fee, net_campaign_amount, currency, status, idempotency_key, provider_payment_id)
-  values (target_campaign, donor, gross_amount, platform_contribution, 0, gross_amount - platform_contribution, currency_code, 'pending', idempotency_key, provider_payment_id)
+  values (target_campaign, donor, gross_amount, platform_contribution, 0, gross_amount - platform_contribution, currency_code, 'pending', donation_idempotency_key, donation_provider_payment_id)
   on conflict (idempotency_key) do update set provider_payment_id = excluded.provider_payment_id
   returning * into inserted;
   if platform_contribution > 0 then
@@ -239,7 +241,7 @@ begin
     update public.campaigns set status = new_campaign_status, published_at = case when new_campaign_status = 'published' then now() else published_at end where id = target_campaign;
   end if;
   if decision in ('approve', 'reject', 'request_changes') then
-    update public.campaign_reviews set status = case decision when 'approve' then 'approved' when 'reject' then 'rejected' else 'changes_requested' end,
+    update public.campaign_reviews set status = (case decision when 'approve' then 'approved' when 'reject' then 'rejected' else 'changes_requested' end)::public.campaign_review_status,
       reviewed_by = public.current_user_id(), notes = decision_reason, decided_at = now()
     where campaign_id = target_campaign and status = 'pending';
   end if;
@@ -274,7 +276,7 @@ grant execute on function public.mark_webhook_event_processed(text, text, text) 
 
 -- payouts (0002) has a read policy but no insert policy: an organizer or org finance manager
 -- requests a payout through this function, which checks authorization itself before inserting.
-create function public.request_payout(target_campaign uuid, account uuid, payout_amount integer, payout_currency char(3), idempotency_key uuid)
+create function public.request_payout(target_campaign uuid, account uuid, payout_amount integer, payout_currency char(3), payout_idempotency_key uuid)
 returns public.payouts language plpgsql security definer set search_path = public as $$
 declare result public.payouts; campaign_owner uuid; campaign_org uuid;
 begin
@@ -283,7 +285,7 @@ begin
     raise exception 'not authorized to request a payout for this campaign';
   end if;
   insert into public.payouts (organization_id, campaign_id, payment_account_id, amount, currency, requested_by, idempotency_key)
-  values (campaign_org, target_campaign, account, payout_amount, payout_currency, public.current_user_id(), idempotency_key)
+  values (campaign_org, target_campaign, account, payout_amount, payout_currency, public.current_user_id(), payout_idempotency_key)
   on conflict (idempotency_key) do update set status = public.payouts.status
   returning * into result;
   return result;

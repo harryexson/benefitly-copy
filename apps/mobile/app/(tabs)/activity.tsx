@@ -100,6 +100,9 @@ export default function Activity() {
             <Text style={styles.copy}>
               ${(campaign.raised_amount / 100).toLocaleString()} raised of ${(campaign.goal_amount / 100).toLocaleString()}
             </Text>
+            <Link href={{ pathname: "/campaign/[slug]/manage", params: { slug: campaign.slug } }} style={styles.secondaryButton}>
+              <Text style={styles.secondaryButtonText}>Manage photos, video &amp; updates</Text>
+            </Link>
             {campaign.status === "published" && data.paymentAccount?.status === "active" && campaign.raised_amount > 0 && (
               <Pressable
                 accessibilityRole="button"

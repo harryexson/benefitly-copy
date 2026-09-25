@@ -67,3 +67,27 @@ export async function getPublishedCampaignBySlug(slug: string): Promise<Campaign
 function withDefaultImage(row: Record<string, unknown>) {
   return { ...row, image: row.image ?? DEFAULT_IMAGE };
 }
+
+export type CampaignMediaItem = { id: string; storage_key: string; alt_text: string | null; media_type: "image" | "video"; position: number };
+
+export async function listCampaignMedia(campaignId: string): Promise<CampaignMediaItem[]> {
+  const rows = await sql`
+    select id, storage_key, alt_text, media_type, position from public.campaign_media
+    where campaign_id = ${campaignId}
+    order by position asc
+  `;
+  return rows as unknown as CampaignMediaItem[];
+}
+
+export type CampaignUpdateItem = { id: string; body: string; created_at: string; author_name: string | null };
+
+export async function listCampaignUpdates(campaignId: string): Promise<CampaignUpdateItem[]> {
+  const rows = await sql`
+    select u.id, u.body, u.created_at, p.name as author_name
+    from public.campaign_updates u
+    left join public.profiles p on p.id = u.author_id
+    where u.campaign_id = ${campaignId}
+    order by u.created_at desc
+  `;
+  return rows as unknown as CampaignUpdateItem[];
+}

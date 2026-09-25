@@ -70,3 +70,60 @@ export const refundRequestSchema = z.object({
   reason: z.enum(["requested_by_customer", "fraudulent", "duplicate"]).default("requested_by_customer"),
   idempotencyKey: z.string().uuid(),
 });
+
+export const createOrganizationSchema = z.object({
+  name: z.string().trim().min(2).max(160),
+});
+
+export const addMemberSchema = z.object({
+  memberNumber: z.string().trim().min(1).max(40),
+  membershipLevel: z.string().trim().max(80).optional(),
+  contact: z.object({ email: z.string().email().optional(), phone: z.string().trim().max(40).optional(), name: z.string().trim().max(160).optional() }).default({}),
+  userId: z.string().uuid().optional(),
+});
+
+export const recordContributionSchema = z.object({
+  memberId: z.string().uuid(),
+  kind: z.string().trim().min(1).max(80).default("Dues"),
+  amount: z.number().int().min(1),
+  currency: z.string().length(3).default("USD"),
+});
+
+export const createBenefitProgramSchema = z.object({
+  name: z.string().trim().min(2).max(160),
+  description: z.string().trim().min(1).max(5000),
+  eligibility: z.string().trim().max(2000).optional(),
+  maximumAmount: z.number().int().min(0).optional(),
+  waitingPeriodDays: z.number().int().min(0).default(0),
+});
+
+export const submitBenefitClaimSchema = z.object({
+  programId: z.string().uuid(),
+  memberId: z.string().uuid(),
+  requestedAmount: z.number().int().min(1),
+  reason: z.string().trim().min(1).max(2000),
+});
+
+export const decideBenefitClaimSchema = z.object({
+  decision: z.enum(["approved", "denied"]),
+  note: z.string().trim().max(2000).optional(),
+});
+
+export const createEventSchema = z.object({
+  title: z.string().trim().min(2).max(160),
+  description: z.string().trim().max(5000).optional(),
+  startsAt: z.string().datetime(),
+  endsAt: z.string().datetime().optional(),
+  location: z.string().trim().max(200).optional(),
+  capacity: z.number().int().min(1).optional(),
+  visibility: z.enum(["public", "members"]).default("members"),
+});
+
+export const registerForEventSchema = z.object({
+  memberId: z.string().uuid(),
+});
+
+export const postAnnouncementSchema = z.object({
+  title: z.string().trim().min(2).max(200),
+  body: z.string().trim().min(1).max(5000),
+});

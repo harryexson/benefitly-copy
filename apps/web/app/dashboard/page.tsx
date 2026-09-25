@@ -81,6 +81,9 @@ export default async function DashboardPage() {
                       <p>
                         <strong>${(campaign.raised_amount / 100).toLocaleString()}</strong> raised of ${(campaign.goal_amount / 100).toLocaleString()}
                       </p>
+                      <p>
+                        <Link href={`/dashboard/${campaign.id}`}>Manage photos, video &amp; updates</Link>
+                      </p>
                       {campaign.status === "published" && paymentAccount?.status === "active" && (
                         <PayoutRequestButton
                           campaignId={campaign.id}

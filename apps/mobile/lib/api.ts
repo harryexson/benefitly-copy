@@ -18,10 +18,13 @@ export class ApiError extends Error {
  */
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const cookie = await authClient.getCookie();
+  // FormData bodies (media upload) must not get a manual Content-Type: fetch needs to set its
+  // own multipart boundary, which a fixed header would override and break parsing server-side.
+  const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
   const response = await fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...(cookie ? { Cookie: cookie } : {}),
       ...init.headers,
     },

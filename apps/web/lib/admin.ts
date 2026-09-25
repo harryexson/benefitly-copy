@@ -17,6 +17,25 @@ export async function listPendingReviews(adminId: string): Promise<PendingReview
   return rows as unknown as PendingReview[];
 }
 
+export type PendingPayout = {
+  id: string;
+  campaign_id: string;
+  campaign_title: string;
+  campaign_slug: string;
+  amount: number;
+  currency: string;
+  status: string;
+  provider: string;
+  provider_account_id: string;
+  requester_name: string | null;
+  created_at: string;
+};
+
+export async function listPendingPayouts(adminId: string): Promise<PendingPayout[]> {
+  const [rows] = await withUserContext(adminId, (tx) => [tx`select * from public.list_pending_payouts()`]);
+  return rows as unknown as PendingPayout[];
+}
+
 export async function listOpenReports(adminId: string): Promise<OpenReport[]> {
   const [rows] = await withUserContext(adminId, (tx) => [
     tx`

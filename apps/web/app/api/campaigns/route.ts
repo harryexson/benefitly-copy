@@ -31,20 +31,11 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
 
   const [[campaign]] = await withUserContext(session.user.id, (tx) => [
     tx`
-      with created as (
-        insert into public.campaigns (slug, organization_id, owner_id, title, story, category, location, currency, goal_amount, status)
-        values (${slug}, ${input.organizationId ?? null}, ${session.user.id}, ${input.title}, ${input.story}, ${input.category}, ${input.location ?? null}, ${input.currency}, ${input.goalAmount}, 'review')
-        returning id, slug, title, status
-      ),
-      beneficiary as (
-        insert into public.campaign_beneficiaries (campaign_id, profile_id, name, relationship)
-        select id, ${session.user.id}, ${input.beneficiary.name}, ${input.beneficiary.relationship ?? null} from created
-      ),
-      review as (
-        insert into public.campaign_reviews (campaign_id, status, submitted_by)
-        select id, 'pending', ${session.user.id} from created
+      select id, slug, title, status from public.create_campaign_with_review(
+        ${input.title}, ${input.story}, ${input.category}, ${input.location ?? null},
+        ${input.currency}, ${input.goalAmount}, ${input.organizationId ?? null},
+        ${slug}, ${input.beneficiary.name}, ${input.beneficiary.relationship ?? null}
       )
-      select id, slug, title, status from created
     `,
   ]);
 
