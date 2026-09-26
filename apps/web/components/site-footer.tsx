@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 const columns: { heading: string; links: { label: string; href: string }[] }[] = [
   {
@@ -69,7 +70,7 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-brand">
         <Link className="brand" href="/" aria-label="Benefitly home">
-          <span>↗</span> Benefitly
+          <Image src="/logo.png" alt="Benefitly" width={169} height={34} />
         </Link>
         <p className="muted">Administrative technology for benefits management. Built for verified mutual benefit associations.</p>
       </div>
