@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 export const metadata = { title: "Compliance & acceptable use" };
 
@@ -159,19 +160,19 @@ export default function CompliancePage() {
         <section className="section legal-section">
           <h2>Acceptable use policy</h2>
           <p className="muted">Platform usage restrictions.</p>
-          <p>Benefitly strictly prohibits use for:</p>
-          <ul>
-            <li>Cryptocurrency transactions</li>
-            <li>Gambling or betting services</li>
-            <li>Adult content distribution</li>
-            <li>Sweepstakes or prize schemes</li>
-            <li>High-risk financial instruments</li>
-            <li>Money transmission or remittance services</li>
-            <li>Unlicensed financial activity</li>
-          </ul>
-          <p>
-            <strong>⚠ Violation of this policy results in immediate suspension and termination.</strong>
-          </p>
+          <div className="prohibited-box" role="alert">
+            <p className="prohibited-label">Benefitly strictly prohibits use for:</p>
+            <ul>
+              <li>Cryptocurrency transactions</li>
+              <li>Gambling or betting services</li>
+              <li>Adult content distribution</li>
+              <li>Sweepstakes or prize schemes</li>
+              <li>High-risk financial instruments</li>
+              <li>Money transmission or remittance services</li>
+              <li>Unlicensed financial activity</li>
+            </ul>
+            <p className="prohibited-warning">⚠️ Violation of this policy results in immediate suspension and termination.</p>
+          </div>
         </section>
 
         <section className="section legal-section">
@@ -213,6 +214,7 @@ export default function CompliancePage() {
           </p>
         </section>
       </main>
+      <SiteFooter />
     </>
   );
 }

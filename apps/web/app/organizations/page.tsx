@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { CreateOrganizationForm } from "@/components/create-organization-form";
 import { myOrganizations } from "@/lib/associations";
 import { requireSession } from "@/lib/session";
@@ -112,9 +113,20 @@ export default async function OrganizationsPage() {
           <p>
             Benefitly serves structured, verified organizations only &mdash; mutual benefit associations,
             member-based organizations, faith-based membership communities, and professional associations.
-            Cryptocurrency, gambling, adult content, sweepstakes, high-risk financial services, and remittance or
-            money-transfer businesses are never permitted on the platform.
           </p>
+          <div className="prohibited-box" role="alert">
+            <p className="prohibited-label">Benefitly strictly prohibits use for:</p>
+            <ul>
+              <li>Cryptocurrency transactions</li>
+              <li>Gambling or betting services</li>
+              <li>Adult content distribution</li>
+              <li>Sweepstakes or prize schemes</li>
+              <li>High-risk financial instruments</li>
+              <li>Money transmission or remittance services</li>
+              <li>Unlicensed financial activity</li>
+            </ul>
+            <p className="prohibited-warning">⚠️ Violation of this policy results in immediate suspension and termination.</p>
+          </div>
           <p>
             <Link className="button small" href="/legal/compliance">
               Read the full compliance &amp; acceptable use policy
@@ -126,6 +138,7 @@ export default async function OrganizationsPage() {
           </p>
         </section>
       </main>
+      <SiteFooter />
     </>
   );
 }

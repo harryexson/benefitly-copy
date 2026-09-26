@@ -1,9 +1,10 @@
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { GivingPlan } from "@/components/giving-plan";
 import { listPublishedCampaigns } from "@/lib/campaigns";
 import type { CampaignSummary } from "@benefitly/domain";
 
-export const metadata = { title: "Your giving plan" };
+export const metadata = { title: "Generosity In Action" };
 export const dynamic = "force-dynamic";
 
 export default async function GivingPage() {
@@ -32,17 +33,26 @@ export default async function GivingPage() {
     <>
       <SiteHeader />
       <main className="page">
-        <p className="kicker">For people who want to make a difference</p>
-        <h1>Build a giving plan, not just a wish list.</h1>
-        <p className="lede">
-          Most giving happens on impulse, once, and then gets forgotten. A giving plan is the opposite: pick the causes
-          you actually care about, set a goal you can hold yourself to, and keep a running record of the difference
-          you&apos;ve made &mdash; all private to you, not a prepaid balance you have to hand over first.
-        </p>
+        <section className="giving-hero">
+          <p className="kicker">Generosity In Action</p>
+          <h1>Charitable giving, with a plan behind it.</h1>
+          <p className="lede">
+            Real impact doesn&apos;t happen by accident. It happens when generosity has direction &mdash; a cause you
+            believe in, a goal you hold yourself to, and a record of the difference you&apos;ve actually made. This is
+            your space to turn good intentions into making the world a better place, one deliberate gift at a time.
+          </p>
+          <div className="impact-words">
+            <span>Charitable Giving</span>
+            <span>Making a Difference</span>
+            <span>Real Impact</span>
+            <span>Generosity In Action</span>
+          </div>
+        </section>
 
         {unavailable && <p className="muted">Campaigns can&apos;t be loaded right now. Please try again shortly.</p>}
         {!unavailable && <GivingPlan campaigns={campaigns} />}
       </main>
+      <SiteFooter />
     </>
   );
 }
