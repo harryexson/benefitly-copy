@@ -8,148 +8,208 @@ export default function CompliancePage() {
     <>
       <SiteHeader />
       <main className="page legal-page">
-        <p className="kicker">Trust &amp; compliance</p>
-        <h1>How Benefitly keeps money moving safely.</h1>
+        <p className="kicker">Administrative technology for benefits management</p>
+        <h1>Benefitly is a compliance-forward platform, by design.</h1>
         <p className="lede">
-          Benefitly moves real money on behalf of real people and organizations, so we hold every campaign,
-          association and donor to the same regulatory bar our payment partners hold us to. This page is a plain-language
-          summary of that program. <strong>It is a working draft pending final review by qualified legal counsel</strong> and
-          does not itself constitute legal advice; it will be superseded by our finalized Terms of Service and Acceptable
-          Use Policy before any live, real-money processing goes live.
+          Benefitly is a multi-tenant SaaS platform that allows verified mutual benefit associations to manage and
+          track member benefits through structured workflows. This page is our working compliance disclosure,
+          reviewed and updated as the platform evolves &mdash; it does not replace legal advice.
         </p>
 
         <section className="section legal-section">
-          <h2>Anti-money laundering &amp; counter-terrorist financing (AML/CFT)</h2>
-          <p>
-            Benefitly does not custody funds itself &mdash; every donation is processed and held by a licensed,
-            regulated payment institution (currently Stripe, via Stripe Connect, and Adyen, via Adyen for Platforms),
-            each of which operates its own bank-partnered money transmission and AML program. Benefitly&apos;s own program
-            is built on top of theirs and includes:
-          </p>
-          <ul>
-            <li>
-              <strong>Identity verification (KYC/KYB).</strong> Before any organizer, campaign beneficiary or
-              association can receive a payout, they must complete our payment partner&apos;s identity verification flow
-              &mdash; individuals provide government ID and personal details; organizations provide registration
-              documents, beneficial-ownership information and a responsible-party identity check.
-            </li>
-            <li>
-              <strong>Sanctions &amp; watchlist screening.</strong> Every payout recipient is screened against OFAC&apos;s
-              Specially Designated Nationals list and other applicable sanctions and watchlists before funds are
-              released, and on an ongoing basis afterward. Accounts that match are frozen pending manual review.
-            </li>
-            <li>
-              <strong>Transaction monitoring.</strong> Donation and payout activity is monitored for patterns
-              associated with money laundering, structuring, or terrorist financing (rapid-fire small donations,
-              circular giving between related accounts, payout requests inconsistent with a campaign&apos;s stated
-              purpose, etc.). Flagged activity is held for manual review before funds move.
-            </li>
-            <li>
-              <strong>Recordkeeping.</strong> Donor, organizer and transaction records are retained for the period
-              required by applicable law and our payment partners&apos; own compliance obligations, and are made
-              available to regulators and law enforcement on lawful request.
-            </li>
-            <li>
-              <strong>Suspicious activity reporting.</strong> Where Benefitly or its payment partners identify activity
-              that reasonably appears to involve fraud, money laundering, or other financial crime, it is escalated
-              internally and reported to the relevant authority or financial institution as legally required.
-            </li>
-          </ul>
-          <p className="muted">
-            Because live money movement depends on our payment partners&apos; own underwriting, a campaign or
-            organization can be declined, paused, or offboarded at their discretion as well as ours &mdash; independent
-            of anything Benefitly itself decides.
-          </p>
-        </section>
-
-        <section className="section legal-section">
-          <h2>Donor protection</h2>
-          <ul>
-            <li>Funds are held by our payment partner until a campaign passes review, not released on pledge alone.</li>
-            <li>Payouts to organizers require a documented request and, for larger or higher-risk payouts, a second-person approval before funds move.</li>
-            <li>Every campaign can be reported by any visitor; reports route to manual moderation, not an automated takedown.</li>
-            <li>Refunds are available consistent with our payment partners&apos; dispute and chargeback processes.</li>
-          </ul>
-        </section>
-
-        <section className="section legal-section">
-          <h2>Prohibited uses</h2>
-          <p>The following are never permitted on Benefitly, on any campaign, association, or personal giving profile:</p>
-          <ul>
-            <li>Misrepresenting who is raising funds, who will receive them, or what they will be used for.</li>
-            <li>Raising funds for an individual or purpose that does not exist, or that the organizer does not have a good-faith connection to.</li>
-            <li>Using donated funds for anything materially different from the stated campaign purpose without disclosing the change to donors.</li>
-            <li>Fraud, identity theft, or impersonating another person or organization.</li>
-            <li>Money laundering, terrorist financing, or structuring transactions to evade reporting thresholds.</li>
-            <li>Bribery, kickbacks, or facilitation payments to public officials.</li>
-            <li>Harassment, hate speech, discrimination, or content that threatens or incites violence against a person or group.</li>
-            <li>Sale of goods or services disguised as a charitable or personal-needs campaign.</li>
-            <li>Any activity that is illegal in the jurisdiction where the organizer, beneficiary, or donor is located.</li>
-            <li>Circumventing sanctions, export controls, or OFAC restrictions, including raising or directing funds to a sanctioned individual, entity, or jurisdiction.</li>
-          </ul>
-        </section>
-
-        <section className="section legal-section">
-          <h2>Prohibited &amp; restricted industries</h2>
-          <p>
-            Because Benefitly relies on regulated payment processors, campaigns and organizations in the categories
-            below cannot be supported on the platform. This list follows standard payment-processor restricted-business
-            categories (Stripe and Adyen each publish their own, more detailed versions) and will be updated as those
-            change:
-          </p>
+          <h2>What Benefitly does</h2>
           <div className="compliance-grid">
             <div>
-              <h3>Never permitted</h3>
+              <h3>We do</h3>
               <ul>
-                <li>Illegal drugs or controlled substances, and drug paraphernalia</li>
-                <li>Firearms, ammunition, explosives, or weapon conversion parts</li>
-                <li>Child exploitation material in any form</li>
-                <li>Human trafficking or forced labor</li>
-                <li>Terrorism or violent extremism, including material support</li>
-                <li>Counterfeit goods or intellectual-property infringing products</li>
-                <li>Ponzi, pyramid, or other fraudulent investment schemes</li>
-                <li>Unlicensed money transmission or currency exchange</li>
-                <li>Bail funds for offenses involving violence against another person</li>
+                <li>Manage member benefits and entitlements</li>
+                <li>Automate benefit allocation workflows</li>
+                <li>Maintain structured approval processes</li>
+                <li>Track benefit disbursement records</li>
+                <li>Maintain audit-ready reporting</li>
               </ul>
             </div>
             <div>
-              <h3>Restricted (case-by-case, added underwriting)</h3>
+              <h3>We do not</h3>
               <ul>
-                <li>Adult content or services</li>
-                <li>Gambling, sports betting, and games of chance</li>
-                <li>Cryptocurrency, NFTs, and other digital-asset offerings</li>
-                <li>Multi-level marketing (MLM) or affiliate-recruitment schemes</li>
-                <li>Debt collection, credit repair, or payday lending</li>
-                <li>Cannabis and CBD businesses, even where locally legal</li>
-                <li>Political campaigns, PACs, and lobbying (routed to specialized providers, not general fundraising)</li>
-                <li>Pharmaceuticals, supplements, and unproven medical treatments</li>
+                <li>Hold consumer deposits</li>
+                <li>Store end-user funds</li>
+                <li>Facilitate peer-to-peer transfers</li>
+                <li>Operate wallets</li>
+                <li>Provide lending, credit, or financial tools</li>
               </ul>
             </div>
           </div>
+          <p className="muted">All financial transactions are processed through regulated third-party providers.</p>
+        </section>
+
+        <section className="section legal-section">
+          <h2>Industries we serve</h2>
+          <p>Benefitly exclusively serves structured, verified organizations.</p>
+          <div className="compliance-grid">
+            <div>
+              <h3>Who we serve</h3>
+              <ul>
+                <li>Mutual benefit associations</li>
+                <li>Member-based organizations</li>
+                <li>Structured associations</li>
+                <li>Faith-based membership communities</li>
+                <li>Professional associations</li>
+              </ul>
+            </div>
+            <div>
+              <h3>Prohibited industries</h3>
+              <ul>
+                <li>Cryptocurrency businesses</li>
+                <li>Gambling platforms</li>
+                <li>Adult content providers</li>
+                <li>Sweepstakes operators</li>
+                <li>High-risk financial services</li>
+                <li>Remittance or money transfer businesses</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section className="section legal-section">
+          <h2>Our compliance commitment</h2>
+          <p className="muted">Built for regulatory alignment. Benefitly maintains strong compliance standards aligned with U.S. regulatory expectations.</p>
+
+          <h3>1. Business verification</h3>
+          <p>We conduct verification and due diligence on all tenant organizations before activation:</p>
+          <ul>
+            <li>Legal entity verification</li>
+            <li>EIN confirmation</li>
+            <li>Organizational documentation review</li>
+            <li>Review of intended platform use</li>
+          </ul>
+
+          <h3>2. AML &amp; fraud prevention</h3>
+          <p>Internal controls appropriate for a SaaS infrastructure provider:</p>
+          <ul>
+            <li>Tenant onboarding screening</li>
+            <li>Prohibited industry filtering</li>
+            <li>Transaction monitoring via partners</li>
+            <li>Risk-based review processes</li>
+            <li>Suspicious activity escalation</li>
+            <li>Immediate policy violation suspension</li>
+          </ul>
+
+          <h3>3. No custody of funds</h3>
+          <p>Benefitly does NOT:</p>
+          <ul>
+            <li>Hold customer funds</li>
+            <li>Pool funds</li>
+            <li>Maintain stored-value accounts</li>
+            <li>Operate as a wallet</li>
+          </ul>
           <p className="muted">
-            Individuals or organizations located in, or funds directed to, a country or region subject to comprehensive
-            U.S. or other applicable sanctions cannot use Benefitly, regardless of category.
+            Funds originate from verified organizations and are processed through third-party regulated payment
+            providers.
           </p>
         </section>
 
         <section className="section legal-section">
-          <h2>How enforcement works</h2>
-          <ol>
-            <li>Every new campaign and organization goes through review before it can accept public donations.</li>
-            <li>Reports and automated fraud signals route to a human moderator, who can request more information, pause, or reject.</li>
-            <li>Confirmed violations result in campaign or account suspension, held or reversed funds, and, where required, a report to our payment partners or the relevant authority.</li>
-            <li>Organizers and organizations can appeal a moderation decision; sanctions- or law-enforcement-driven holds cannot be appealed on the platform.</li>
-          </ol>
+          <h2>Risk &amp; regulatory statement</h2>
+          <p>Benefitly operates exclusively as a software service provider.</p>
+          <div className="compliance-grid">
+            <div>
+              <h3>We are NOT</h3>
+              <ul>
+                <li>A payment processor</li>
+                <li>A remittance provider</li>
+                <li>A money transmitter</li>
+                <li>A financial institution</li>
+                <li>A bank</li>
+                <li>A gig marketplace</li>
+              </ul>
+            </div>
+            <div>
+              <h3>We provide</h3>
+              <ul>
+                <li>Administrative benefit management tools only</li>
+                <li>Internal risk controls and compliance oversight</li>
+                <li>Responsible platform usage monitoring</li>
+              </ul>
+            </div>
+          </div>
         </section>
 
         <section className="section legal-section">
-          <p className="muted">
-            Questions about a specific campaign, organization, or this policy can be sent through the report link on
-            any campaign page, or by contacting Benefitly support. See also{" "}
-            <Link className="text-link" href="/organizations">
-              running an organization on Benefitly
+          <h2>Enterprise-grade platform features</h2>
+          <p className="muted">Built for compliance-forward organizations.</p>
+          <div className="compliance-grid">
+            <div>
+              <h3>Secure member management</h3>
+              <p className="muted">Role-based access controls, encrypted data storage, and audit-ready member tracking.</p>
+            </div>
+            <div>
+              <h3>Transparent documentation</h3>
+              <p className="muted">Complete audit trails, transaction records, and compliance-ready reporting infrastructure.</p>
+            </div>
+          </div>
+          <div className="compliance-grid">
+            <div>
+              <h3>Third-party payment integration</h3>
+              <p className="muted">Secure integrations with regulated payment providers (Stripe, Tremendous) for compliant disbursements.</p>
+            </div>
+          </div>
+        </section>
+
+        <section className="section legal-section">
+          <h2>Acceptable use policy</h2>
+          <p className="muted">Platform usage restrictions.</p>
+          <p>Benefitly strictly prohibits use for:</p>
+          <ul>
+            <li>Cryptocurrency transactions</li>
+            <li>Gambling or betting services</li>
+            <li>Adult content distribution</li>
+            <li>Sweepstakes or prize schemes</li>
+            <li>High-risk financial instruments</li>
+            <li>Money transmission or remittance services</li>
+            <li>Unlicensed financial activity</li>
+          </ul>
+          <p>
+            <strong>⚠ Violation of this policy results in immediate suspension and termination.</strong>
+          </p>
+        </section>
+
+        <section className="section legal-section">
+          <h2>Privacy &amp; data security</h2>
+          <p className="muted">Your data is protected with industry-leading security practices.</p>
+          <ul>
+            <li>Collect only necessary administrative information</li>
+            <li>Do not sell user data</li>
+            <li>Encrypt data in transit and at rest</li>
+            <li>Use role-based access controls</li>
+            <li>Maintain secure cloud infrastructure</li>
+            <li>Provide data deletion upon request</li>
+          </ul>
+        </section>
+
+        <section className="section legal-section">
+          <h2>Terms of service</h2>
+          <p>By using Benefitly, organizations agree that:</p>
+          <ul>
+            <li>They are legally registered entities</li>
+            <li>They will not use the platform for restricted activities</li>
+            <li>All benefit distributions are legitimate and lawful</li>
+            <li>They will comply with applicable regulations</li>
+          </ul>
+          <p className="muted">Benefitly reserves the right to suspend accounts that violate compliance policies.</p>
+        </section>
+
+        <section className="section legal-section">
+          <h2>Enterprise ready</h2>
+          <p className="lede">
+            Benefitly is designed for structured associations that require transparent benefit administration,
+            audit-ready documentation, secure entitlement tracking, and compliant third-party payment integrations.
+          </p>
+          <p className="muted">Regulatory alignment &middot; Partner compliance &middot; Risk mitigation &middot; Best practices</p>
+          <p>
+            <Link className="button" href="/organizations">
+              Ready to get started &mdash; join verified mutual benefit associations
             </Link>
-            .
           </p>
         </section>
       </main>

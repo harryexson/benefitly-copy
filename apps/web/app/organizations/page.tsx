@@ -84,23 +84,25 @@ export default async function OrganizationsPage() {
         </section>
 
         <section className="section legal-section" style={{ padding: "24px 0" }}>
-          <h2>Before you can accept donations</h2>
+          <h2>Before you can activate</h2>
           <p>
-            Every organization goes through the same onboarding as an individual organizer, because the money moves
-            through the same regulated payment infrastructure:
+            Benefitly is administrative technology for benefits management, not a payment processor or money
+            transmitter &mdash; we verify every tenant organization before activation, then get out of the way of the
+            money:
           </p>
           <ol>
             <li>
-              <strong>Verify your organization (KYB).</strong> Registration documents, an EIN or equivalent tax ID, and
-              identity verification for the person(s) who control the account.
+              <strong>Business verification.</strong> Legal entity verification, EIN confirmation, organizational
+              documentation review, and a review of intended platform use.
             </li>
             <li>
-              <strong>Connect a payment account.</strong> Payouts go to a verified business bank account tied to your
-              organization, never to a personal account, so funds always trace back to the entity that owns them.
+              <strong>Connect a payment provider.</strong> Disbursements route through regulated third-party
+              providers (Stripe, Tremendous) &mdash; Benefitly never holds, pools, or stores your organization&apos;s
+              funds.
             </li>
             <li>
               <strong>Pass campaign and moderation review.</strong> Each campaign your organization publishes is
-              reviewed before it can accept public donations, the same as any individual campaign.
+              reviewed before it can go live.
             </li>
           </ol>
         </section>
@@ -108,9 +110,10 @@ export default async function OrganizationsPage() {
         <section className="section legal-section" style={{ padding: "24px 0 56px" }}>
           <h2>Regulatory compliance</h2>
           <p>
-            Benefitly runs an AML/CFT program, sanctions screening, and campaign moderation on every organization and
-            campaign, and maintains a clear list of prohibited uses and prohibited industries that no organization on
-            the platform may operate in.
+            Benefitly serves structured, verified organizations only &mdash; mutual benefit associations,
+            member-based organizations, faith-based membership communities, and professional associations.
+            Cryptocurrency, gambling, adult content, sweepstakes, high-risk financial services, and remittance or
+            money-transfer businesses are never permitted on the platform.
           </p>
           <p>
             <Link className="button small" href="/legal/compliance">
@@ -119,7 +122,7 @@ export default async function OrganizationsPage() {
           </p>
           <p className="muted">
             This summary and the linked policy are working drafts pending final legal review, and will be superseded
-            by Benefitly&apos;s finalized Terms of Service before any organization can accept live donations.
+            by Benefitly&apos;s finalized Terms of Service.
           </p>
         </section>
       </main>
