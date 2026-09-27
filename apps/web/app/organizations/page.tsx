@@ -20,6 +20,25 @@ export default async function OrganizationsPage() {
         <h1>Run your association with the same care you bring to your people.</h1>
         <p className="lede">Manage members, dues, benefits, claims, events and community fundraising in a workspace built around accountable decisions.</p>
 
+        <section className="trust-bar" aria-label="Platform trust highlights">
+          <div>
+            <strong>Compliance-First Infrastructure</strong>
+            <p className="muted">Business verification, AML screening, and moderation review built into every plan.</p>
+          </div>
+          <div>
+            <strong>Bank-Level Security</strong>
+            <p className="muted">Data encrypted in transit and at rest, with role-based access scoped to each organization.</p>
+          </div>
+          <div>
+            <strong>Audit-Ready Reporting</strong>
+            <p className="muted">Every benefit decision and transaction recorded with an actor and a reason.</p>
+          </div>
+          <div>
+            <strong>Global Payout Support</strong>
+            <p className="muted">Disbursements routed through regulated payment providers, built beyond the U.S.</p>
+          </div>
+        </section>
+
         {!session && (
           <p>
             <Link className="button" href="/sign-in">

@@ -122,6 +122,40 @@ select member_number, status from public.members where id = :'member_id';
 
 select amount, status from public.record_member_contribution(:'org_id', :'member_id', 'Annual Dues', 5000, 'USD');
 
+-- ===== Subscription plan member-limit gate =====
+select member_count, member_limit, plan_tier from public.organization_member_usage(:'org_id');
+
+-- Downgrade to a plan whose member_limit (1) exactly matches the current active member count, then
+-- confirm a second member is rejected while the org is on it.
+select plan_tier from public.set_organization_plan(:'org_id', 'test_tiny');
+do $$
+begin
+  begin
+    perform public.add_member((select id from public.organizations where slug = 'springfield-neighbors-xyz'), '22222222-2222-2222-2222-222222222222', 'M-002', 'Standard', '{}'::jsonb);
+    raise exception 'SHOULD HAVE FAILED: add_member exceeded the plan member limit';
+  exception when others then
+    if sqlerrm not like '%member limit reached%' then raise; end if;
+    raise notice 'OK: member limit gate blocked add_member over the plan limit';
+  end;
+end $$;
+
+-- Back on a plan with room, the same add_member call succeeds.
+select plan_tier from public.set_organization_plan(:'org_id', 'starter');
+select id as member2_id from public.add_member(:'org_id', '22222222-2222-2222-2222-222222222222', 'M-002', 'Standard', '{}'::jsonb) \gset
+select member_number, status from public.members where id = :'member2_id';
+
+-- A downgrade that would put the org over the new plan's limit is rejected.
+do $$
+begin
+  begin
+    perform public.set_organization_plan((select id from public.organizations where slug = 'springfield-neighbors-xyz'), 'test_tiny');
+    raise exception 'SHOULD HAVE FAILED: downgrade below current member count';
+  exception when others then
+    if sqlerrm not like '%cannot downgrade%' then raise; end if;
+    raise notice 'OK: set_organization_plan blocked a downgrade below current member count';
+  end;
+end $$;
+
 select id as program_id from public.create_benefit_program(:'org_id', 'Emergency Assistance', 'Help for members in crisis', 'Active members', 100000, 30) \gset
 
 -- Member submits their own claim (Carol, matching member_user_id)

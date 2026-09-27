@@ -1,4 +1,4 @@
-import { withUserContext } from "@/lib/database";
+import { sql, withUserContext } from "@/lib/database";
 
 export type MyOrganization = { id: string; slug: string; name: string; permissions: string[] };
 export async function myOrganizations(userId: string): Promise<MyOrganization[]> {
@@ -76,4 +76,24 @@ export type MyMembership = { id: string } | null;
 export async function myMembershipInOrg(userId: string, orgId: string): Promise<MyMembership> {
   const [rows] = await withUserContext(userId, (tx) => [tx`select id from public.members where organization_id = ${orgId} and user_id = ${userId} limit 1`]);
   return (rows[0] as MyMembership) ?? null;
+}
+
+export type PlanUsage = { member_count: number; member_limit: number | null; plan_tier: string; plan_name: string };
+export async function organizationPlanUsage(userId: string, orgId: string): Promise<PlanUsage | null> {
+  const [rows] = await withUserContext(userId, (tx) => [tx`select * from public.organization_member_usage(${orgId})`]);
+  return (rows[0] as PlanUsage) ?? null;
+}
+
+export type SubscriptionPlan = {
+  tier: string;
+  name: string;
+  member_limit: number | null;
+  monthly_price_cents: number | null;
+  annual_price_cents: number | null;
+  sort_order: number;
+  features: string[];
+};
+export async function listSubscriptionPlans(): Promise<SubscriptionPlan[]> {
+  const rows = await sql`select tier, name, member_limit, monthly_price_cents, annual_price_cents, sort_order, features from public.subscription_plans order by sort_order asc`;
+  return rows as unknown as SubscriptionPlan[];
 }

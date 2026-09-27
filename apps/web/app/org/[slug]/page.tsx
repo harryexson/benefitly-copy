@@ -9,7 +9,18 @@ import { DecideClaimButtons } from "@/components/decide-claim-buttons";
 import { CreateEventForm } from "@/components/create-event-form";
 import { RegisterEventButton } from "@/components/register-event-button";
 import { PostAnnouncementForm } from "@/components/post-announcement-form";
-import { getOrganizationBySlug, listMembers, listBenefitPrograms, listBenefitClaims, listEvents, listAnnouncements, myMembershipInOrg } from "@/lib/associations";
+import { PlanUsagePanel } from "@/components/plan-usage-panel";
+import {
+  getOrganizationBySlug,
+  listMembers,
+  listBenefitPrograms,
+  listBenefitClaims,
+  listEvents,
+  listAnnouncements,
+  myMembershipInOrg,
+  organizationPlanUsage,
+  listSubscriptionPlans,
+} from "@/lib/associations";
 import { requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -40,13 +51,17 @@ export default async function OrganizationWorkspacePage({ params }: { params: Pr
   const canManageEvents = org.permissions.includes("events.manage");
   const canManageComms = org.permissions.includes("communications.manage");
 
-  const [members, programs, claims, events, announcements, myMembership] = await Promise.all([
+  const canManagePlan = org.permissions.includes("organization.manage");
+
+  const [members, programs, claims, events, announcements, myMembership, planUsage, plans] = await Promise.all([
     listMembers(session.user.id, org.id).catch(() => []),
     listBenefitPrograms(session.user.id, org.id).catch(() => []),
     listBenefitClaims(session.user.id, org.id).catch(() => []),
     listEvents(session.user.id, org.id).catch(() => []),
     listAnnouncements(session.user.id, org.id).catch(() => []),
     myMembershipInOrg(session.user.id, org.id).catch(() => null),
+    organizationPlanUsage(session.user.id, org.id).catch(() => null),
+    listSubscriptionPlans().catch(() => []),
   ]);
 
   return (
@@ -55,6 +70,12 @@ export default async function OrganizationWorkspacePage({ params }: { params: Pr
       <main className="page">
         <p className="kicker">Organization</p>
         <h1>{org.name}</h1>
+
+        {planUsage && (
+          <section className="section" style={{ padding: "24px 0" }}>
+            <PlanUsagePanel orgId={org.id} usage={planUsage} plans={plans} canManage={canManagePlan} />
+          </section>
+        )}
 
         <section className="section" style={{ padding: "24px 0" }}>
           <h2>Members ({members.length})</h2>

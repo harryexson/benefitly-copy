@@ -127,3 +127,7 @@ export const postAnnouncementSchema = z.object({
   title: z.string().trim().min(2).max(200),
   body: z.string().trim().min(1).max(5000),
 });
+
+export const setOrganizationPlanSchema = z.object({
+  tier: z.enum(["community", "starter", "growth", "scale", "enterprise"]),
+});

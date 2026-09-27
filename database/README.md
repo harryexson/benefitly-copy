@@ -16,6 +16,7 @@ part of this repository's own test process -- not just typechecked.
 0007_notifications.sql
 0008_association_module.sql
 0009_force_row_level_security.sql
+0010_subscription_plans.sql
 ```
 
 No migration runner exists yet; apply each file with `psql -f` (or the Neon SQL editor) in this
