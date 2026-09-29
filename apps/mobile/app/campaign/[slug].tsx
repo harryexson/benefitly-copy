@@ -5,7 +5,9 @@ import { getCampaignBySlug, type CampaignSummary } from "../../lib/backend";
 import { colors } from "../../lib/theme";
 
 const FALLBACK_IMAGE = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=1200&q=85";
-const WEB_ORIGIN = process.env.EXPO_PUBLIC_APP_URL || "https://benefitly.app";
+// "benefitly.app" is an aspirational future domain, not one that resolves today -- a share link
+// must fall back to a host that actually exists.
+const WEB_ORIGIN = process.env.EXPO_PUBLIC_APP_URL || "https://benefitly-web.vercel.app";
 
 export default function CampaignDetail() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
