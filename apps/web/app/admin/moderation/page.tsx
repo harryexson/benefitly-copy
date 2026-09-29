@@ -40,6 +40,9 @@ export default async function ModerationPage() {
       <main className="page">
         <p className="kicker">Trust &amp; safety</p>
         <h1>Moderation queue</h1>
+        <p className="muted">
+          <Link href="/admin">← Back office</Link>
+        </p>
         {forbidden && <p className="muted">This page requires a platform-admin account, or the database is unreachable.</p>}
 
         {!forbidden && (

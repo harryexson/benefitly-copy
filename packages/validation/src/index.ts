@@ -131,3 +131,22 @@ export const postAnnouncementSchema = z.object({
 export const setOrganizationPlanSchema = z.object({
   tier: z.enum(["community", "starter", "growth", "scale", "enterprise"]),
 });
+
+export const createGivingPlanSchema = z
+  .object({
+    campaignId: z.string().uuid().optional(),
+    category: z.string().trim().min(1).max(80).optional(),
+    amount: z.number().positive(),
+    currency: z.string().length(3).default("USD"),
+    cadence: z.enum(["weekly", "monthly", "quarterly", "annually"]),
+    annualGoal: z.number().positive().optional(),
+  })
+  .refine((value) => value.campaignId || value.category, { message: "A giving plan needs either a campaign or a cause category." });
+
+export const setGivingPlanStatusSchema = z.object({
+  status: z.enum(["active", "paused", "cancelled"]),
+});
+
+export const toggleSavedCampaignSchema = z.object({
+  campaignId: z.string().uuid(),
+});

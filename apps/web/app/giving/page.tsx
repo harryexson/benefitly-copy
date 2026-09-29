@@ -1,13 +1,16 @@
+import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { GivingPlan } from "@/components/giving-plan";
 import { listPublishedCampaigns } from "@/lib/campaigns";
+import { requireSession } from "@/lib/session";
 import type { CampaignSummary } from "@benefitly/domain";
 
 export const metadata = { title: "Generosity In Action" };
 export const dynamic = "force-dynamic";
 
 export default async function GivingPage() {
+  const session = await requireSession();
   let campaigns: CampaignSummary[] = [];
   let unavailable = false;
   try {
@@ -47,6 +50,13 @@ export default async function GivingPage() {
             <span>Real Impact</span>
             <span>Generosity In Action</span>
           </div>
+          {session && (
+            <p style={{ marginTop: 18 }}>
+              <Link className="text-link" href="/account">
+                View your real donation history &amp; giving plan →
+              </Link>
+            </p>
+          )}
         </section>
 
         {unavailable && <p className="muted">Campaigns can&apos;t be loaded right now. Please try again shortly.</p>}

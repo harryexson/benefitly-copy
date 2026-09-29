@@ -54,6 +54,27 @@ export default async function DashboardPage() {
 
         {unavailable && <p className="muted">Your dashboard can&apos;t be loaded right now. Please try again shortly.</p>}
 
+        {!unavailable && campaigns.length > 0 && (
+          <div className="stat-row">
+            <div className="stat-tile">
+              <p className="stat-value">${(campaigns.reduce((sum, c) => sum + c.raised_amount, 0) / 100).toLocaleString()}</p>
+              <p className="muted">Total raised</p>
+            </div>
+            <div className="stat-tile">
+              <p className="stat-value">{campaigns.reduce((sum, c) => sum + c.supporter_count, 0)}</p>
+              <p className="muted">Total supporters</p>
+            </div>
+            <div className="stat-tile">
+              <p className="stat-value">{campaigns.length}</p>
+              <p className="muted">Fundraisers</p>
+            </div>
+            <div className="stat-tile">
+              <p className="stat-value">{campaigns.filter((c) => c.status === "published").length}</p>
+              <p className="muted">Live now</p>
+            </div>
+          </div>
+        )}
+
         {!unavailable && !paymentAccount && <OrganizerOnboarding />}
         {!unavailable && paymentAccount && (
           <p className="muted">

@@ -1,6 +1,9 @@
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
+import { SaveCampaignButton } from "@/components/save-campaign-button";
 import { getPublishedCampaignBySlug, listCampaignMedia, listCampaignUpdates } from "@/lib/campaigns";
+import { mySavedCampaigns } from "@/lib/donor";
+import { requireSession } from "@/lib/session";
 import { percentage } from "@benefitly/domain";
 
 export const dynamic = "force-dynamic";
@@ -12,6 +15,10 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
 
   const [media, updates] = await Promise.all([listCampaignMedia(campaign.id).catch(() => []), listCampaignUpdates(campaign.id).catch(() => [])]);
   const funded = percentage(campaign.raised_amount, campaign.goal_amount);
+
+  const session = await requireSession();
+  const saved = session ? await mySavedCampaigns(session.user.id).catch(() => []) : [];
+  const initiallySaved = saved.some((s) => s.campaign_id === campaign.id);
   return (
     <>
       <SiteHeader />
@@ -68,6 +75,13 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
           <a className="share" href={`/f/${campaign.slug}`}>
             Share campaign
           </a>
+          {session ? (
+            <SaveCampaignButton campaignId={campaign.id} initiallySaved={initiallySaved} />
+          ) : (
+            <a className="share" href="/sign-in">
+              Sign in to save
+            </a>
+          )}
           <a className="text-link" href={`/f/${campaign.slug}/report`} style={{ display: "block", marginTop: 16 }}>
             Report this campaign
           </a>

@@ -200,4 +200,89 @@ begin
   end;
 end $$;
 
+-- ===== Donor dashboard: donations, giving plans, saved campaigns (0011) =====
+-- A second, un-refunded donation from Carol so my_giving_summary() has something to sum
+-- (:donation_id above was refunded to zero out raised_amount in the refund-flow check).
+select set_config('app.user_id', '', false);
+select id as donation2_id from public.create_pending_donation(
+  :'campaign_id', '33333333-3333-3333-3333-333333333333', 4000, 0, 'USD',
+  gen_random_uuid(), 'pi_test_carol_2', 0
+) \gset
+select net_campaign_amount, status from public.settle_donation('pi_test_carol_2', 100);
+
+select set_config('app.user_id', '33333333-3333-3333-3333-333333333333', false);
+select count(*) as carol_donation_count from public.my_donations();
+select total_given_cents, campaigns_supported, donation_count from public.my_giving_summary();
+do $$
+begin
+  if (select total_given_cents from public.my_giving_summary()) <> 4000 then
+    raise exception 'SHOULD HAVE FAILED: my_giving_summary total_given_cents expected 4000 gross (fee does not reduce gross), got %', (select total_given_cents from public.my_giving_summary());
+  end if;
+  raise notice 'OK: my_giving_summary totals Carol''s succeeded donation gross amount';
+end $$;
+
+-- Alice (campaign owner) must never see this through my_donations -- it is donor-scoped, not a
+-- generic "donations I can read" view.
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
+select count(*) as alice_my_donations_count from public.my_donations();
+do $$
+begin
+  if (select count(*) from public.my_donations()) <> 0 then
+    raise exception 'SHOULD HAVE FAILED: my_donations leaked a donation Alice did not make';
+  end if;
+  raise notice 'OK: my_donations is donor-scoped, not campaign-owner-scoped';
+end $$;
+-- Alice, as campaign owner, still sees Carol's donation through the organizer-facing view.
+select count(*) as campaign_donor_count from public.list_campaign_donors(:'campaign_id');
+
+select set_config('app.user_id', '33333333-3333-3333-3333-333333333333', false);
+select id as plan_id, status, next_reminder_at is not null as has_reminder from public.create_giving_plan(:'campaign_id', null, 2500, 'USD', 'monthly', 60000) \gset
+select status from public.set_giving_plan_status(:'plan_id', 'paused');
+select status from public.giving_plans where id = :'plan_id';
+
+select public.toggle_saved_campaign(:'campaign_id') as now_saved;
+select count(*) as saved_count from public.saved_campaigns where profile_id = '33333333-3333-3333-3333-333333333333';
+select public.toggle_saved_campaign(:'campaign_id') as now_unsaved;
+select count(*) as saved_count_after_untoggle from public.saved_campaigns where profile_id = '33333333-3333-3333-3333-333333333333';
+
+-- A donor may not flip another donor's giving plan. psql does not interpolate `:'plan_id'`
+-- inside a dollar-quoted do $$ block (it skips substitution inside quoted SQL entities, and
+-- dollar-quoting counts), so the UUID is baked into the block's text via format()/%L first and
+-- the resulting statement executed with \gexec, rather than referenced with :'plan_id' directly.
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
+select format($fmt$
+do $do$
+begin
+  begin
+    perform public.set_giving_plan_status(%L::uuid, 'cancelled');
+    raise exception 'SHOULD HAVE FAILED: Alice cancelled Carol''s giving plan';
+  exception when others then
+    if sqlerrm not like '%%not found%%' then raise; end if;
+    raise notice 'OK: set_giving_plan_status blocked a non-owner from touching another donor''s plan';
+  end;
+end
+$do$;
+$fmt$, :'plan_id') as stmt \gset
+:stmt
+
+-- ===== Platform-admin back office (0011) =====
+select set_config('app.user_id', '22222222-2222-2222-2222-222222222222', false);
+select total_campaigns, total_organizations, total_donors from public.platform_stats();
+select count(*) as admin_org_count from public.list_organizations_admin();
+select plan_tier from public.admin_set_organization_plan(:'org_id', 'growth');
+select count(*) as audit_log_rows from public.list_audit_log_admin(10);
+select count(*) as webhook_event_rows from public.list_webhook_events_admin(10);
+
+-- A non-admin gets nothing back (not an error) from every back-office read -- see the
+-- list_pending_payouts style WHERE-clause guard this migration follows.
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
+select count(*) as non_admin_platform_stats_rows from public.platform_stats();
+select count(*) as non_admin_org_admin_rows from public.list_organizations_admin();
+do $$
+begin
+  if (select count(*) from public.platform_stats()) <> 0 then raise exception 'SHOULD HAVE FAILED: platform_stats leaked to a non-admin'; end if;
+  if (select count(*) from public.list_organizations_admin()) <> 0 then raise exception 'SHOULD HAVE FAILED: list_organizations_admin leaked to a non-admin'; end if;
+  raise notice 'OK: platform-admin back-office reads return nothing for a non-admin';
+end $$;
+
 select 'ALL INTEGRATION TESTS PASSED' as final_result;

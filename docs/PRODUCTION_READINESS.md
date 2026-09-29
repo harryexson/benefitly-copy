@@ -1,6 +1,47 @@
 # Production readiness
 
-Last audited: 2026-09-25
+Last audited: 2026-09-29
+
+## This pass: donor dashboard, giving plans, organizer/admin back office
+
+Migration `0011_donor_and_backoffice.sql` closes a real gap found while building this: **a donor
+had no way to see their own donation history at all** -- `donations_tenant_read` (0001) only lets
+the *campaign owner/org* read a donation row, never the donor who made it. Added, and verified
+end to end against real Postgres (`database/tests/integration.sql`, including RLS-isolation
+checks that a donor cannot see another donor's data and a non-admin gets nothing from every new
+back-office read):
+
+- **Donor dashboard** (`/account`): real donation history, a lifetime/YTD giving summary,
+  DB-backed giving plans (recurring giving *intent* -- amount, cadence, target campaign or cause
+  category, reminders -- persisted per-donor; does not itself charge a payment method, since
+  automated recurring charging needs a payment provider's own subscription primitive that isn't
+  wired up yet), and DB-backed saved fundraisers (a "Save" button now on `/f/[slug]`, replacing
+  the old localStorage-only save list on the public `/giving` page for signed-in users).
+- **Organizer dashboard**: `/dashboard` now shows aggregate stats (total raised, total
+  supporters, live fundraiser count); `/dashboard/[id]` now lists that campaign's actual donors.
+- **Platform back office**: `/admin` is a new landing page with platform-wide stats and links;
+  `/admin/organizations` lists every organization with member count, total raised, and an
+  admin-only plan-tier override (`admin_set_organization_plan`, mirroring `set_organization_plan`
+  from 0010 but for an admin acting on any org, not a member acting on their own); `/admin/audit-log`
+  and `/admin/webhooks` read `audit_logs`/`webhook_events` (both previously inspectable only by
+  querying the database directly). **`audit_logs` has a real read screen now but still has no
+  writer anywhere in the codebase** -- nothing inserts into it; the screen is functional but will
+  stay empty until some write path actually populates it.
+- **Site header** was static markup with no signed-in state at all -- no sign-out control existed
+  anywhere in the app. It is now session-aware (Account/Dashboard/Admin links + sign-out) via
+  `authClient.signOut()`.
+
+**Not independently verified this pass**: the authenticated UI flows above (sign up → see own
+donations → create a giving plan → admin overrides a plan) were not exercised against a live
+running server. `apps/web/lib/database.ts` and `apps/web/lib/auth.ts` both use
+`@neondatabase/serverless` (`neon()` / `Pool`), which speaks Neon's HTTP/WebSocket protocol, not
+plain Postgres wire protocol -- so, unlike the SQL layer above, the running Next.js app cannot be
+smoke-tested against a local Postgres instance at all; it requires a real (or scratch) Neon
+endpoint. What *was* verified: `tsc --noEmit` and `next build` are clean; every route, including
+the new ones, returns its correct signed-out response (200 with a "sign in required" prompt, or
+404) against a locally running production-mode server; and the entire SQL layer -- the part where
+RLS bugs actually live -- passed the full integration suite, including new negative-authorization
+assertions for every new function.
 
 This repository is **not production-ready**, but this pass is the first to actually verify the
 database layer against a real PostgreSQL 16 database rather than typechecking and inspection

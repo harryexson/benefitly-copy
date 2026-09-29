@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { MediaUploader } from "@/components/media-uploader";
 import { UpdateComposer } from "@/components/update-composer";
-import { getOwnedCampaignById } from "@/lib/organizer";
+import { getOwnedCampaignById, listCampaignDonors } from "@/lib/organizer";
 import { listCampaignMedia, listCampaignUpdates } from "@/lib/campaigns";
 import { requireSession } from "@/lib/session";
 
@@ -30,7 +30,11 @@ export default async function ManageCampaignPage({ params }: { params: Promise<{
   const campaign = await getOwnedCampaignById(session.user.id, id).catch(() => null);
   if (!campaign) notFound();
 
-  const [media, updates] = await Promise.all([listCampaignMedia(campaign.id).catch(() => []), listCampaignUpdates(campaign.id).catch(() => [])]);
+  const [media, updates, donors] = await Promise.all([
+    listCampaignMedia(campaign.id).catch(() => []),
+    listCampaignUpdates(campaign.id).catch(() => []),
+    listCampaignDonors(session.user.id, campaign.id).catch(() => []),
+  ]);
 
   return (
     <>
@@ -42,6 +46,35 @@ export default async function ManageCampaignPage({ params }: { params: Promise<{
           <Link href={`/f/${campaign.slug}`}>View public page</Link> · {campaign.status}
           {campaign.review_status ? ` · ${campaign.review_status}` : ""}
         </p>
+
+        <section className="section" style={{ padding: "24px 0" }}>
+          <h2>Donors ({donors.length})</h2>
+          {donors.length === 0 && <p className="muted">No donations yet.</p>}
+          {donors.length > 0 && (
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Donor</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {donors.map((donor) => (
+                  <tr key={donor.id}>
+                    <td>{donor.donor_name}</td>
+                    <td>
+                      ${(donor.gross_amount / 100).toLocaleString()} {donor.currency}
+                    </td>
+                    <td>{donor.status}</td>
+                    <td>{new Date(donor.created_at).toLocaleDateString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </section>
 
         <section className="section" style={{ padding: "24px 0" }}>
           <h2>Photos &amp; video</h2>
