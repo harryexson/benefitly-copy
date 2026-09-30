@@ -1,4 +1,4 @@
-import { withUserContext } from "@/lib/database";
+import { sql, withUserContext } from "@/lib/database";
 
 export type Donation = {
   id: string;
@@ -23,6 +23,7 @@ export type GivingPlan = {
   donor_id: string;
   campaign_id: string | null;
   category: string | null;
+  charity_directory_id: string | null;
   amount_cents: number;
   currency: string;
   cadence: "weekly" | "monthly" | "quarterly" | "annually";
@@ -30,6 +31,27 @@ export type GivingPlan = {
   annual_goal_cents: number | null;
   next_reminder_at: string;
   created_at: string;
+};
+
+export type StatementRow = {
+  donation_id: string;
+  campaign_title: string;
+  campaign_slug: string;
+  organizer: string;
+  gross_amount: number;
+  currency: string;
+  donated_at: string;
+};
+
+export type CharityDirectoryEntry = {
+  id: string;
+  name: string;
+  category: string;
+  mission: string;
+  website_url: string;
+  logo_url: string | null;
+  ein: string | null;
+  sort_order: number;
 };
 
 export type SavedCampaign = { campaign_id: string; created_at: string };
@@ -60,12 +82,35 @@ export async function mySavedCampaigns(userId: string): Promise<SavedCampaign[]>
 
 export async function createGivingPlan(
   userId: string,
-  input: { campaignId?: string; category?: string; amountCents: number; currency: string; cadence: GivingPlan["cadence"]; annualGoalCents?: number },
+  input: {
+    campaignId?: string;
+    category?: string;
+    charityDirectoryId?: string;
+    amountCents: number;
+    currency: string;
+    cadence: GivingPlan["cadence"];
+    annualGoalCents?: number;
+  },
 ): Promise<GivingPlan> {
   const [rows] = await withUserContext(userId, (tx) => [
-    tx`select * from public.create_giving_plan(${input.campaignId ?? null}, ${input.category ?? null}, ${input.amountCents}, ${input.currency}, ${input.cadence}, ${input.annualGoalCents ?? null})`,
+    tx`select * from public.create_giving_plan(${input.campaignId ?? null}, ${input.category ?? null}, ${input.amountCents}, ${input.currency}, ${input.cadence}, ${input.annualGoalCents ?? null}, ${input.charityDirectoryId ?? null})`,
   ]);
   return rows[0] as unknown as GivingPlan;
+}
+
+export async function myGivingStatement(userId: string, year: number | null): Promise<StatementRow[]> {
+  const [rows] = await withUserContext(userId, (tx) => [tx`select * from public.my_giving_statement(${year})`]);
+  return rows as unknown as StatementRow[];
+}
+
+export async function myGivingYears(userId: string): Promise<number[]> {
+  const [rows] = await withUserContext(userId, (tx) => [tx`select * from public.my_giving_years()`]);
+  return (rows as unknown as { my_giving_years: number }[]).map((r) => r.my_giving_years);
+}
+
+export async function listCharityDirectory(): Promise<CharityDirectoryEntry[]> {
+  const rows = await sql`select id, name, category, mission, website_url, logo_url, ein, sort_order from public.charity_directory where active order by sort_order asc`;
+  return rows as unknown as CharityDirectoryEntry[];
 }
 
 export async function setGivingPlanStatus(userId: string, planId: string, status: GivingPlan["status"]): Promise<GivingPlan> {

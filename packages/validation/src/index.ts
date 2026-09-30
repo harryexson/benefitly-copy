@@ -136,12 +136,15 @@ export const createGivingPlanSchema = z
   .object({
     campaignId: z.string().uuid().optional(),
     category: z.string().trim().min(1).max(80).optional(),
+    charityDirectoryId: z.string().uuid().optional(),
     amount: z.number().positive(),
     currency: z.string().length(3).default("USD"),
     cadence: z.enum(["weekly", "monthly", "quarterly", "annually"]),
     annualGoal: z.number().positive().optional(),
   })
-  .refine((value) => value.campaignId || value.category, { message: "A giving plan needs either a campaign or a cause category." });
+  .refine((value) => [value.campaignId, value.category, value.charityDirectoryId].filter(Boolean).length === 1, {
+    message: "A giving plan needs exactly one target: a campaign, a cause category, or a directory charity.",
+  });
 
 export const setGivingPlanStatusSchema = z.object({
   status: z.enum(["active", "paused", "cancelled"]),

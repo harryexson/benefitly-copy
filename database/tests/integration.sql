@@ -285,4 +285,45 @@ begin
   raise notice 'OK: platform-admin back-office reads return nothing for a non-admin';
 end $$;
 
+-- ===== Giving statements + charity directory (0012) =====
+select set_config('app.user_id', '', false);
+select count(*) as directory_public_count from public.charity_directory where active;
+do $$
+begin
+  if (select count(*) from public.charity_directory where active) < 10 then
+    raise exception 'SHOULD HAVE FAILED: charity_directory seed missing expected rows';
+  end if;
+  raise notice 'OK: charity_directory is publicly readable and seeded';
+end $$;
+
+select set_config('app.user_id', '33333333-3333-3333-3333-333333333333', false);
+select count(*) as carol_statement_rows from public.my_giving_statement(null);
+select donated_at::date as d from public.my_giving_statement(extract(year from now())::integer);
+do $$
+begin
+  if (select count(*) from public.my_giving_statement(null)) <> 1 then
+    raise exception 'SHOULD HAVE FAILED: my_giving_statement expected Carol''s one succeeded donation (the refunded one is excluded)';
+  end if;
+  if (select count(*) from public.my_giving_statement(1999)) <> 0 then
+    raise exception 'SHOULD HAVE FAILED: my_giving_statement leaked a row for a year with no donations';
+  end if;
+  raise notice 'OK: my_giving_statement returns only succeeded donations, filtered by year';
+end $$;
+select array_agg(y order by y desc) as carol_giving_years from public.my_giving_years() y;
+
+-- A giving plan may target exactly one of {campaign, category, charity_directory_id} -- not zero, not two.
+select id as some_charity_id from public.charity_directory where active order by sort_order limit 1 \gset
+select id as charity_plan_id, charity_directory_id from public.create_giving_plan(null, null, 1000, 'USD', 'monthly', null, :'some_charity_id') \gset
+select charity_directory_id is not null as targets_charity from public.giving_plans where id = :'charity_plan_id';
+do $$
+begin
+  begin
+    perform public.create_giving_plan(null, null, 1000, 'USD', 'monthly', null, null);
+    raise exception 'SHOULD HAVE FAILED: create_giving_plan accepted a plan with no target at all';
+  exception when others then
+    if sqlerrm not like '%giving_plans_target_check%' then raise; end if;
+    raise notice 'OK: create_giving_plan rejects a plan targeting nothing';
+  end;
+end $$;
+
 select 'ALL INTEGRATION TESTS PASSED' as final_result;

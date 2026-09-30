@@ -10,7 +10,7 @@ export async function SiteHeader() {
 
   return <header className="site-header">
     <Link className="brand" href="/" aria-label="Benefitly home"><Image src="/logo.png" alt="Benefitly" width={169} height={34} priority /></Link>
-    <nav aria-label="Main navigation"><Link href="/discover">Discover</Link><Link href="/giving">Giving plan</Link><Link href="/#how-it-works">How it works</Link><Link href="/organizations">For organizations</Link></nav>
+    <nav aria-label="Main navigation"><Link href="/discover">Discover</Link><Link href="/marketplace">Marketplace</Link><Link href="/giving">Giving plan</Link><Link href="/#how-it-works">How it works</Link><Link href="/organizations">For organizations</Link></nav>
     <div className="header-actions">
       {session ? (
         <>

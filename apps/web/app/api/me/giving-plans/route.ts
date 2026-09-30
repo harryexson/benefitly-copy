@@ -17,6 +17,7 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
   const plan = await createGivingPlan(session.user.id, {
     campaignId: parsed.data.campaignId,
     category: parsed.data.category,
+    charityDirectoryId: parsed.data.charityDirectoryId,
     amountCents: Math.round(parsed.data.amount * 100),
     currency: parsed.data.currency,
     cadence: parsed.data.cadence,

@@ -1,8 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import type { GivingPlan } from "@/lib/donor";
+import type { GivingPlan, CharityDirectoryEntry } from "@/lib/donor";
 import type { CampaignSummary } from "@benefitly/domain";
 
 const cadenceLabels: Record<GivingPlan["cadence"], string> = {
@@ -22,9 +23,10 @@ const categoryLabels: Record<string, string> = {
   disaster: "Disaster",
 };
 
-export function GivingPlanManager({ plans, campaigns }: { plans: GivingPlan[]; campaigns: CampaignSummary[] }) {
+export function GivingPlanManager({ plans, campaigns, charities }: { plans: GivingPlan[]; campaigns: CampaignSummary[]; charities: CharityDirectoryEntry[] }) {
   const router = useRouter();
-  const [target, setTarget] = useState<"campaign" | "category">("campaign");
+  const [target, setTarget] = useState<"campaign" | "category" | "charity">("campaign");
+  const [charityId, setCharityId] = useState(charities[0]?.id ?? "");
   const [campaignId, setCampaignId] = useState(campaigns[0]?.id ?? "");
   const [category, setCategory] = useState("community");
   const [amount, setAmount] = useState("");
@@ -52,6 +54,7 @@ export function GivingPlanManager({ plans, campaigns }: { plans: GivingPlan[]; c
       body: JSON.stringify({
         campaignId: target === "campaign" ? campaignId || undefined : undefined,
         category: target === "category" ? category : undefined,
+        charityDirectoryId: target === "charity" ? charityId || undefined : undefined,
         amount: dollars,
         currency: "USD",
         cadence,
@@ -88,12 +91,19 @@ export function GivingPlanManager({ plans, campaigns }: { plans: GivingPlan[]; c
         <ul className="gift-log" style={{ marginBottom: 20 }}>
           {plans.map((plan) => {
             const campaign = plan.campaign_id ? campaigns.find((c) => c.id === plan.campaign_id) : null;
+            const charity = plan.charity_directory_id ? charities.find((c) => c.id === plan.charity_directory_id) : null;
+            const targetLabel = campaign ? campaign.title : charity ? charity.name : categoryLabels[plan.category ?? ""] ?? plan.category;
             return (
               <li key={plan.id} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
                 <span>
-                  <strong>${(plan.amount_cents / 100).toLocaleString()}</strong> {cadenceLabels[plan.cadence].toLowerCase()} to{" "}
-                  {campaign ? campaign.title : categoryLabels[plan.category ?? ""] ?? plan.category}
+                  <strong>${(plan.amount_cents / 100).toLocaleString()}</strong> {cadenceLabels[plan.cadence].toLowerCase()} to {targetLabel}
                   <span className="muted"> &middot; {plan.status}</span>
+                  {charity && (
+                    <span className="muted">
+                      {" "}
+                      &middot; <Link href={charity.website_url} target="_blank">give on their site</Link>
+                    </span>
+                  )}
                 </span>
                 <span style={{ display: "flex", gap: 8 }}>
                   {plan.status === "active" && (
@@ -120,12 +130,13 @@ export function GivingPlanManager({ plans, campaigns }: { plans: GivingPlan[]; c
 
       <form className="search" onSubmit={createPlan} style={{ flexWrap: "wrap" }}>
         <label htmlFor="plan-target">Give to</label>
-        <select id="plan-target" value={target} onChange={(e) => setTarget(e.target.value as "campaign" | "category")} style={{ minHeight: 48, borderRadius: 9, border: "1px solid var(--line)", padding: "0 12px" }}>
+        <select id="plan-target" value={target} onChange={(e) => setTarget(e.target.value as "campaign" | "category" | "charity")} style={{ minHeight: 48, borderRadius: 9, border: "1px solid var(--line)", padding: "0 12px" }}>
           <option value="campaign">A specific fundraiser</option>
           <option value="category">A cause category</option>
+          <option value="charity">A charity from the marketplace</option>
         </select>
 
-        {target === "campaign" ? (
+        {target === "campaign" && (
           <>
             <label htmlFor="plan-campaign">Fundraiser</label>
             <select id="plan-campaign" value={campaignId} onChange={(e) => setCampaignId(e.target.value)} style={{ minHeight: 48, borderRadius: 9, border: "1px solid var(--line)", padding: "0 12px" }}>
@@ -136,13 +147,26 @@ export function GivingPlanManager({ plans, campaigns }: { plans: GivingPlan[]; c
               ))}
             </select>
           </>
-        ) : (
+        )}
+        {target === "category" && (
           <>
             <label htmlFor="plan-category">Cause</label>
             <select id="plan-category" value={category} onChange={(e) => setCategory(e.target.value)} style={{ minHeight: 48, borderRadius: 9, border: "1px solid var(--line)", padding: "0 12px" }}>
               {(categories.length > 0 ? categories : Object.keys(categoryLabels)).map((c) => (
                 <option key={c} value={c}>
                   {categoryLabels[c] ?? c}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
+        {target === "charity" && (
+          <>
+            <label htmlFor="plan-charity">Charity</label>
+            <select id="plan-charity" value={charityId} onChange={(e) => setCharityId(e.target.value)} style={{ minHeight: 48, borderRadius: 9, border: "1px solid var(--line)", padding: "0 12px" }}>
+              {charities.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
                 </option>
               ))}
             </select>

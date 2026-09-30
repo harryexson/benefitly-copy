@@ -3,7 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { GivingPlanManager } from "@/components/giving-plan-manager";
 import { SavedCampaignsList } from "@/components/saved-campaigns-list";
-import { myDonations, myGivingSummary, myGivingPlans, mySavedCampaigns } from "@/lib/donor";
+import { myDonations, myGivingSummary, myGivingPlans, mySavedCampaigns, listCharityDirectory } from "@/lib/donor";
 import { listPublishedCampaigns } from "@/lib/campaigns";
 import { requireSession } from "@/lib/session";
 import type { CampaignSummary } from "@benefitly/domain";
@@ -32,19 +32,22 @@ export default async function AccountPage() {
   let summary: Awaited<ReturnType<typeof myGivingSummary>> | null = null;
   let plans: Awaited<ReturnType<typeof myGivingPlans>> = [];
   let saved: Awaited<ReturnType<typeof mySavedCampaigns>> = [];
+  let charities: Awaited<ReturnType<typeof listCharityDirectory>> = [];
   let campaigns: CampaignSummary[] = [];
   try {
-    const [donationRows, summaryRow, planRows, savedRows, campaignRows] = await Promise.all([
+    const [donationRows, summaryRow, planRows, savedRows, campaignRows, charityRows] = await Promise.all([
       myDonations(session.user.id),
       myGivingSummary(session.user.id),
       myGivingPlans(session.user.id),
       mySavedCampaigns(session.user.id),
       listPublishedCampaigns({}),
+      listCharityDirectory(),
     ]);
     donations = donationRows;
     summary = summaryRow;
     plans = planRows;
     saved = savedRows;
+    charities = charityRows;
     campaigns = campaignRows.map((row) => ({
       id: row.id,
       slug: row.slug,
@@ -101,7 +104,10 @@ export default async function AccountPage() {
             <section className="section" style={{ padding: "24px 0" }}>
               <h2>Giving plan</h2>
               <p className="muted">A recurring commitment you set for yourself &mdash; Benefitly reminds you, you stay in control of each gift.</p>
-              <GivingPlanManager plans={plans} campaigns={campaigns} />
+              <GivingPlanManager plans={plans} campaigns={campaigns} charities={charities} />
+              <p className="muted" style={{ marginTop: 10 }}>
+                <Link href="/marketplace">Browse the giving marketplace</Link>
+              </p>
             </section>
 
             <section className="section" style={{ padding: "24px 0" }}>
@@ -111,6 +117,11 @@ export default async function AccountPage() {
 
             <section className="section" style={{ padding: "24px 0 56px" }}>
               <h2>Donation history</h2>
+              {donations.length > 0 && (
+                <p className="muted">
+                  <Link href="/account/statement">Get a giving statement for your records or taxes →</Link>
+                </p>
+              )}
               {donations.length === 0 && <p className="muted">You haven&apos;t made a donation yet.</p>}
               {donations.length > 0 && (
                 <table className="admin-table">

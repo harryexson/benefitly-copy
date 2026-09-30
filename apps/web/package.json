@@ -14,6 +14,8 @@
     "@benefitly/validation": "*",
     "@better-auth/expo": "^1.7.6",
     "@neondatabase/serverless": "^1.0.1",
+    "@stripe/react-stripe-js": "^6.12.0",
+    "@stripe/stripe-js": "^9.17.0",
     "@vercel/blob": "^2.8.0",
     "better-auth": "^1.7.6",
     "next": "15.3.9",

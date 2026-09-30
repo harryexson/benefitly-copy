@@ -18,6 +18,7 @@ part of this repository's own test process -- not just typechecked.
 0009_force_row_level_security.sql
 0010_subscription_plans.sql
 0011_donor_and_backoffice.sql
+0012_giving_statements_and_charity_directory.sql
 ```
 
 No migration runner exists yet; apply each file with `psql -f` (or the Neon SQL editor) in this

@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
+import { getStripe } from "@/lib/stripe-client";
 
 // Duplicated from @benefitly/payments/src/fees.ts rather than imported: that package's root
 // export pulls in the Stripe/Adyen server SDKs, which must never reach a client bundle.
@@ -27,7 +29,7 @@ export function DonateForm({ campaignId, currency }: { campaignId: string; curre
   const [amount, setAmount] = useState(5000);
   const [contributionRate, setContributionRate] = useState<number>(0.15);
   const [donorEmail, setDonorEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "submitting" | "done" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "submitting" | "ready-to-pay" | "paid" | "error">("idle");
   const [result, setResult] = useState<Result | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -55,22 +57,42 @@ export function DonateForm({ campaignId, currency }: { campaignId: string; curre
       setErrorMessage(body?.error?.message ?? "Something went wrong. Please try again.");
       return;
     }
-    setResult(body.data as Result);
-    setStatus("done");
+    const data = body.data as Result;
+    setResult(data);
+    setStatus(data.provider === "stripe_connect" && data.clientSecret ? "ready-to-pay" : "paid");
   }
 
-  if (status === "done" && result) {
+  if (status === "paid" && result) {
     return (
       <div className="donate-panel">
-        <h2>Almost there</h2>
+        <h2>Thank you</h2>
         <p>
           Charging ${(result.grossCharge / 100).toLocaleString()} {result.currency} — ${(result.netToCampaign / 100).toLocaleString()} to the campaign
           {result.platformContribution > 0 ? ` and $${(result.platformContribution / 100).toLocaleString()} as your optional contribution to Benefitly.` : "."}
         </p>
+        {result.provider === "stripe_connect" ? (
+          <p className="muted">Your payment was received. A receipt is on its way, and this gift will appear in your donation history shortly.</p>
+        ) : (
+          <p className="muted">
+            Provider: {result.provider}. This demo stops before entering card details — a production build would mount the Adyen Drop-in with this
+            sessionData here to finish payment.
+          </p>
+        )}
+      </div>
+    );
+  }
+
+  if (status === "ready-to-pay" && result?.clientSecret) {
+    return (
+      <div className="donate-panel">
+        <h2>Enter payment details</h2>
         <p className="muted">
-          Provider: {result.provider}. This demo stops before entering card details — a production build would mount{" "}
-          {result.provider === "stripe_connect" ? "Stripe Elements with this clientSecret" : "the Adyen Drop-in with this sessionData"} here to finish payment.
+          Charging ${(result.grossCharge / 100).toLocaleString()} {result.currency} today.
         </p>
+        <Elements stripe={getStripe()} options={{ clientSecret: result.clientSecret }}>
+          <StripePaymentStep onSuccess={() => setStatus("paid")} onError={(message) => setErrorMessage(message)} />
+        </Elements>
+        {errorMessage && <p className="muted">{errorMessage}</p>}
       </div>
     );
   }
@@ -116,6 +138,45 @@ export function DonateForm({ campaignId, currency }: { campaignId: string; curre
         {status === "submitting" ? "Processing…" : "Donate"}
       </button>
       {status === "error" && <p className="muted">{errorMessage}</p>}
+    </form>
+  );
+}
+
+function StripePaymentStep({ onSuccess, onError }: { onSuccess: () => void; onError: (message: string) => void }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [submitting, setSubmitting] = useState(false);
+
+  async function pay(event: React.FormEvent) {
+    event.preventDefault();
+    if (!stripe || !elements) return;
+    setSubmitting(true);
+    onError("");
+    const { error, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      // Most test/real cards resolve inline; a redirect-based method (if the account has any
+      // enabled) falls back to return_url, which reloads this same donate page -- the page itself
+      // doesn't inspect the returned payment_intent query param, since Stripe's own webhook (not
+      // this client redirect) is the source of truth for settling the donation server-side.
+      confirmParams: { return_url: window.location.href },
+      redirect: "if_required",
+    });
+    setSubmitting(false);
+    if (error) {
+      onError(error.message ?? "Payment could not be completed. Please try a different payment method.");
+      return;
+    }
+    if (paymentIntent?.status === "succeeded" || paymentIntent?.status === "processing") {
+      onSuccess();
+    }
+  }
+
+  return (
+    <form onSubmit={pay}>
+      <PaymentElement />
+      <button className="button" type="submit" disabled={!stripe || submitting} style={{ marginTop: 16 }}>
+        {submitting ? "Processing…" : "Pay now"}
+      </button>
     </form>
   );
 }

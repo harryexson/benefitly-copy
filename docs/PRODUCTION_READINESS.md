@@ -1,6 +1,57 @@
 # Production readiness
 
-Last audited: 2026-09-29
+Last audited: 2026-09-30
+
+## This pass: Stripe Elements checkout, giving statements, charity marketplace
+
+Migration `0012_giving_statements_and_charity_directory.sql`, plus real Stripe Elements on the
+donate flow -- verified against real production Stripe test-mode credentials and a real Postgres
+integration run (`database/tests/integration.sql`), not just typechecked:
+
+- **Donate flow now actually collects a card.** `apps/web/app/api/donations/route.ts` already
+  created a real Stripe `PaymentIntent` and returned its `client_secret`; nothing before this
+  pass ever mounted a payment UI against it. `DonateForm` now mounts Stripe's `PaymentElement`
+  (`@stripe/react-stripe-js`) once that `client_secret` comes back and calls
+  `stripe.confirmPayment`, so a donation can go pending → succeeded → campaign `raised_amount`
+  updated end to end through the real webhook handler, not a demo stop-point.
+- **Giving statements**: `my_giving_statement(year)` and `my_giving_years()` (donor-scoped,
+  succeeded donations only) back a new printable `/account/statement` page -- pick a year or
+  "all time", see per-organization subtotals and a grand total, print/save as PDF via the
+  browser's own print dialog (no PDF-generation dependency added). Linked from `/account`.
+- **Giving marketplace / charity directory** (`/marketplace`): a curated, publicly-readable
+  directory of ten well-known charities (World Vision, Samaritan's Purse, Feeding America, Oxfam
+  America, Save the Children, Mercy Ships, St. Jude, Doctors Without Borders, Habitat for
+  Humanity, American Red Cross). **This is intentionally informational, not a payable
+  destination inside Benefitly**: the platform has no real payment relationship with any of
+  them, and creating one as a fake internal `organizations`/Stripe-Connect row would misrepresent
+  an affiliation that doesn't exist. Each entry links out to the charity's own donation page; a
+  signed-in donor can add one to their `giving_plans` (0011) to track intent ("$50/month to Feed
+  the Hungry") the same way a free-text cause category already does -- `giving_plans` now has a
+  `charity_directory_id` column and a `giving_plans_target_check` constraint requiring exactly
+  one of {campaign, category, charity_directory_id}. Turning this into a real payable destination
+  would need an actual partnership/API integration (e.g. Every.org, PayPal Giving Fund, or a
+  direct agreement) -- tracked as a real gap, not built here.
+
+**Verified this pass**: `tsc --noEmit` and `next build` clean across the whole change; the full
+SQL integration suite passes, including new assertions that `my_giving_statement` returns only
+the signed-in donor's own succeeded donations (filtered correctly by year), that
+`charity_directory` is publicly readable and seeded, and that `create_giving_plan` rejects a plan
+with zero or multiple targets. Migration 0012 was applied to the real production Neon database
+(`benefitly-production`) and the directory's 10-row seed was confirmed present there.
+
+**Not independently verified this pass**: an actual browser-driven Stripe Elements checkout
+against a live, chargeable Stripe Connect account (this requires either a completed Express
+onboarding for a real connected account, or scripting Stripe's Custom-account test-data path to
+bypass hosted onboarding -- neither was done in this pass). The webhook endpoint
+(`we_1ULDS2IJabH80I7ApVCbIAQK`, Stripe test mode) is live and pointed at
+`https://benefitly-web.vercel.app/api/webhooks/stripe`; `STRIPE_SECRET_KEY`,
+`STRIPE_WEBHOOK_SECRET`, and `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` are all set in production. What
+was verified is that the client-side code compiles, builds, and follows the correct Stripe
+Elements integration pattern (`clientSecret` from the server, `Elements` + `PaymentElement` +
+`confirmPayment`), and that the server-side charge/webhook/settlement path was already proven
+against real Postgres in an earlier pass -- but no organizer in production yet has an active
+Connect account to charge against, so a literal end-to-end donation has not been run since this
+UI was added.
 
 ## This pass: donor dashboard, giving plans, organizer/admin back office
 
