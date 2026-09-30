@@ -46,7 +46,7 @@ export default function PrivacyPage() {
           <h2>Who we share it with</h2>
           <p>We do not sell user data. We share information only as needed to:</p>
           <ul>
-            <li>Process payments and disbursements, with our regulated payment providers (Stripe, Tremendous)</li>
+            <li>Process payments and disbursements, with our regulated payment provider, Stripe</li>
             <li>Comply with a legal obligation, subpoena, or lawful request from a regulator or law enforcement</li>
             <li>Operate infrastructure providers (hosting, database, email/push delivery) bound by their own data protection obligations</li>
             <li>Within an organization, to the extent its own staff&apos;s permissions grant access to member or claim records</li>

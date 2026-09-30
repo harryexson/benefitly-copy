@@ -97,3 +97,36 @@ export async function listSubscriptionPlans(): Promise<SubscriptionPlan[]> {
   const rows = await sql`select tier, name, member_limit, monthly_price_cents, annual_price_cents, sort_order, features from public.subscription_plans order by sort_order asc`;
   return rows as unknown as SubscriptionPlan[];
 }
+
+export type OrgDonor = {
+  donor_id: string;
+  donor_name: string;
+  donor_email: string | null;
+  donation_count: number;
+  total_given: number;
+  currency: string;
+  first_gift_at: string;
+  last_gift_at: string;
+};
+
+export type DonorFilters = { fromDate?: string; toDate?: string; minAmountCents?: number; campaignId?: string };
+
+export async function listOrganizationDonors(userId: string, orgId: string, filters: DonorFilters = {}): Promise<OrgDonor[]> {
+  const [rows] = await withUserContext(userId, (tx) => [
+    tx`select * from public.list_organization_donors(${orgId}, ${filters.fromDate ?? null}::timestamptz, ${filters.toDate ?? null}::timestamptz, ${filters.minAmountCents ?? null}, ${filters.campaignId ?? null})`,
+  ]);
+  return rows as unknown as OrgDonor[];
+}
+
+export type DonorGift = { donation_id: string; campaign_title: string; campaign_slug: string; gross_amount: number; currency: string; created_at: string };
+
+export async function donorHistoryInOrganization(userId: string, orgId: string, donorId: string): Promise<DonorGift[]> {
+  const [rows] = await withUserContext(userId, (tx) => [tx`select * from public.donor_history_in_organization(${orgId}, ${donorId})`]);
+  return rows as unknown as DonorGift[];
+}
+
+export type OrgCampaignOption = { id: string; title: string };
+export async function organizationCampaignOptions(userId: string, orgId: string): Promise<OrgCampaignOption[]> {
+  const [rows] = await withUserContext(userId, (tx) => [tx`select * from public.organization_campaign_options(${orgId})`]);
+  return rows as unknown as OrgCampaignOption[];
+}

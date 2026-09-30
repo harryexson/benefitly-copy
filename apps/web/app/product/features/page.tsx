@@ -42,6 +42,23 @@ const groups = [
     ],
   },
   {
+    title: "Payments & checkout",
+    items: [
+      "Stripe processes every credit card, debit card, and ACH/EFT bank-transfer transaction securely",
+      "Apple Pay and Google Pay accepted alongside cards, wherever the donor's device supports them",
+      "Every transaction runs through Benefitly's own built-in, embedded checkout forms — organizers never bring or link an external Stripe account",
+      "An optional donor-paid platform contribution at checkout keeps campaigns fee-free by default",
+    ],
+  },
+  {
+    title: "Donor CRM",
+    items: [
+      "Every organization's donor list builds automatically from donations — no manual entry",
+      "A full giving history per donor, with lifetime and year-to-date totals",
+      "Every donor gets their own printable giving statement, any year or all time",
+    ],
+  },
+  {
     title: "Admin, trust & reporting",
     items: [
       "A moderation queue for every new campaign and reported campaign",
@@ -78,7 +95,7 @@ export default function FeaturesPage() {
 
         <section className="section legal-section" style={{ padding: "24px 0 56px" }}>
           <p className="muted">
-            Every disbursement runs through regulated third-party payment providers &mdash; see{" "}
+            Every disbursement runs through Stripe, our regulated payment provider &mdash; see{" "}
             <Link className="text-link" href="/product/integrations">
               integrations
             </Link>{" "}

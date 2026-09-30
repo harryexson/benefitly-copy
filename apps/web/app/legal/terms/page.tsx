@@ -105,8 +105,9 @@ export default function TermsPage() {
               <strong>Organizer.</strong> An individual or Organization that creates or manages a Campaign.
             </li>
             <li>
-              <strong>Payment Provider.</strong> A regulated third-party payment processor (currently Stripe and
-              Tremendous) that processes donations, dues, and Disbursements on Benefitly&apos;s behalf.
+              <strong>Payment Provider.</strong> Stripe, Inc., the regulated third-party payment processor that
+              processes donations, dues, tickets, memberships, and Disbursements on Benefitly&apos;s behalf, entirely
+              through Benefitly&apos;s own built-in checkout forms.
             </li>
             <li>
               <strong>Services.</strong> All features and tools Benefitly provides, including membership management,
@@ -168,14 +169,16 @@ export default function TermsPage() {
         </section>
 
         <section className="section legal-section" id="payments">
-          <h2>5. Payment providers</h2>
+          <h2>5. Payment provider</h2>
           <p>
-            Benefitly itself does not hold or process funds. Dues, donations, benefit disbursements, and campaign
-            payouts are handled by our Payment Providers &mdash; currently Stripe, Inc. and Tremendous. To receive a
-            Disbursement, you must complete the applicable Payment Provider&apos;s identity verification and provide
-            payout account details directly to them. By making a donation, joining an Organization, submitting a
-            claim, or accepting a Disbursement, you agree to the processing, use, and disclosure of your information
-            by our Payment Providers under their own terms, in addition to these Terms of Service and our{" "}
+            Benefitly itself does not hold or process funds. Dues, donations, ticket and membership purchases, benefit
+            disbursements, and campaign payouts are all handled by our Payment Provider, Stripe, Inc., and every one
+            of those transactions runs through Benefitly&apos;s own built-in checkout forms &mdash; not an external
+            or self-linked Stripe account. To receive a Disbursement, you must complete Stripe&apos;s identity
+            verification (initiated from inside Benefitly) and provide payout account details directly to them, as
+            required by banking regulation. By making a donation, joining an Organization, submitting a claim, or
+            accepting a Disbursement, you agree to the processing, use, and disclosure of your information by Stripe
+            under its own terms, in addition to these Terms of Service and our{" "}
             <Link className="text-link" href="/legal/privacy">
               Privacy Policy
             </Link>

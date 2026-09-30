@@ -19,7 +19,7 @@ const faqs = [
   },
   {
     q: "Where do donations and disbursements actually go?",
-    a: "Through our regulated payment partners (Stripe, Tremendous) — Benefitly never holds or pools funds. See our AML & Compliance policy for details.",
+    a: "Through Stripe, our regulated payment provider, entirely through Benefitly's own built-in checkout forms — Benefitly never holds or pools funds. See our AML & Compliance policy for details.",
   },
 ];
 

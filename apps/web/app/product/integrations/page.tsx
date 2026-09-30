@@ -16,27 +16,31 @@ export default function IntegrationsPage() {
           <Link className="text-link" href="/legal/compliance">
             no-custody-of-funds policy
           </Link>
-          , every disbursement, payout, and donation on Benefitly is processed by a regulated third-party payment
-          provider. Benefitly is the administrative layer on top.
+          , every donation, dues payment, and payout on Benefitly is processed by Stripe, our regulated payment
+          partner. Benefitly is the administrative layer on top &mdash; Stripe never holds or releases funds outside
+          of a transaction initiated on Benefitly&apos;s own built-in donation, dues, and checkout forms. Organizers
+          don&apos;t bring or link an external Stripe account; every payout destination is onboarded through
+          Benefitly&apos;s own embedded Stripe Connect flow.
         </p>
 
         <section className="section legal-section">
-          <h2>Payment providers</h2>
+          <h2>Payment provider</h2>
           <div className="compliance-grid">
             <div>
               <h3>Stripe</h3>
               <ul>
                 <li>Identity verification (KYC/KYB) for organizers and organizations</li>
-                <li>Donation processing and settlement</li>
+                <li>Credit &amp; debit card, Apple Pay, Google Pay, and ACH/EFT bank-transfer processing</li>
+                <li>Donation, dues, ticket, and membership processing and settlement</li>
                 <li>Payout delivery to verified bank accounts</li>
               </ul>
             </div>
             <div>
-              <h3>Tremendous</h3>
+              <h3>Built-in checkout, not a linked account</h3>
               <ul>
-                <li>Benefit disbursements and reimbursements to members</li>
-                <li>Flexible payout methods (bank transfer, digital gift cards, check)</li>
-                <li>Its own compliance and sanctions screening on every recipient</li>
+                <li>Every transaction runs through Benefitly&apos;s own embedded checkout forms</li>
+                <li>Organizers never connect a pre-existing external Stripe account</li>
+                <li>Stripe Connect onboarding happens inside Benefitly, start to finish</li>
               </ul>
             </div>
           </div>

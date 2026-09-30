@@ -152,7 +152,10 @@ export default function CompliancePage() {
           <div className="compliance-grid">
             <div>
               <h3>Third-party payment integration</h3>
-              <p className="muted">Secure integrations with regulated payment providers (Stripe, Tremendous) for compliant disbursements.</p>
+              <p className="muted">
+                Secure integration with Stripe, our regulated payment provider, for compliant donation, dues, and
+                payout processing &mdash; run entirely through Benefitly&apos;s own built-in checkout forms.
+              </p>
             </div>
           </div>
         </section>

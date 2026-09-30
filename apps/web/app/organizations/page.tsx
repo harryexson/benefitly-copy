@@ -116,8 +116,9 @@ export default async function OrganizationsPage() {
               documentation review, and a review of intended platform use.
             </li>
             <li>
-              <strong>Connect a payment provider.</strong> Disbursements route through regulated third-party
-              providers (Stripe, Tremendous) &mdash; Benefitly never holds, pools, or stores your organization&apos;s
+              <strong>Onboard with Stripe, inside Benefitly.</strong> Every donation, dues payment, and payout runs
+              through Stripe, initiated entirely from Benefitly&apos;s own built-in forms &mdash; you never bring or
+              link an external Stripe account, and Benefitly never holds, pools, or stores your organization&apos;s
               funds.
             </li>
             <li>

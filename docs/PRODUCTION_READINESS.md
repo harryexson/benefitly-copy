@@ -1,6 +1,31 @@
 # Production readiness
 
-Last audited: 2026-09-30
+Last audited: 2026-09-30 (later same day)
+
+## This pass: donor CRM, Stripe-only payment messaging
+
+Migration `0013_donor_crm.sql`: an organization-facing donor CRM at `/org/[slug]/donors`
+(gated on `finance.manage`), built entirely from existing `donations` rows -- no new writer, no
+manual entry. `list_organization_donors` aggregates by donor (gift count, total given, first/last
+gift), filterable by date range, minimum amount, and campaign via ordinary URL query parameters --
+so a filtered view is a bookmarkable, always-current link rather than a separate "saved list"
+feature. `donor_history_in_organization` backs a per-donor drill-down page. Verified against real
+Postgres, including that the WHERE-clause permission guard (matching `list_campaign_donors` from
+0011) returns nothing for an org member who lacks `finance.manage`, not merely for a non-member.
+Applied to the production Neon database.
+
+Also: removed every mention of Tremendous as a payment/disbursement provider from live app copy
+(`/product/integrations`, `/legal/compliance`, `/legal/terms`, `/legal/privacy`,
+`/resources/support`, `/product/pricing`, `/product/features`, `/organizations`) -- Tremendous was
+never actually wired into `packages/payments`' provider router (only Stripe and Adyen are), so
+this was a documentation-accuracy fix, not a code removal. Copy now states plainly that Stripe is
+the sole payment provider, lists the payment methods it actually supports here (cards, Apple Pay,
+Google Pay, ACH/EFT -- all already reachable through `automatic_payment_methods: {enabled: true}`
+on the `PaymentIntent` and Stripe's `PaymentElement`, no extra integration code needed once wallets
+are enabled in the Stripe Dashboard), and states that every transaction runs through Benefitly's
+own built-in checkout forms rather than an externally linked Stripe account -- which matches how
+the architecture already works (destination charges via Connect, onboarding through
+`createOnboardingLink`, never a "bring your own Stripe account" flow).
 
 ## This pass: Stripe Elements checkout, giving statements, charity marketplace
 

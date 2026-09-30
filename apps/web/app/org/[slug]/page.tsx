@@ -79,6 +79,11 @@ export default async function OrganizationWorkspacePage({ params }: { params: Pr
 
         <section className="section" style={{ padding: "24px 0" }}>
           <h2>Members ({members.length})</h2>
+          {canManageFinance && (
+            <p className="muted">
+              <Link href={`/org/${slug}/donors`}>View donor CRM →</Link>
+            </p>
+          )}
           {canManageMembers && <AddMemberForm orgId={org.id} />}
           {members.map((member) => (
             <div key={member.id} className="campaign-card" style={{ padding: 14, marginTop: 10, display: "flex", justifyContent: "space-between", alignItems: "center" }}>

@@ -326,4 +326,24 @@ begin
   end;
 end $$;
 
+-- ===== Donor CRM (0013) =====
+-- Alice has finance.manage on springfield-neighbors-xyz (create_organization grants it to the
+-- creator); the function runs cleanly and returns nothing for an org with no org-owned campaigns
+-- yet (Alice's donation-bearing campaign above was a personal fundraiser, organization_id null).
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
+select count(*) as alice_org_donor_count from public.list_organization_donors(:'org_id', null, null, null, null);
+select count(*) as alice_org_campaign_options from public.organization_campaign_options(:'org_id');
+
+-- Carol is a member of that org but has no finance.manage permission -- the WHERE-clause guard
+-- returns nothing for her rather than raising.
+select set_config('app.user_id', '33333333-3333-3333-3333-333333333333', false);
+select count(*) as carol_org_donor_count from public.list_organization_donors(:'org_id', null, null, null, null);
+do $$
+begin
+  if (select count(*) from public.list_organization_donors((select id from public.organizations where slug = 'springfield-neighbors-xyz'), null, null, null, null)) <> 0 then
+    raise exception 'SHOULD HAVE FAILED: list_organization_donors leaked data to a member without finance.manage';
+  end if;
+  raise notice 'OK: list_organization_donors is gated on finance.manage, not mere org membership';
+end $$;
+
 select 'ALL INTEGRATION TESTS PASSED' as final_result;

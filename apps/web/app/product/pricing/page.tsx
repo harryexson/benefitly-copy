@@ -45,8 +45,9 @@ export default async function PricingPage() {
         <p className="lede">
           45% cheaper than Wild Apricot and Bloomerang. Benefitly charges a platform subscription for administrative
           tools &mdash; we are not a payment processor, so we do not take a cut of your members&apos; dues or your
-          donors&apos; gifts. Payment provider processing fees (Stripe, Tremendous) are separate and billed directly
-          by those providers.
+          donors&apos; gifts. Stripe&apos;s own processing fees are separate and billed directly by Stripe &mdash;
+          every card, Apple Pay, Google Pay, and ACH/EFT transaction runs through Benefitly&apos;s own built-in
+          checkout, never an external Stripe account.
         </p>
 
         <section className="trust-bar" aria-label="Platform trust highlights">
