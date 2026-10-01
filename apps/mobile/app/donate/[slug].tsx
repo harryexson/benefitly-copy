@@ -113,7 +113,11 @@ export default function Donate() {
         ))}
       </View>
 
-      <Text style={styles.label}>Add an optional contribution to keep Benefitly free</Text>
+      <Text style={styles.infoCopy}>
+        Benefitly charges no platform fee -- 100% of your donation goes to the campaign. Card/bank processing fees go
+        to our payment processor, not Benefitly.
+      </Text>
+      <Text style={styles.label}>Add an optional tip to keep Benefitly running</Text>
       <View style={styles.pills}>
         {contributionRates.map((value) => (
           <Pressable key={value} accessibilityRole="button" onPress={() => setRate(value)} style={[styles.pill, rate === value && styles.pillActive]}>
@@ -129,7 +133,7 @@ export default function Donate() {
 
       <View style={styles.info}>
         <Text style={styles.infoTitle}>Total today: ${((amount + contribution) / 100).toLocaleString()}</Text>
-        <Text style={styles.infoCopy}>Benefitly never deducts a fee from the campaign -- only your optional contribution above supports the platform.</Text>
+        <Text style={styles.infoCopy}>Your optional tip above is the only way this platform is supported -- Benefitly keeps none of your donation or the processing fee.</Text>
       </View>
 
       <Pressable accessibilityRole="button" onPress={submit} disabled={status === "submitting"} style={styles.button}>

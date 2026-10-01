@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { getStripe } from "@/lib/stripe-client";
+import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 
 // Duplicated from @benefitly/payments/src/fees.ts rather than imported: that package's root
 // export pulls in the Stripe/Adyen server SDKs, which must never reach a client bundle.
@@ -117,8 +118,10 @@ export function DonateForm({ campaignId, currency }: { campaignId: string; curre
         onChange={(event) => setAmount(Math.max(100, Math.round(Number(event.target.value || 0) * 100)))}
       />
 
+      <FeeTransparencyBanner />
+
       <fieldset style={{ border: "none", padding: 0, margin: "16px 0" }}>
-        <legend>Add an optional contribution to keep Benefitly free</legend>
+        <legend>Add an optional tip to keep Benefitly running</legend>
         {SUGGESTED_CONTRIBUTION_RATES.map((rate) => (
           <label key={rate} style={{ display: "block" }}>
             <input type="radio" name="rate" checked={contributionRate === rate} onChange={() => setContributionRate(rate)} />{" "}

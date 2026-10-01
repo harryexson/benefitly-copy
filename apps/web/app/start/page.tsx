@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { CreateCampaignForm } from "@/components/create-campaign-form";
+import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 import { myOrganizations } from "@/lib/associations";
 import { requireSession } from "@/lib/session";
 
@@ -24,6 +25,7 @@ export default async function StartPage({ searchParams }: { searchParams: Promis
         <main className="page">
           <p className="kicker">Start a fundraiser</p>
           <h1>Who is this fundraiser for?</h1>
+          <FeeTransparencyBanner />
           <div className="admin-nav-grid" style={{ gridTemplateColumns: "repeat(2, 1fr)", maxWidth: 760 }}>
             <Link className="admin-nav-card" href="/start?for=individual">
               <strong>Myself or someone I know</strong>

@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SaveCampaignButton } from "@/components/save-campaign-button";
 import { ShareCampaignButtons } from "@/components/share-campaign-buttons";
+import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 import { getPublishedCampaignBySlug, listCampaignMedia, listCampaignUpdates } from "@/lib/campaigns";
 import { mySavedCampaigns } from "@/lib/donor";
 import { requireSession } from "@/lib/session";
@@ -69,7 +70,7 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
         </section>
         <aside className="donate-panel">
           <h2>Help this campaign</h2>
-          <p>Your donation goes to the campaign. An optional Benefitly contribution is always shown separately.</p>
+          <FeeTransparencyBanner compact />
           <a className="button" href={`/donate/${campaign.id}`}>
             Donate
           </a>
