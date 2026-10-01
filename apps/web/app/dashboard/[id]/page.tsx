@@ -5,8 +5,11 @@ import { MediaUploader } from "@/components/media-uploader";
 import { UpdateComposer } from "@/components/update-composer";
 import { ShareCampaignButtons } from "@/components/share-campaign-buttons";
 import { InviteNetworkForm } from "@/components/invite-network-form";
+import { CreateCampaignEventForm } from "@/components/create-campaign-event-form";
+import { CreateTicketTypeForm } from "@/components/create-ticket-type-form";
 import { getOwnedCampaignById, listCampaignDonors } from "@/lib/organizer";
 import { listCampaignMedia, listCampaignUpdates } from "@/lib/campaigns";
+import { listCampaignEvents, listEventTicketTypes } from "@/lib/tickets";
 import { requireSession } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
@@ -32,11 +35,13 @@ export default async function ManageCampaignPage({ params }: { params: Promise<{
   const campaign = await getOwnedCampaignById(session.user.id, id).catch(() => null);
   if (!campaign) notFound();
 
-  const [media, updates, donors] = await Promise.all([
+  const [media, updates, donors, events] = await Promise.all([
     listCampaignMedia(campaign.id).catch(() => []),
     listCampaignUpdates(campaign.id).catch(() => []),
     listCampaignDonors(session.user.id, campaign.id).catch(() => []),
+    listCampaignEvents(campaign.id).catch(() => []),
   ]);
+  const eventTicketTypes = await Promise.all(events.map((event) => listEventTicketTypes(event.id).catch(() => [])));
 
   return (
     <>
@@ -57,6 +62,41 @@ export default async function ManageCampaignPage({ params }: { params: Promise<{
           </p>
           <div style={{ marginTop: 20 }}>
             <InviteNetworkForm campaignId={campaign.id} />
+          </div>
+        </section>
+
+        <section className="section" style={{ padding: "24px 0" }}>
+          <h2>Events &amp; tickets</h2>
+          <p className="muted">Sell tickets to a banquet, dinner, luncheon, or any in-person event, with proceeds going to this fundraiser.</p>
+          {events.map((event, i) => (
+            <div key={event.id} className="campaign-card" style={{ padding: 16, marginTop: 12 }}>
+              <h3 style={{ margin: "0 0 4px" }}>{event.title}</h3>
+              <p className="muted">
+                {new Date(event.starts_at).toLocaleString()}
+                {event.location ? ` · ${event.location}` : ""}
+              </p>
+              <ul className="gift-log">
+                {eventTicketTypes[i].map((tt) => (
+                  <li key={tt.id}>
+                    {tt.name} — {tt.price_cents === 0 ? "Free" : `$${(tt.price_cents / 100).toFixed(2)}`}
+                    {tt.quantity_available != null && ` · ${tt.quantity_sold}/${tt.quantity_available} sold`}
+                    {tt.quantity_available == null && ` · ${tt.quantity_sold} sold`}
+                  </li>
+                ))}
+              </ul>
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 10 }}>
+                <CreateTicketTypeForm campaignId={campaign.id} eventId={event.id} />
+                <Link className="share" href={`/events/${event.id}/tickets`}>
+                  View public ticket page
+                </Link>
+                <Link className="share" href={`/dashboard/${campaign.id}/events/${event.id}/check-in`}>
+                  Check-in roster
+                </Link>
+              </div>
+            </div>
+          ))}
+          <div style={{ marginTop: 16 }}>
+            <CreateCampaignEventForm campaignId={campaign.id} />
           </div>
         </section>
 

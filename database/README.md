@@ -20,6 +20,7 @@ part of this repository's own test process -- not just typechecked.
 0011_donor_and_backoffice.sql
 0012_giving_statements_and_charity_directory.sql
 0013_donor_crm.sql
+0014_ticketed_events.sql
 ```
 
 No migration runner exists yet; apply each file with `psql -f` (or the Neon SQL editor) in this

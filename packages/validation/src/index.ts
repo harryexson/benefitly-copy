@@ -162,3 +162,32 @@ export const shareCampaignEmailSchema = z.object({
 export const shareCampaignSmsSchema = z.object({
   recipients: z.array(z.string().trim().min(7).max(20)).min(1).max(50),
 });
+
+export const createCampaignEventSchema = z.object({
+  title: z.string().trim().min(2).max(160),
+  description: z.string().trim().max(5000).optional(),
+  startsAt: z.string().datetime(),
+  endsAt: z.string().datetime().optional(),
+  location: z.string().trim().max(200).optional(),
+});
+
+export const createTicketTypeSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  price: z.number().min(0),
+  currency: z.string().length(3).default("USD"),
+  quantityAvailable: z.number().int().min(1).optional(),
+});
+
+export const purchaseTicketsSchema = z.object({
+  ticketTypeId: z.string().uuid(),
+  quantity: z.number().int().min(1).max(20),
+  attendeeName: z.string().trim().min(2).max(160),
+  attendeeEmail: z.string().email(),
+  attendeePhone: z.string().trim().max(20).optional(),
+  platformContribution: z.number().int().min(0).default(0),
+  idempotencyKey: z.string().uuid(),
+});
+
+export const checkInSchema = z.object({
+  code: z.string().trim().min(4).max(20),
+});

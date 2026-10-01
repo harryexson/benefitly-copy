@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SaveCampaignButton } from "@/components/save-campaign-button";
@@ -5,6 +6,7 @@ import { ShareCampaignButtons } from "@/components/share-campaign-buttons";
 import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 import { getPublishedCampaignBySlug, listCampaignMedia, listCampaignUpdates } from "@/lib/campaigns";
 import { mySavedCampaigns } from "@/lib/donor";
+import { listCampaignEvents } from "@/lib/tickets";
 import { requireSession } from "@/lib/session";
 import { percentage } from "@benefitly/domain";
 
@@ -15,7 +17,11 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
   const campaign = await getPublishedCampaignBySlug(slug).catch(() => null);
   if (!campaign) notFound();
 
-  const [media, updates] = await Promise.all([listCampaignMedia(campaign.id).catch(() => []), listCampaignUpdates(campaign.id).catch(() => [])]);
+  const [media, updates, events] = await Promise.all([
+    listCampaignMedia(campaign.id).catch(() => []),
+    listCampaignUpdates(campaign.id).catch(() => []),
+    listCampaignEvents(campaign.id).catch(() => []),
+  ]);
   const funded = percentage(campaign.raised_amount, campaign.goal_amount);
 
   const session = await requireSession();
@@ -51,6 +57,24 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
                   <img key={item.id} src={item.storage_key} alt={item.alt_text ?? ""} style={{ width: 220, height: 140, borderRadius: 10, objectFit: "cover" }} />
                 ),
               )}
+            </div>
+          )}
+
+          {events.length > 0 && (
+            <div style={{ marginTop: 32 }}>
+              <h2>Upcoming events</h2>
+              {events.map((event) => (
+                <div key={event.id} className="campaign-card" style={{ padding: 16, marginTop: 10 }}>
+                  <h3 style={{ margin: "0 0 4px" }}>{event.title}</h3>
+                  <p className="muted">
+                    {new Date(event.starts_at).toLocaleString(undefined, { dateStyle: "full", timeStyle: "short" })}
+                    {event.location ? ` · ${event.location}` : ""}
+                  </p>
+                  <Link className="button small" href={`/events/${event.id}/tickets`}>
+                    Buy tickets
+                  </Link>
+                </div>
+              ))}
             </div>
           )}
 

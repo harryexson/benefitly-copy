@@ -1,6 +1,47 @@
 # Production readiness
 
-Last audited: 2026-10-01
+Last audited: 2026-10-01 (later same day)
+
+## This pass: ticketed fundraising events
+
+Migration `0014_ticketed_events.sql` adds campaign-scoped ticketed events (banquets, dinners,
+luncheons, etc.) for any campaign -- individual or organization-owned, since campaigns already
+support both. A ticket purchase deliberately reuses the existing donation pipeline
+(`create_pending_donation`/`settle_donation`, the same Stripe `PaymentIntent` + `PaymentElement`
+checkout built earlier today) rather than a parallel payment path: the price is "the donation,"
+proceeds land in the campaign's `raised_amount` like any gift, and a ticket order just attaches
+generated ticket rows to that donation via `reserve_tickets` (capacity-checked, row-locked against
+overselling) before the charge even clears -- the tickets exist as soon as the order is placed,
+the same way the underlying donation starts `pending` before settlement.
+
+- **Organizer side** (`/dashboard/[id]`, new "Events & tickets" section): create an event, add one
+  or more ticket types (priced or free, optionally capacity-limited), see a roster, and
+  staff-assist check someone in by code at `/dashboard/[id]/events/[eventId]/check-in`.
+- **Public side**: `/events/[eventId]/tickets` is the buy flow (same Stripe Elements pattern as
+  the donate form); the campaign page lists its upcoming events.
+- **Check-in, two ways, one function** (`self_check_in_ticket`): a QR code (mailed with the
+  ticket) encodes `/checkin/<code>`, which pre-fills and confirms in one tap -- scanning it with a
+  phone's native camera app is the "QR scanner," no in-app camera code was built, since every
+  modern phone camera already resolves a QR-encoded URL without one. An NFC tag at the venue
+  entrance can instead point at the generic `/checkin` page, where an attendee types their code
+  by hand. Both paths hit the same endpoint and the same authorization model: knowing the
+  ticket's own code is the authorization, the same trust model as a boarding-pass barcode, so no
+  session is required and it works for a guest who bought without an account.
+- **Confirmations**: email is real (Resend, with a QR code per ticket, wired into the Stripe
+  webhook handler so it only fires once a ticket's payment actually settles, never at order
+  time). SMS reuses the same unverified, credential-gated SignalHouse adapter as the share-by-text
+  feature from earlier today -- same single platform-wide number
+  (`SIGNALHOUSE_FROM_NUMBER`), still inactive until real credentials are provided.
+
+Verified: the full purchase → settle → ticket-mint → self-check-in → organizer-roster flow was
+run end to end against real Postgres (`database/tests/integration.sql`), including a sold-out
+ticket type correctly rejecting a further purchase, a second self-check-in on the same ticket
+correctly reporting "already checked in" rather than erroring, and the organizer roster
+function correctly returning nothing (not an error) for an admin who isn't that campaign's
+owner/org. `tsc --noEmit` and `next build` are clean; every new route was smoke-tested against a
+running server. Not independently verified: an actual paid ticket purchase against a live Stripe
+Connect account (same real-money-flow gap already disclosed for the general donate flow earlier
+today -- no organizer has a chargeable Connect account in production yet).
 
 ## This pass: media uploads enabled, real sharing, org-initiated campaigns
 

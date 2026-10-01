@@ -346,4 +346,73 @@ begin
   raise notice 'OK: list_organization_donors is gated on finance.manage, not mere org membership';
 end $$;
 
+-- ===== Ticketed events (0014) =====
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
+select id as event_id, title from public.create_campaign_event(:'campaign_id', 'Harvest Banquet', 'An evening to celebrate', now() + interval '14 days', now() + interval '14 days 3 hours', 'Community Hall') \gset
+select id as ticket_type_id, name from public.create_ticket_type(:'event_id', 'General Admission', 5000, 'USD', 2) \gset
+
+-- Public (anonymous) visibility: the campaign is published, so the event and ticket type are visible with no app.user_id bound.
+select set_config('app.user_id', '', false);
+select count(*) as anon_event_count from public.list_campaign_events(:'campaign_id');
+select count(*) as anon_ticket_type_count from public.list_event_ticket_types(:'event_id');
+
+-- Carol buys 2 of the 2 available tickets -- a pending donation (same pipeline as a regular gift), then reserve_tickets mints the tickets and decrements availability.
+select id as ticket_donation_id from public.create_pending_donation(
+  :'campaign_id', '33333333-3333-3333-3333-333333333333', 10000, 0, 'USD', gen_random_uuid(), 'pi_test_tickets_1', 0
+) \gset
+select set_config('app.user_id', '33333333-3333-3333-3333-333333333333', false);
+select code, attendee_name, status from public.reserve_tickets(:'ticket_donation_id', :'ticket_type_id', 2, 'Carol Donor', 'carol@example.com', '+15551234567');
+select quantity_sold, quantity_available from public.ticket_types where id = :'ticket_type_id';
+
+-- A third ticket should be rejected: only 0 remain.
+do $$
+begin
+  begin
+    perform public.reserve_tickets(
+      (select id from public.donations where provider_payment_id = 'pi_test_tickets_1'),
+      (select id from public.ticket_types where name = 'General Admission' and campaign_event_id = (select id from public.campaign_events where title = 'Harvest Banquet')),
+      1, 'Late Buyer', 'late@example.com', null
+    );
+    raise exception 'SHOULD HAVE FAILED: reserve_tickets oversold a sold-out ticket type';
+  exception when others then
+    if sqlerrm not like '%only 0 tickets remain%' then raise; end if;
+    raise notice 'OK: reserve_tickets blocked overselling a sold-out ticket type';
+  end;
+end $$;
+
+-- Settling the donation is what a real purchase's webhook does; tickets_for_donation (no caller
+-- identity, like the webhook itself) then finds the tickets to email/text.
+select net_campaign_amount, status from public.settle_donation('pi_test_tickets_1', 300);
+select set_config('app.user_id', '', false);
+select count(*) as tickets_for_settled_donation from public.tickets_for_donation(:'ticket_donation_id');
+
+-- Self check-in by code -- no session required, matches a guest purchaser's position. (Reading
+-- the code here as Carol, the ticket's purchaser, since a direct select against public.tickets is
+-- still RLS-scoped by tickets_owner_read even though self_check_in_ticket itself needs none.)
+select set_config('app.user_id', '33333333-3333-3333-3333-333333333333', false);
+select code as ticket_code_1 from public.tickets where donation_id = :'ticket_donation_id' order by created_at asc limit 1 \gset
+select set_config('app.user_id', '', false);
+select attendee_name, already_checked_in from public.self_check_in_ticket(:'ticket_code_1');
+select attendee_name, already_checked_in from public.self_check_in_ticket(:'ticket_code_1');
+-- The two self_check_in_ticket calls above already demonstrate idempotency directly in their
+-- output (already_checked_in: f, then t) -- no separate assertion needed.
+
+-- Organizer roster + staff-assisted check-in on the second ticket.
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
+select count(*) as organizer_roster_count from public.organizer_list_event_tickets(:'event_id');
+select code as ticket_code_2 from public.tickets where donation_id = :'ticket_donation_id' and status = 'valid' limit 1 \gset
+select status, checked_in_by is not null as has_staff from public.organizer_check_in_ticket(:'event_id', :'ticket_code_2');
+
+-- A non-organizer (Bob, an admin but not a member of Alice's org/owner of her campaign) gets an empty roster, not an error.
+select set_config('app.user_id', '22222222-2222-2222-2222-222222222222', false);
+select count(*) as bob_roster_count from public.organizer_list_event_tickets(:'event_id');
+do $$
+begin
+  if (select count(*) from public.organizer_list_event_tickets((select id from public.campaign_events where title = 'Harvest Banquet'))) <> 0 then
+    raise exception 'SHOULD HAVE FAILED: organizer_list_event_tickets leaked the roster to a non-organizer';
+  end if;
+  raise notice 'OK: organizer_list_event_tickets is gated to the campaign owner/org, not any admin';
+end $$;
+
+
 select 'ALL INTEGRATION TESTS PASSED' as final_result;
