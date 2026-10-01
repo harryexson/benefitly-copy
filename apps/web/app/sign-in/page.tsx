@@ -4,16 +4,17 @@ import { AuthForm } from "@/components/auth-form";
 
 export const metadata = { title: "Sign in" };
 
-export default function SignInPage() {
+export default async function SignInPage({ searchParams }: { searchParams: Promise<{ redirect?: string }> }) {
+  const { redirect } = await searchParams;
   return (
     <>
       <SiteHeader />
       <main className="page">
         <p className="kicker">Welcome back</p>
         <h1>Sign in to Benefitly</h1>
-        <AuthForm mode="sign-in" />
+        <AuthForm mode="sign-in" redirectTo={redirect} />
         <p className="muted">
-          New here? <Link href="/sign-up">Create an account</Link>
+          New here? <Link href={redirect ? `/sign-up?redirect=${encodeURIComponent(redirect)}` : "/sign-up"}>Create an account</Link>
         </p>
       </main>
     </>

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
-export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
+export function AuthForm({ mode, redirectTo }: { mode: "sign-in" | "sign-up"; redirectTo?: string }) {
   const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -23,7 +23,10 @@ export function AuthForm({ mode }: { mode: "sign-in" | "sign-up" }) {
       setErrorMessage(error.message ?? "Something went wrong. Please try again.");
       return;
     }
-    router.push("/dashboard");
+    // Only ever follow an internal path -- a redirect target starting with "//" or containing a
+    // scheme would send a freshly authenticated session to an external site (open redirect).
+    const safeRedirect = redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/dashboard";
+    router.push(safeRedirect);
     router.refresh();
   }
 
