@@ -1,6 +1,47 @@
 # Production readiness
 
-Last audited: 2026-09-30 (later same day)
+Last audited: 2026-10-01
+
+## This pass: media uploads enabled, real sharing, org-initiated campaigns
+
+- **Media uploads were fully built but never enabled**: `apps/web/lib/storage.ts`'s Vercel Blob
+  adapter only activates when `BLOB_READ_WRITE_TOKEN` is set, and nothing had ever created a Blob
+  store for this project. Created one (`benefitly-media`) and connected it to `benefitly-web`,
+  which populated `BLOB_READ_WRITE_TOKEN` automatically -- no code changes were needed, this was
+  purely a missing piece of infrastructure.
+- **Social sharing was fake**: the campaign page's "Share campaign" link just linked to itself.
+  Replaced with `ShareCampaignButtons` (native Web Share API where supported, plus Facebook, X,
+  WhatsApp, email, and SMS share intents, plus copy-link) on both the public campaign page and the
+  organizer dashboard.
+- **QR code + NFC**: a new `/f/[slug]/share` page offers a downloadable QR code (same hosted
+  `api.qrserver.com` pattern already used on mobile) and plain-language instructions for writing
+  the campaign link to a physical NFC tag with a phone and a free NFC-writing app. Benefitly
+  cannot manufacture or auto-program physical NFC hardware -- that's a real, disclosed limit, not
+  something software can close -- but the link/QR data it needs is generated and ready to write.
+- **Email + SMS outreach to an organizer's own network**: `InviteNetworkForm` on the organizer
+  dashboard sends the campaign link to a list of emails and/or phone numbers.
+  - **Email is real and live**: `apps/web/lib/email.ts` wraps Resend; a sending-scoped API key
+    was created against the already-verified `benefitly.app` domain and set as `RESEND_API_KEY`
+    on `benefitly-web`.
+  - **SMS via SignalHouse is code-complete but UNVERIFIED**: `apps/web/lib/sms.ts` implements a
+    best-effort SignalHouse REST integration, gated behind `SIGNALHOUSE_API_KEY` +
+    `SIGNALHOUSE_FROM_NUMBER` (unset, so the feature returns a clean 503 today) -- this
+    environment's network access could not reach SignalHouse's own API docs to confirm the exact
+    endpoint/auth/body shape, so treat this exactly like the Adyen adapter was treated before real
+    credentials existed: not production-ready until run once against a real account.
+- **Organizations can now start a fundraiser from their own workspace, same workflow**: the
+  backend (`create_campaign_with_review`) and the `/api/campaigns` route already accepted an
+  optional `organizationId` -- nothing used it. `/org/[slug]` now links to `/start?org=<slug>`,
+  which preselects that organization in a new "Fundraising for" dropdown on `CreateCampaignForm`
+  (also shown, unselected, to anyone who belongs to at least one organization). An org-created
+  campaign's `owner_id` is still the creating member, so it already shows up on that member's
+  personal `/dashboard` -- no separate org-campaign-list page was needed.
+
+Verified: `tsc --noEmit` and `next build` clean; every new/changed route smoke-tested against a
+locally running server (signed-out states, 404 on a missing campaign's share page). Not
+independently re-verified: an actual end-to-end "send a real email" or "scan a real QR code"
+run (the Resend integration is real and configured, but a literal send was not triggered during
+this pass to avoid emailing a real inbox without a real recipient in hand).
 
 ## This pass: donor CRM, Stripe-only payment messaging
 

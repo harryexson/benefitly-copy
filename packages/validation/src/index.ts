@@ -153,3 +153,12 @@ export const setGivingPlanStatusSchema = z.object({
 export const toggleSavedCampaignSchema = z.object({
   campaignId: z.string().uuid(),
 });
+
+export const shareCampaignEmailSchema = z.object({
+  recipients: z.array(z.string().email()).min(1).max(50),
+  note: z.string().trim().max(500).optional(),
+});
+
+export const shareCampaignSmsSchema = z.object({
+  recipients: z.array(z.string().trim().min(7).max(20)).min(1).max(50),
+});

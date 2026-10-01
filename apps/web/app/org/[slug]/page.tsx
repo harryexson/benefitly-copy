@@ -70,6 +70,11 @@ export default async function OrganizationWorkspacePage({ params }: { params: Pr
       <main className="page">
         <p className="kicker">Organization</p>
         <h1>{org.name}</h1>
+        <p className="lede">
+          <Link className="button small" href={`/start?org=${slug}`}>
+            Start a fundraiser for {org.name}
+          </Link>
+        </p>
 
         {planUsage && (
           <section className="section" style={{ padding: "24px 0" }}>

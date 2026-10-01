@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { MediaUploader } from "@/components/media-uploader";
 import { UpdateComposer } from "@/components/update-composer";
+import { ShareCampaignButtons } from "@/components/share-campaign-buttons";
+import { InviteNetworkForm } from "@/components/invite-network-form";
 import { getOwnedCampaignById, listCampaignDonors } from "@/lib/organizer";
 import { listCampaignMedia, listCampaignUpdates } from "@/lib/campaigns";
 import { requireSession } from "@/lib/session";
@@ -46,6 +48,17 @@ export default async function ManageCampaignPage({ params }: { params: Promise<{
           <Link href={`/f/${campaign.slug}`}>View public page</Link> · {campaign.status}
           {campaign.review_status ? ` · ${campaign.review_status}` : ""}
         </p>
+
+        <section className="section" style={{ padding: "24px 0" }}>
+          <h2>Share &amp; promote</h2>
+          <ShareCampaignButtons title={campaign.title} url={`${process.env.NEXT_PUBLIC_APP_URL || "https://benefitly-web.vercel.app"}/f/${campaign.slug}`} />
+          <p className="muted" style={{ marginTop: 10 }}>
+            <Link href={`/f/${campaign.slug}/share`}>Get the QR code &amp; NFC share kit →</Link>
+          </p>
+          <div style={{ marginTop: 20 }}>
+            <InviteNetworkForm campaignId={campaign.id} />
+          </div>
+        </section>
 
         <section className="section" style={{ padding: "24px 0" }}>
           <h2>Donors ({donors.length})</h2>

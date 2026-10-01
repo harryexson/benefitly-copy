@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SaveCampaignButton } from "@/components/save-campaign-button";
+import { ShareCampaignButtons } from "@/components/share-campaign-buttons";
 import { getPublishedCampaignBySlug, listCampaignMedia, listCampaignUpdates } from "@/lib/campaigns";
 import { mySavedCampaigns } from "@/lib/donor";
 import { requireSession } from "@/lib/session";
@@ -72,8 +73,9 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
           <a className="button" href={`/donate/${campaign.id}`}>
             Donate
           </a>
-          <a className="share" href={`/f/${campaign.slug}`}>
-            Share campaign
+          <ShareCampaignButtons title={campaign.title} url={`${process.env.NEXT_PUBLIC_APP_URL || "https://benefitly-web.vercel.app"}/f/${campaign.slug}`} />
+          <a className="share" href={`/f/${campaign.slug}/share`}>
+            QR code &amp; NFC share kit
           </a>
           {session ? (
             <SaveCampaignButton campaignId={campaign.id} initiallySaved={initiallySaved} />

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import type { MyOrganization } from "@/lib/associations";
 
 const categories = [
   { value: "emergency", label: "Emergency" },
@@ -13,8 +14,9 @@ const categories = [
   { value: "disaster", label: "Disaster" },
 ] as const;
 
-export function CreateCampaignForm() {
+export function CreateCampaignForm({ organizations = [], preselectedOrgId }: { organizations?: MyOrganization[]; preselectedOrgId?: string }) {
   const router = useRouter();
+  const [organizationId, setOrganizationId] = useState(preselectedOrgId ?? "");
   const [status, setStatus] = useState<"idle" | "submitting" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
 
@@ -36,6 +38,7 @@ export function CreateCampaignForm() {
         currency: "USD",
         goalAmount: Math.round(goalDollars * 100),
         beneficiary: { name: form.get("beneficiaryName"), relationship: form.get("beneficiaryRelationship") || undefined },
+        organizationId: organizationId || undefined,
       }),
     });
     const body = await response.json().catch(() => ({}));
@@ -49,6 +52,20 @@ export function CreateCampaignForm() {
 
   return (
     <form className="donate-panel" onSubmit={onSubmit} style={{ maxWidth: 640 }}>
+      {organizations.length > 0 && (
+        <>
+          <label htmlFor="organizationId">Fundraising for</label>
+          <select id="organizationId" name="organizationId" value={organizationId} onChange={(e) => setOrganizationId(e.target.value)}>
+            <option value="">Just me (personal fundraiser)</option>
+            {organizations.map((org) => (
+              <option key={org.id} value={org.id}>
+                {org.name}
+              </option>
+            ))}
+          </select>
+        </>
+      )}
+
       <label htmlFor="title">Campaign title</label>
       <input id="title" name="title" required minLength={5} maxLength={160} placeholder="Help Harbor House reopen its kitchen" />
 
