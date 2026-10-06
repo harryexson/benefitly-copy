@@ -37,8 +37,8 @@ export async function getOwnedCampaignById(userId: string, campaignId: string): 
   return (rows[0] as OwnedCampaign) ?? null;
 }
 
-export async function getOwnPaymentAccount(userId: string) {
-  const [rows] = await withUserContext(userId, (tx) => [tx`select * from public.get_own_payment_account(${userId}, null)`]);
+export async function getOwnPaymentAccount(userId: string, organizationId?: string) {
+  const [rows] = await withUserContext(userId, (tx) => [tx`select * from public.get_own_payment_account(${userId}, ${organizationId ?? null})`]);
   return rows[0] as { id: string; provider: string; provider_account_id: string; status: string } | undefined;
 }
 

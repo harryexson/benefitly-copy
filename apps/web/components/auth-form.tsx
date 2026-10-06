@@ -26,7 +26,11 @@ export function AuthForm({ mode, redirectTo }: { mode: "sign-in" | "sign-up"; re
     // Only ever follow an internal path -- a redirect target starting with "//" or containing a
     // scheme would send a freshly authenticated session to an external site (open redirect).
     const safeRedirect = redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//") ? redirectTo : "/dashboard";
-    router.push(safeRedirect);
+    // A brand new individual account goes through mandatory payout setup before anything else --
+    // see app/organizer/onboarding/page.tsx. Signing in to an existing account skips straight to
+    // its destination; that account either already finished this step or gets nudged from the
+    // dashboard, rather than being interrupted on every sign-in.
+    router.push(mode === "sign-up" ? `/organizer/onboarding?redirect=${encodeURIComponent(safeRedirect)}` : safeRedirect);
     router.refresh();
   }
 

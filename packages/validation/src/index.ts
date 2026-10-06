@@ -22,6 +22,14 @@ export const organizerRegistrationSchema = z.object({
   country: z.string().length(2),
   entityType: z.enum(["individual", "business"]),
   provider: z.enum(["stripe_connect", "adyen_platforms"]).default("stripe_connect"),
+  // Present when the connected account is being set up for an organization's own payouts rather
+  // than the signed-in individual's -- upsert_payment_account (database/migrations/0003) checks
+  // the caller is a member of this organization before writing the account.
+  organizationId: z.string().uuid().optional(),
+  // Where to continue once Stripe's hosted onboarding finishes -- carried through the
+  // return_url/refresh_url round trip so the mandatory post-sign-up step lands back where the
+  // user was headed rather than always at a fixed page.
+  redirectTo: z.string().optional(),
 });
 
 export const campaignCreateSchema = z.object({

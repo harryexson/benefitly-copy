@@ -23,7 +23,9 @@ export function CreateOrganizationForm() {
       setMessage(body?.error?.message ?? "Could not create organization.");
       return;
     }
-    router.push(`/org/${body.data.slug}`);
+    // Mandatory payout setup before the organization's dashboard is usable -- see
+    // app/organizer/onboarding/page.tsx.
+    router.push(`/organizer/onboarding?organizationId=${body.data.id}&redirect=${encodeURIComponent(`/org/${body.data.slug}`)}`);
   }
 
   return (

@@ -1,5 +1,55 @@
 # Production readiness
 
+Last audited: 2026-10-06
+
+## This pass: fixed a critical bug -- organizer payout setup never actually worked, for anyone
+
+While testing the ticketed-events feature end to end against production, found that the
+`payment_accounts` table was completely empty and zero donations had ever been recorded,
+platform-wide -- including on the requester's own real campaign. Root cause: `POST
+/api/organizer/register` (the "Connect a payment account" button on `/dashboard`) called the
+database through the plain `sql` tag instead of `withUserContext`, so `app.user_id` was never
+bound in that connection. `upsert_payment_account` and `get_own_payment_account`
+(`database/migrations/0003_crowdfunding_trust.sql`) both authorize against
+`public.current_user_id()`, which reads that same setting -- with it unset, every call's own
+authorization check failed with "not authorized to manage this payment account." This was not a
+configuration gap or a user who hadn't gotten around to it; the endpoint has never been able to
+complete successfully, for an individual or an organization, since it was written. Fixed by
+switching the route to `withUserContext`, same as every other security-definer call in the
+codebase, and verified directly: as a real org member, `upsert_payment_account` now succeeds; as
+a non-member of that same org, it's still correctly rejected (verified against a fresh local
+Postgres instance, not assumed from reading the code).
+
+Also found and fixed: `createOnboardingLink`'s `return_url`/`refresh_url` pointed at
+`/organizer/onboarding/complete` and `/organizer/onboarding/refresh`, neither of which existed --
+Stripe's hosted onboarding would have sent a real organizer back to a 404 the first time anyone
+actually got that far. Both pages now exist, and the registration route now also accepts an
+optional `organizationId` (for an organization's own payout account rather than an individual's)
+and a `redirectTo` (round-tripped through the Stripe redirect so the user lands back where they
+were headed, not a fixed page).
+
+Per explicit request, payout setup is now a **mandatory step at sign-up**, for both individuals
+and organizations, not an optional dashboard nudge a new user can ignore indefinitely:
+- A brand new account is sent to `/organizer/onboarding` immediately after `authClient.signUp`
+  succeeds (`components/auth-form.tsx`), before reaching its original destination. Signing in to
+  an *existing* account is unaffected -- only sign-up forces this.
+- Creating a new organization (`components/create-organization-form.tsx`) routes to the same
+  page with `?organizationId=...` before landing on the organization's own page.
+- The existing, non-mandatory dashboard prompt (`components/organizer-onboarding.tsx`, used on
+  `/dashboard`) is unchanged, for an existing user who backed out of Stripe's hosted flow
+  partway through and needs to resume later.
+
+**Not yet verified**: the actual Stripe-hosted onboarding UI itself (the real identity/bank-
+account form a human fills in on Stripe's domain) could not be driven from this sandbox --
+outbound requests to the live deployment are blocked by this environment's network policy, and
+the Stripe MCP connection available to this session is separate from, and was not used to
+fabricate state in, the application's own configured Stripe account. Everything verified above
+is the application-side authorization and persistence logic (the part that was actually broken);
+a human completing the real hosted form once, in either country, is the remaining unverified
+step before a real paid donation or ticket purchase can be confirmed end to end.
+
+---
+
 Last audited: 2026-10-01 (later same day)
 
 ## This pass: ticketed fundraising events
