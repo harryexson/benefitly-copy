@@ -1,21 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { moderationDecisionSchema } from "@benefitly/validation";
 import { sql, withUserContext } from "@/lib/database";
+import { isPlatformAdmin } from "@/lib/admin";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
 import { notify } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Records an admin moderation decision (approve/reject/pause/etc.) for a campaign, and, for
- * Phase 1's manual-approval requirement, transitions the campaign's review + publish status in
- * the same call. Authorization is enforced inside `record_moderation_action` (is_platform_admin);
- * a non-admin caller gets a Postgres exception, surfaced here as 403.
- */
 export const POST = withRouteErrorHandling(async function POST(request: NextRequest) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Sign in required." } }, { status: 401 });
+  if (!(await isPlatformAdmin(session.user.id))) {
+    return NextResponse.json({ error: { code: "FORBIDDEN", message: "Platform admin access required." } }, { status: 403 });
+  }
 
   const body = await request.json().catch(() => null);
   const parsed = moderationDecisionSchema.safeParse(body);

@@ -2,22 +2,19 @@ import { NextResponse } from "next/server";
 import type { PaymentProvider } from "@benefitly/domain";
 import { sql, withUserContext } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
+import { isPlatformAdmin } from "@/lib/admin";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
 import { notify } from "@/lib/notifications";
 
 export const dynamic = "force-dynamic";
 
-/**
- * Two-step, dual-approval-friendly payout execution: `approve_payout` (admin-checked in SQL)
- * moves the row from pending to approved; only after that succeeds do we call the payment
- * provider, then record the outcome with `mark_payout_executed`/`mark_payout_failed`. A payout
- * that fails after approval stays visible as 'failed' rather than silently reverting, so it
- * shows up for manual follow-up instead of being retried automatically.
- */
 export const POST = withRouteErrorHandling(async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await requireSession();
   if (!session) return NextResponse.json({ error: { code: "UNAUTHENTICATED", message: "Sign in required." } }, { status: 401 });
+  if (!(await isPlatformAdmin(session.user.id))) {
+    return NextResponse.json({ error: { code: "FORBIDDEN", message: "Platform admin access required." } }, { status: 403 });
+  }
 
   const { id: payoutId } = await params;
 

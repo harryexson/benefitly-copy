@@ -199,3 +199,8 @@ export const purchaseTicketsSchema = z.object({
 export const checkInSchema = z.object({
   code: z.string().trim().min(4).max(20),
 });
+
+export const registerPushTokenSchema = z.object({
+  token: z.string().trim().min(1).max(512),
+  platform: z.enum(["ios", "android", "web"]).default("ios"),
+});
