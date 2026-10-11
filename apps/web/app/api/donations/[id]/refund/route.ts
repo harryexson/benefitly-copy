@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { refundRequestSchema } from "@benefitly/validation";
-import { sql, withUserContext } from "@/lib/database";
+import { withUserContext } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
@@ -19,7 +19,9 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
   }
   const input = parsed.data;
 
-  const [donation] = await sql`select provider_payment_id, gross_amount, currency from public.donations where id = ${input.donationId} and status = 'succeeded'`;
+  const [[donation]] = await withUserContext(session.user.id, (tx) => [
+    tx`select provider_payment_id, gross_amount, currency from public.donations where id = ${input.donationId} and status = 'succeeded'`,
+  ]);
   if (!donation) {
     return NextResponse.json({ error: { code: "NOT_REFUNDABLE", message: "Donation not found or not in a refundable state." } }, { status: 404 });
   }
