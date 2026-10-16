@@ -2,7 +2,8 @@ import { neon } from "@neondatabase/serverless";
 import { betterAuth } from "better-auth";
 
 const databaseUrl = process.env.DATABASE_URL;
-if (!databaseUrl && process.env.NODE_ENV === "production") throw new Error("DATABASE_URL is required in production");
+/** Public pages can render without Neon; auth routes reject requests until it is configured. */
+export const isDatabaseConfigured = Boolean(databaseUrl);
 
 export const auth = betterAuth({
   appName: "Benefitly",
