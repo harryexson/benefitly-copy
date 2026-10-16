@@ -204,3 +204,31 @@ export const registerPushTokenSchema = z.object({
   token: z.string().trim().min(1).max(512),
   platform: z.enum(["ios", "android", "web"]).default("ios"),
 });
+
+export const organizationPermissions = [
+  "organization.manage",
+  "members.manage",
+  "finance.manage",
+  "benefits.manage",
+  "events.manage",
+  "communications.manage",
+  "payouts.approve",
+] as const;
+
+export const createInvitationSchema = z.object({
+  email: z.string().trim().toLowerCase().email().max(254),
+  permissions: z.array(z.enum(organizationPermissions)).max(organizationPermissions.length).default([]),
+  memberNumber: z.string().trim().min(1).max(40).optional(),
+  membershipLevel: z.string().trim().max(80).optional(),
+});
+
+export const acceptInvitationSchema = z.object({
+  token: z.string().trim().min(32).max(200),
+});
+
+export const memberDuesSchema = z.object({
+  amount: z.number().int().min(100).max(10_000_000),
+  currency: z.string().length(3).default("USD"),
+  contributionType: z.string().trim().min(1).max(80).default("Annual dues"),
+  idempotencyKey: z.string().uuid(),
+});

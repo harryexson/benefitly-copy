@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
-import { processProviderWebhook } from "@/lib/webhook-processing";
+import { processMemberDuesWebhook, processProviderWebhook } from "@/lib/webhook-processing";
 import { withRouteErrorHandling } from "@/lib/api-errors";
 
 export const dynamic = "force-dynamic";
@@ -22,14 +22,13 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
   }
 
   if (event.type === "payment_intent.succeeded" || event.type === "payment_intent.payment_failed" || event.type === "payment_intent.canceled") {
-    const intent = event.data as { id: string; charges?: { data?: Array<{ balance_transaction?: { fee?: number } }> } };
-    await processProviderWebhook(
-      "stripe_connect",
-      event,
-      intent.id,
-      event.type === "payment_intent.succeeded" ? "succeeded" : "failed",
-      intent.charges?.data?.[0]?.balance_transaction?.fee ?? 0,
-    );
+    const intent = event.data as { id: string; metadata?: Record<string, string>; charges?: { data?: Array<{ balance_transaction?: { fee?: number } }> } };
+    const outcome = event.type === "payment_intent.succeeded" ? "succeeded" : "failed";
+    if (intent.metadata?.kind === "member_dues") {
+      await processMemberDuesWebhook("stripe_connect", event, intent.id, outcome);
+    } else {
+      await processProviderWebhook("stripe_connect", event, intent.id, outcome, intent.charges?.data?.[0]?.balance_transaction?.fee ?? 0);
+    }
   } else if (event.type === "account.updated") {
     // Stripe reports Connect onboarding completion (and later restriction/disablement)
     // asynchronously here; nothing else ever updates payment_accounts.status after creation.

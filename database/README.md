@@ -22,6 +22,7 @@ part of this repository's own test process -- not just typechecked.
 0013_donor_crm.sql
 0014_ticketed_events.sql
 0015_members_invitations_dues_payouts.sql
+0016_member_dues_checkout.sql
 ```
 
 Test suites, run after the migrations, as the owner role (fixtures) then `benefitly_app`:

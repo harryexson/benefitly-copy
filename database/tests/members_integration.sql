@@ -213,4 +213,27 @@ exception when others then
   if sqlerrm not like '%not authorized to pay dues%' then raise exception 'wrong failure: %', sqlerrm; end if;
 end $$;
 
+-- Dues destination is hidden until the organization's Stripe account is active
+select set_config('app.user_id', '44444444-4444-4444-4444-444444444444', false);
+select count(*) as destination_before_active from public.member_dues_destination(current_setting('test.member_id')::uuid);
+select status as org_account_active from public.update_payment_account_status('stripe_connect', 'acct_test_org_members', 'active');
+select provider_account_id as destination_after_active from public.member_dues_destination(current_setting('test.member_id')::uuid);
+
+select set_config('app.user_id', '55555555-5555-5555-5555-555555555555', false);
+do $$ begin
+  perform * from public.member_dues_destination(current_setting('test.member_id')::uuid);
+  raise exception 'EXPECTED FAILURE NOT RAISED';
+exception when others then
+  if sqlerrm like 'EXPECTED FAILURE%' then raise; end if;
+  if sqlerrm not like '%not authorized to pay dues%' then raise exception 'wrong failure: %', sqlerrm; end if;
+end $$;
+
+-- A retried checkout with the same PaymentIntent records one dues payment
+select set_config('app.user_id', '44444444-4444-4444-4444-444444444444', false);
+select count(distinct id) as dues_rows_for_one_intent from (
+  select id from public.create_member_dues_payment(current_setting('test.member_id')::uuid, 'Annual dues', 5000, 'USD', 'pi_dues_retry')
+  union all
+  select id from public.create_member_dues_payment(current_setting('test.member_id')::uuid, 'Annual dues', 5000, 'USD', 'pi_dues_retry')
+) retried;
+
 select 'MEMBER INTEGRATION TESTS PASSED' as final_result;

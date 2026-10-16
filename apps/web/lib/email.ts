@@ -96,6 +96,22 @@ export async function sendCheckInConfirmationEmail(input: { to: string; attendee
   });
 }
 
+export async function sendOrganizationInvitationEmail(input: { to: string; organizationName: string; inviterName: string; acceptUrl: string }) {
+  const client = await getClient();
+  if (!client) throw new Error("Email is not configured on this server.");
+  const from = process.env.RESEND_FROM_EMAIL || "share@benefitly.app";
+  await client.emails.send({
+    from: `Benefitly <${from}>`,
+    to: input.to,
+    subject: `${input.inviterName} invited you to join ${input.organizationName}`,
+    html: `
+      <p>${escapeHtml(input.inviterName)} invited you to join <strong>${escapeHtml(input.organizationName)}</strong> on Benefitly.</p>
+      <p><a href="${escapeHtml(input.acceptUrl)}">Accept the invitation</a></p>
+      <p>Sign in or create an account with this email address to accept. The link expires in 14 days.</p>
+    `,
+  });
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
 }

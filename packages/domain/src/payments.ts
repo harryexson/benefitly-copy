@@ -32,6 +32,16 @@ export type PayoutResult = {
 
 export type DonationChargeState = "requires_action" | "processing" | "succeeded" | "failed" | "canceled";
 
+/** A charge that settles entirely into the connected account; the platform never holds the funds. */
+export type DirectChargeRequest = {
+  accountId: string;
+  amount: number;
+  currency: string;
+  idempotencyKey: string;
+  metadata: Record<string, string>;
+  receiptEmail?: string;
+};
+
 export type DonationChargeRequest = {
   /** Connected account that ultimately receives the net campaign amount. */
   destinationAccountId: string;
@@ -82,6 +92,8 @@ export interface PaymentProviderAdapter {
   createOnboardingLink(accountId: string, returnUrl: string, refreshUrl: string): Promise<string>;
   /** Guest/donor checkout: a single charge split between the connected account and the platform. */
   createDonationCharge(input: DonationChargeRequest): Promise<DonationChargeResult>;
+  /** Optional: providers that cannot settle a charge into a connected account directly omit it. */
+  createDirectCharge?(input: DirectChargeRequest): Promise<DonationChargeResult>;
   refundDonation(input: RefundRequest): Promise<RefundResult>;
   createPayout(input: PayoutRequest): Promise<PayoutResult>;
   verifyWebhook(payload: string, signature: string): Promise<WebhookEvent>;

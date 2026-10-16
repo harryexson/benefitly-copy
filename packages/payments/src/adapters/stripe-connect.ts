@@ -1,6 +1,7 @@
 import Stripe from "stripe";
 import type {
   ConnectedAccount,
+  DirectChargeRequest,
   DonationChargeRequest,
   DonationChargeResult,
   PaymentProviderAdapter,
@@ -94,6 +95,24 @@ export class StripeConnectAdapter implements PaymentProviderAdapter {
         automatic_payment_methods: { enabled: true },
       },
       { idempotencyKey: input.idempotencyKey },
+    );
+    return {
+      providerPaymentId: intent.id,
+      clientSecret: intent.client_secret ?? undefined,
+      status: chargeStateMap[intent.status] ?? "processing",
+    };
+  }
+
+  async createDirectCharge(input: DirectChargeRequest): Promise<DonationChargeResult> {
+    const intent = await this.client.paymentIntents.create(
+      {
+        amount: input.amount,
+        currency: input.currency.toLowerCase(),
+        metadata: input.metadata,
+        receipt_email: input.receiptEmail,
+        automatic_payment_methods: { enabled: true },
+      },
+      { idempotencyKey: input.idempotencyKey, stripeAccount: input.accountId },
     );
     return {
       providerPaymentId: intent.id,
