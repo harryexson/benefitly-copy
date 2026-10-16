@@ -12,7 +12,7 @@ export default function Donate() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
   const [campaign, setCampaign] = useState<CampaignSummary | null>(null);
   const [amount, setAmount] = useState(5000);
-  const [rate, setRate] = useState(0.15);
+  const [rate, setRate] = useState(0);
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"loading" | "idle" | "submitting" | "done" | "error">("loading");
   const [errorMessage, setErrorMessage] = useState("");

@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { getStripe } from "@/lib/stripe-client";
+import { getStripeForAccount } from "@/lib/stripe-client";
 import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 import type { TicketType } from "@/lib/tickets";
 
-type PurchaseResult = { donationId: string; ticketCount: number; clientSecret?: string; grossCharge: number; currency: string };
+type PurchaseResult = { donationId: string; ticketCount: number; clientSecret?: string; stripeAccountId?: string; grossCharge: number; currency: string };
 
 export function TicketPurchaseForm({ campaignId, eventId, ticketTypes }: { campaignId: string; eventId: string; ticketTypes: TicketType[] }) {
   const available = ticketTypes.filter((t) => t.quantity_available == null || t.quantity_sold < t.quantity_available);
@@ -68,7 +68,7 @@ export function TicketPurchaseForm({ campaignId, eventId, ticketTypes }: { campa
         <p className="muted">
           Charging ${(result.grossCharge / 100).toLocaleString()} {result.currency} for {result.ticketCount} ticket{result.ticketCount > 1 ? "s" : ""}.
         </p>
-        <Elements stripe={getStripe()} options={{ clientSecret: result.clientSecret }}>
+        <Elements stripe={result.stripeAccountId ? getStripeForAccount(result.stripeAccountId) : null} options={{ clientSecret: result.clientSecret }}>
           <TicketPaymentStep onSuccess={() => setStatus("paid")} onError={setErrorMessage} />
         </Elements>
         {errorMessage && <p className="muted">{errorMessage}</p>}

@@ -20,14 +20,20 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
   const input = parsed.data;
 
   const [[donation]] = await withUserContext(session.user.id, (tx) => [
-    tx`select provider_payment_id, gross_amount, currency from public.donations where id = ${input.donationId} and status = 'succeeded'`,
+    tx`select provider_payment_id, provider_account_id, gross_amount, currency from public.donations where id = ${input.donationId} and status = 'succeeded'`,
   ]);
   if (!donation) {
     return NextResponse.json({ error: { code: "NOT_REFUNDABLE", message: "Donation not found or not in a refundable state." } }, { status: 404 });
   }
+  // Donations charged before direct charges were introduced settled through the platform and need
+  // their transfer reversed, which this route does not do; refund those in the Stripe dashboard.
+  if (!donation.provider_account_id) {
+    return NextResponse.json({ error: { code: "LEGACY_CHARGE", message: "This donation predates direct charges and must be refunded from the Stripe dashboard." } }, { status: 409 });
+  }
   // Only Stripe is wired for refunds today; extend once Adyen partial-refund reconciliation is validated in staging.
   const refund = await paymentProviderRouter.for("stripe_connect").refundDonation({
     providerPaymentId: donation.provider_payment_id as string,
+    accountId: donation.provider_account_id as string,
     amount: input.amount,
     idempotencyKey: input.idempotencyKey,
     reason: input.reason,

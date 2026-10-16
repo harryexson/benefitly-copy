@@ -83,18 +83,20 @@ export class StripeConnectAdapter implements PaymentProviderAdapter {
   }
 
   async createDonationCharge(input: DonationChargeRequest): Promise<DonationChargeResult> {
+    // Direct charge: the payment settles into the campaign's connected account. The only amount
+    // routed to the platform is the optional tip, passed as application_fee_amount. Stripe's
+    // processing fees are deducted from the connected account, which is where they belong.
     const intent = await this.client.paymentIntents.create(
       {
         amount: input.grossAmount,
         currency: input.currency.toLowerCase(),
-        application_fee_amount: input.platformContribution,
-        transfer_data: { destination: input.destinationAccountId },
+        application_fee_amount: input.platformContribution > 0 ? input.platformContribution : undefined,
         statement_descriptor_suffix: input.statementDescriptor?.slice(0, 22),
         receipt_email: input.donorEmail,
         metadata: { campaignId: input.campaignId, ...input.metadata },
         automatic_payment_methods: { enabled: true },
       },
-      { idempotencyKey: input.idempotencyKey },
+      { idempotencyKey: input.idempotencyKey, stripeAccount: input.destinationAccountId },
     );
     return {
       providerPaymentId: intent.id,
@@ -127,12 +129,10 @@ export class StripeConnectAdapter implements PaymentProviderAdapter {
         payment_intent: input.providerPaymentId,
         amount: input.amount,
         reason: input.reason === "duplicate" ? "duplicate" : input.reason === "fraudulent" ? "fraudulent" : "requested_by_customer",
-        // Reverse the platform contribution along with the campaign portion so a refunded
-        // donation never leaves a stranded application fee.
-        reverse_transfer: true,
+        // The tip (application fee) is returned along with the donation it was charged with.
         refund_application_fee: true,
       },
-      { idempotencyKey: input.idempotencyKey },
+      { idempotencyKey: input.idempotencyKey, stripeAccount: input.accountId },
     );
     return {
       providerRefundId: refund.id,

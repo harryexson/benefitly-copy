@@ -33,10 +33,13 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
     return NextResponse.json({ error: { code: "PROVIDER_UNAVAILABLE", message: `${provider} is not configured on this server.` } }, { status: 503 });
   }
 
+  // Platform fees are optional tips. Organizations on an active paid subscription pay none.
+  const [waiver] = await sql`select public.campaign_platform_fee_waived(${campaignId}) as waived`;
+  const platformContribution = waiver?.waived ? 0 : input.platformContribution;
   const ticketAmount = (ticketType.price_cents as number) * input.quantity;
   const split = ticketAmount > 0
-    ? computeDonationSplit({ donationAmount: ticketAmount, platformContribution: input.platformContribution, currency: ticketType.currency as string })
-    : { grossCharge: input.platformContribution, netToCampaign: 0, platformContribution: input.platformContribution, currency: ticketType.currency as string };
+    ? computeDonationSplit({ donationAmount: ticketAmount, platformContribution, currency: ticketType.currency as string })
+    : { grossCharge: platformContribution, netToCampaign: 0, platformContribution, currency: ticketType.currency as string };
 
   const session = await requireSession();
 
@@ -61,6 +64,7 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
       )
     `;
     donationId = donation.id as string;
+    await sql`select public.attach_donation_provider_account(${charge.providerPaymentId}, ${destination.provider_account_id})`;
   } else {
     // A free ticket type (price_cents = 0, no tip added): still goes through create_pending_donation
     // for a consistent record, then settles immediately since no payment provider is involved.
@@ -84,6 +88,7 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
           donationId,
           ticketCount: reserved.length,
           clientSecret,
+          stripeAccountId: destination.provider_account_id,
           grossCharge: split.grossCharge,
           currency: split.currency,
         },

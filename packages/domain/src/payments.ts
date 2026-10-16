@@ -66,6 +66,8 @@ export type DonationChargeResult = {
 
 export type RefundRequest = {
   providerPaymentId: string;
+  /** Connected account the original direct charge settled into. */
+  accountId: string;
   amount?: number;
   idempotencyKey: string;
   reason?: "requested_by_customer" | "fraudulent" | "duplicate";

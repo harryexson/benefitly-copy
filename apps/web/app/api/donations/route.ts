@@ -26,7 +26,10 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
     return NextResponse.json({ error: { code: "PROVIDER_UNAVAILABLE", message: `${provider} is not configured on this server.` } }, { status: 503 });
   }
 
-  const split = computeDonationSplit({ donationAmount: input.amount, platformContribution: input.platformContribution, currency: input.currency });
+  // Platform fees are optional tips. Organizations on an active paid subscription pay none.
+  const [waiver] = await sql`select public.campaign_platform_fee_waived(${input.campaignId}) as waived`;
+  const platformContribution = waiver?.waived ? 0 : input.platformContribution;
+  const split = computeDonationSplit({ donationAmount: input.amount, platformContribution, currency: input.currency });
 
   // Guest checkout: donor identity is optional. When signed in, the donation is attributed to the profile.
   const session = await requireSession();
@@ -48,6 +51,7 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
       ${split.currency}, ${input.idempotencyKey}, ${charge.providerPaymentId}, ${DEFAULT_SUGGESTED_RATE}
     )
   `;
+  await sql`select public.attach_donation_provider_account(${charge.providerPaymentId}, ${destination.provider_account_id})`;
 
   return NextResponse.json({
     data: {
@@ -55,6 +59,7 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
       provider,
       status: charge.status,
       clientSecret: charge.clientSecret,
+      stripeAccountId: destination.provider_account_id,
       redirectUrl: charge.redirectUrl,
       grossCharge: split.grossCharge,
       netToCampaign: split.netToCampaign,

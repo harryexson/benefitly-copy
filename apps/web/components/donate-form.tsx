@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
-import { getStripe } from "@/lib/stripe-client";
+import { getStripeForAccount } from "@/lib/stripe-client";
 import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 
 // Duplicated from @benefitly/payments/src/fees.ts rather than imported: that package's root
@@ -14,6 +14,7 @@ function suggestedContribution(donationAmount: number, rate: number): number {
 
 type Result = {
   donationId: string;
+  stripeAccountId?: string;
   provider: string;
   status: string;
   clientSecret?: string;
@@ -26,15 +27,15 @@ type Result = {
 
 const presetAmounts = [2500, 5000, 10000, 25000];
 
-export function DonateForm({ campaignId, currency }: { campaignId: string; currency: string }) {
+export function DonateForm({ campaignId, currency, platformFeeWaived = false }: { campaignId: string; currency: string; platformFeeWaived?: boolean }) {
   const [amount, setAmount] = useState(5000);
-  const [contributionRate, setContributionRate] = useState<number>(0.15);
+  const [contributionRate, setContributionRate] = useState<number>(0);
   const [donorEmail, setDonorEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "submitting" | "ready-to-pay" | "paid" | "error">("idle");
   const [result, setResult] = useState<Result | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const contribution = suggestedContribution(amount, contributionRate);
+  const contribution = platformFeeWaived ? 0 : suggestedContribution(amount, contributionRate);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -90,7 +91,7 @@ export function DonateForm({ campaignId, currency }: { campaignId: string; curre
         <p className="muted">
           Charging ${(result.grossCharge / 100).toLocaleString()} {result.currency} today.
         </p>
-        <Elements stripe={getStripe()} options={{ clientSecret: result.clientSecret }}>
+        <Elements stripe={result.stripeAccountId ? getStripeForAccount(result.stripeAccountId) : null} options={{ clientSecret: result.clientSecret }}>
           <StripePaymentStep onSuccess={() => setStatus("paid")} onError={(message) => setErrorMessage(message)} />
         </Elements>
         {errorMessage && <p className="muted">{errorMessage}</p>}
@@ -120,15 +121,19 @@ export function DonateForm({ campaignId, currency }: { campaignId: string; curre
 
       <FeeTransparencyBanner />
 
-      <fieldset style={{ border: "none", padding: 0, margin: "16px 0" }}>
-        <legend>Add an optional tip to keep Benefitly running</legend>
-        {SUGGESTED_CONTRIBUTION_RATES.map((rate) => (
-          <label key={rate} style={{ display: "block" }}>
-            <input type="radio" name="rate" checked={contributionRate === rate} onChange={() => setContributionRate(rate)} />{" "}
-            {rate === 0 ? "No thanks" : `${Math.round(rate * 100)}% ($${(suggestedContribution(amount, rate) / 100).toFixed(2)})`}
-          </label>
-        ))}
-      </fieldset>
+      {platformFeeWaived ? (
+        <p className="muted">This organization covers Benefitly&apos;s platform fee, so there is no tip to add.</p>
+      ) : (
+        <fieldset style={{ border: "none", padding: 0, margin: "16px 0" }}>
+          <legend>Add an optional tip to keep Benefitly running</legend>
+          {SUGGESTED_CONTRIBUTION_RATES.map((rate) => (
+            <label key={rate} style={{ display: "block" }}>
+              <input type="radio" name="rate" checked={contributionRate === rate} onChange={() => setContributionRate(rate)} />{" "}
+              {rate === 0 ? "No thanks" : `${Math.round(rate * 100)}% ($${(suggestedContribution(amount, rate) / 100).toFixed(2)})`}
+            </label>
+          ))}
+        </fieldset>
+      )}
 
       <label htmlFor="donorEmail">Email (for your receipt)</label>
       <input id="donorEmail" type="email" value={donorEmail} onChange={(event) => setDonorEmail(event.target.value)} placeholder="you@example.com" />

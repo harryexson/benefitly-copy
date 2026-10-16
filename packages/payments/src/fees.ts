@@ -4,7 +4,7 @@
  */
 
 export const SUGGESTED_CONTRIBUTION_RATES = [0, 0.1, 0.15, 0.18] as const;
-export const DEFAULT_SUGGESTED_RATE = 0.15;
+export const DEFAULT_SUGGESTED_RATE = 0;
 
 /** Round-half-up integer cents, matching how checkout UIs quote suggested tips. */
 export function suggestedContribution(donationAmount: number, rate: number): number {
