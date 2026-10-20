@@ -1,1 +1,39 @@
-{"name":"@benefitly/mobile","private":true,"version":"0.1.0","main":"expo-router/entry","scripts":{"start":"expo start","typecheck":"tsc --noEmit"},"dependencies":{"expo":"~53.0.0","expo-router":"~5.0.0","react":"19.0.0","react-native":"0.79.0"},"devDependencies":{"@types/react":"~19.0.0","typescript":"~5.8.3"}}
+{
+  "name": "@benefitly/mobile",
+  "private": true,
+  "version": "0.2.0",
+  "main": "expo-router/entry",
+  "scripts": {
+    "start": "expo start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@better-auth/expo": "^1.7.6",
+    "@expo/metro-runtime": "~57.0.17",
+    "better-auth": "^1.7.6",
+    "expo": "~57.0.29",
+    "expo-clipboard": "~57.0.2",
+    "expo-constants": "~57.0.22",
+    "expo-crypto": "~57.0.4",
+    "expo-device": "~57.0.2",
+    "expo-image-picker": "~57.0.20",
+    "expo-linking": "~57.0.13",
+    "expo-network": "~57.0.2",
+    "expo-notifications": "~57.0.23",
+    "expo-router": "~57.0.27",
+    "expo-secure-store": "~57.0.4",
+    "expo-sharing": "~57.0.23",
+    "expo-web-browser": "~57.0.3",
+    "query-string": "^9.5.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.10.1",
+    "react-native-screens": "~4.30.0",
+    "react-native-web": "~0.21.4"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.0",
+    "typescript": "~5.8.3"
+  }
+}
