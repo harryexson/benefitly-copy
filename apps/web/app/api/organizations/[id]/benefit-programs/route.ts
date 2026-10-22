@@ -4,6 +4,7 @@ import { withUserContext } from "@/lib/database";
 import { listBenefitPrograms } from "@/lib/associations";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
+import { planRefusalCode } from "@/lib/plan-errors";
 
 export const dynamic = "force-dynamic";
 
@@ -30,6 +31,8 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
     return NextResponse.json({ data: program }, { status: 201 });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not create benefit program";
+    const refusal = planRefusalCode(message);
+    if (refusal) return NextResponse.json({ error: { code: refusal, message } }, { status: 403 });
     return NextResponse.json({ error: { code: message.includes("not authorized") ? "FORBIDDEN" : "PROGRAM_FAILED", message } }, { status: message.includes("not authorized") ? 403 : 400 });
   }
 });

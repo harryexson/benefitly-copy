@@ -4,6 +4,7 @@ import { withUserContext } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
+import { planRefusalCode } from "@/lib/plan-errors";
 
 export const dynamic = "force-dynamic";
 
@@ -22,9 +23,18 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
   if (!parsed.success) return NextResponse.json({ error: { code: "INVALID_BODY", message: parsed.error.message } }, { status: 400 });
   const input = parsed.data;
 
-  const [[destination]] = await withUserContext(session.user.id, (tx) => [
-    tx`select provider_account_id from public.member_dues_destination(${memberId})`,
-  ]);
+  let destination;
+  try {
+    [[destination]] = await withUserContext(session.user.id, (tx) => [
+      tx`select provider_account_id from public.member_dues_destination(${memberId})`,
+    ]);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Could not start dues payment";
+    const code = planRefusalCode(message);
+    if (code) return NextResponse.json({ error: { code, message } }, { status: 403 });
+    if (message.includes("not authorized")) return NextResponse.json({ error: { code: "FORBIDDEN", message } }, { status: 403 });
+    throw error;
+  }
   if (!destination) {
     return NextResponse.json({ error: { code: "DUES_NOT_PAYABLE", message: "Dues cannot be paid yet: this organization has not finished setting up payments." } }, { status: 409 });
   }

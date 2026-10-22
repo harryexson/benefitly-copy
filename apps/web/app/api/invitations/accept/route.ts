@@ -3,6 +3,7 @@ import { acceptInvitationSchema } from "@benefitly/validation";
 import { withUserContext } from "@/lib/database";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
+import { planRefusalCode } from "@/lib/plan-errors";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +22,8 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
     return NextResponse.json({ data: membership });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not accept invitation";
+    const refusal = planRefusalCode(message);
+    if (refusal) return NextResponse.json({ error: { code: refusal, message } }, { status: 403 });
     if (message.includes("different email")) return NextResponse.json({ error: { code: "WRONG_ACCOUNT", message } }, { status: 403 });
     if (message.includes("invalid or expired")) return NextResponse.json({ error: { code: "INVITATION_INVALID", message } }, { status: 404 });
     return NextResponse.json({ error: { code: "ACCEPT_FAILED", message } }, { status: 400 });
