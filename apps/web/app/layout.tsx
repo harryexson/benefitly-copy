@@ -1,5 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
+// The public preview intentionally renders at request time until the Neon-backed
+// content and authentication configuration are connected.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: { default: "Benefitly | People helping people", template: "%s | Benefitly" },
   description: "Raise money for the people, causes and communities that matter.",
