@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sql } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
-import { processMemberDuesWebhook, processProviderWebhook } from "@/lib/webhook-processing";
+import { processMemberDuesWebhook, processProviderWebhook, processSubscriptionUpdate } from "@/lib/webhook-processing";
+import { subscriptionUpdateFromEvent } from "@/lib/billing-webhook";
 import { withRouteErrorHandling } from "@/lib/api-errors";
 
 export const dynamic = "force-dynamic";
@@ -29,6 +30,9 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
     } else {
       await processProviderWebhook("stripe_connect", event, intent.id, outcome, intent.charges?.data?.[0]?.balance_transaction?.fee ?? 0);
     }
+  } else if (event.type.startsWith("customer.subscription.") || event.type === "checkout.session.completed") {
+    const update = subscriptionUpdateFromEvent(event);
+    if (update) await processSubscriptionUpdate(event, update);
   } else if (event.type === "account.updated") {
     // Stripe reports Connect onboarding completion (and later restriction/disablement)
     // asynchronously here; nothing else ever updates payment_accounts.status after creation.

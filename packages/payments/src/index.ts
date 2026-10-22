@@ -6,3 +6,4 @@ export { StripeConnectAdapter } from "./adapters/stripe-connect.js";
 export type { StripeConnectAdapterConfig } from "./adapters/stripe-connect.js";
 export { AdyenPlatformsAdapter } from "./adapters/adyen-platforms.js";
 export type { AdyenPlatformsAdapterConfig } from "./adapters/adyen-platforms.js";
+export * from "./billing.js";

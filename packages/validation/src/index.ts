@@ -137,7 +137,7 @@ export const postAnnouncementSchema = z.object({
 });
 
 export const setOrganizationPlanSchema = z.object({
-  tier: z.enum(["community", "starter", "growth", "scale", "enterprise"]),
+  tier: z.enum(["free", "starter", "growth", "scale", "enterprise"]),
 });
 
 export const createGivingPlanSchema = z
@@ -231,4 +231,9 @@ export const memberDuesSchema = z.object({
   currency: z.string().length(3).default("USD"),
   contributionType: z.string().trim().min(1).max(80).default("Annual dues"),
   idempotencyKey: z.string().uuid(),
+});
+
+export const billingCheckoutSchema = z.object({
+  tier: z.enum(["starter", "growth", "scale"]),
+  interval: z.enum(["monthly", "annual"]),
 });

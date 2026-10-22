@@ -68,3 +68,18 @@ The app deploys to Vercel with `output: "standalone"` mode. Environment variable
 - `BETTER_AUTH_SECRET` must be unique per environment and cryptographically random
 - Stripe webhook secrets are per-endpoint — the production secret differs from staging
 - The `DATABASE_URL` must use the `benefitly_app` role, never `neondb_owner`, in production
+
+## Organization subscriptions (Stripe Billing)
+
+- `STRIPE_SECRET_KEY`: the platform's Stripe secret key. Subscriptions are billed to the platform's
+  own Stripe account; donor and member money never flows through it.
+- Create the subscription products and prices once per Stripe account (idempotent):
+
+  ```bash
+  STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-billing-setup.mjs
+  ```
+
+  Prices come from `scripts/billing-prices.json`, which must match the prices in
+  `database/migrations/0018_subscription_billing.sql`.
+- The Stripe webhook endpoint must subscribe to `checkout.session.completed` and the
+  `customer.subscription.*` events, in addition to the payment events it already receives.

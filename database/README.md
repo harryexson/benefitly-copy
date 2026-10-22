@@ -24,10 +24,11 @@ part of this repository's own test process -- not just typechecked.
 0015_members_invitations_dues_payouts.sql
 0016_member_dues_checkout.sql
 0017_optional_platform_fees.sql
+0018_subscription_billing.sql
 ```
 
 Test suites, run after the migrations, as the owner role (fixtures) then `benefitly_app`:
-`bootstrap.sql` + `integration.sql`, then `members_fixtures.sql` + `members_integration.sql`, then `fees_integration.sql`.
+`bootstrap.sql` + `integration.sql`, then `members_fixtures.sql` + `members_integration.sql`, then `fees_integration.sql` and `billing_integration.sql`.
 
 No migration runner exists yet; apply each file with `psql -f` (or the Neon SQL editor) in this
 order, as the database's default/owner role.

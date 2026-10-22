@@ -1,0 +1,5 @@
+[
+  { "tier": "starter", "name": "Starter", "monthlyCents": 2900, "annualCents": 29000 },
+  { "tier": "growth", "name": "Growth", "monthlyCents": 7900, "annualCents": 79000 },
+  { "tier": "scale", "name": "Scale", "monthlyCents": 19900, "annualCents": 199000 }
+]
