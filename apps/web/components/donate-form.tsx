@@ -3,14 +3,9 @@
 import { useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { getStripeForAccount } from "@/lib/stripe-client";
+import { SUGGESTED_CONTRIBUTION_RATES, suggestedContribution } from "@/lib/tip";
 import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 
-// Duplicated from @benefitly/payments/src/fees.ts rather than imported: that package's root
-// export pulls in the Stripe/Adyen server SDKs, which must never reach a client bundle.
-const SUGGESTED_CONTRIBUTION_RATES = [0, 0.1, 0.15, 0.18] as const;
-function suggestedContribution(donationAmount: number, rate: number): number {
-  return Math.round(donationAmount * rate);
-}
 
 type Result = {
   donationId: string;
@@ -27,7 +22,7 @@ type Result = {
 
 const presetAmounts = [2500, 5000, 10000, 25000];
 
-export function DonateForm({ campaignId, currency, platformFeeWaived = false }: { campaignId: string; currency: string; platformFeeWaived?: boolean }) {
+export function DonateForm({ campaignId, currency }: { campaignId: string; currency: string }) {
   const [amount, setAmount] = useState(5000);
   const [contributionRate, setContributionRate] = useState<number>(0);
   const [donorEmail, setDonorEmail] = useState("");
@@ -35,7 +30,7 @@ export function DonateForm({ campaignId, currency, platformFeeWaived = false }: 
   const [result, setResult] = useState<Result | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const contribution = platformFeeWaived ? 0 : suggestedContribution(amount, contributionRate);
+  const contribution = suggestedContribution(amount, contributionRate);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -121,19 +116,15 @@ export function DonateForm({ campaignId, currency, platformFeeWaived = false }: 
 
       <FeeTransparencyBanner />
 
-      {platformFeeWaived ? (
-        <p className="muted">This organization covers Benefitly&apos;s platform fee, so there is no tip to add.</p>
-      ) : (
-        <fieldset style={{ border: "none", padding: 0, margin: "16px 0" }}>
-          <legend>Add an optional tip to keep Benefitly running</legend>
-          {SUGGESTED_CONTRIBUTION_RATES.map((rate) => (
-            <label key={rate} style={{ display: "block" }}>
-              <input type="radio" name="rate" checked={contributionRate === rate} onChange={() => setContributionRate(rate)} />{" "}
-              {rate === 0 ? "No thanks" : `${Math.round(rate * 100)}% ($${(suggestedContribution(amount, rate) / 100).toFixed(2)})`}
-            </label>
-          ))}
-        </fieldset>
-      )}
+      <fieldset style={{ border: "none", padding: 0, margin: "16px 0" }}>
+        <legend>Add an optional tip to keep Benefitly running</legend>
+        {SUGGESTED_CONTRIBUTION_RATES.map((rate) => (
+          <label key={rate} style={{ display: "block" }}>
+            <input type="radio" name="rate" checked={contributionRate === rate} onChange={() => setContributionRate(rate)} />{" "}
+            {rate === 0 ? "No thanks" : `${Math.round(rate * 100)}% ($${(suggestedContribution(amount, rate) / 100).toFixed(2)})`}
+          </label>
+        ))}
+      </fieldset>
 
       <label htmlFor="donorEmail">Email (for your receipt)</label>
       <input id="donorEmail" type="email" value={donorEmail} onChange={(event) => setDonorEmail(event.target.value)} placeholder="you@example.com" />

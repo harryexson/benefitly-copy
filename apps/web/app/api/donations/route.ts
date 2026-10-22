@@ -26,10 +26,8 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
     return NextResponse.json({ error: { code: "PROVIDER_UNAVAILABLE", message: `${provider} is not configured on this server.` } }, { status: 503 });
   }
 
-  // Platform fees are optional tips. Organizations on an active paid subscription pay none.
-  const [waiver] = await sql`select public.campaign_platform_fee_waived(${input.campaignId}) as waived`;
-  const platformContribution = waiver?.waived ? 0 : input.platformContribution;
-  const split = computeDonationSplit({ donationAmount: input.amount, platformContribution, currency: input.currency });
+  // The donor's optional tip is offered on every donation, whatever the organization's plan.
+  const split = computeDonationSplit({ donationAmount: input.amount, platformContribution: input.platformContribution, currency: input.currency });
 
   // Guest checkout: donor identity is optional. When signed in, the donation is attributed to the profile.
   const session = await requireSession();

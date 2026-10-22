@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Elements, PaymentElement, useElements, useStripe } from "@stripe/react-stripe-js";
 import { getStripeForAccount } from "@/lib/stripe-client";
+import { SUGGESTED_CONTRIBUTION_RATES, suggestedContribution } from "@/lib/tip";
 import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 import type { TicketType } from "@/lib/tickets";
 
@@ -12,6 +13,7 @@ export function TicketPurchaseForm({ campaignId, eventId, ticketTypes }: { campa
   const available = ticketTypes.filter((t) => t.quantity_available == null || t.quantity_sold < t.quantity_available);
   const [ticketTypeId, setTicketTypeId] = useState(available[0]?.id ?? "");
   const [quantity, setQuantity] = useState(1);
+  const [tipRate, setTipRate] = useState<number>(0);
   const [attendeeName, setAttendeeName] = useState("");
   const [attendeeEmail, setAttendeeEmail] = useState("");
   const [attendeePhone, setAttendeePhone] = useState("");
@@ -20,6 +22,8 @@ export function TicketPurchaseForm({ campaignId, eventId, ticketTypes }: { campa
   const [errorMessage, setErrorMessage] = useState("");
 
   const selectedType = ticketTypes.find((t) => t.id === ticketTypeId);
+  const ticketTotal = selectedType ? selectedType.price_cents * quantity : 0;
+  const tip = ticketTotal > 0 ? suggestedContribution(ticketTotal, tipRate) : 0;
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -35,7 +39,7 @@ export function TicketPurchaseForm({ campaignId, eventId, ticketTypes }: { campa
         attendeeName,
         attendeeEmail,
         attendeePhone: attendeePhone || undefined,
-        platformContribution: 0,
+        platformContribution: tip,
         idempotencyKey: crypto.randomUUID(),
       }),
     });
@@ -103,9 +107,20 @@ export function TicketPurchaseForm({ campaignId, eventId, ticketTypes }: { campa
       <label htmlFor="attendee-phone">Phone (optional, for a text confirmation)</label>
       <input id="attendee-phone" type="tel" value={attendeePhone} onChange={(e) => setAttendeePhone(e.target.value)} placeholder="+15551234567" />
 
+      {selectedType && ticketTotal > 0 && (
+        <fieldset style={{ border: "none", padding: 0, margin: "16px 0" }}>
+          <legend>Add an optional tip to keep Benefitly running</legend>
+          {SUGGESTED_CONTRIBUTION_RATES.map((rate) => (
+            <label key={rate} style={{ display: "block" }}>
+              <input type="radio" name="ticket-tip" checked={tipRate === rate} onChange={() => setTipRate(rate)} />{" "}
+              {rate === 0 ? "No thanks" : `${Math.round(rate * 100)}% ($${(suggestedContribution(ticketTotal, rate) / 100).toFixed(2)})`}
+            </label>
+          ))}
+        </fieldset>
+      )}
       {selectedType && (
         <p className="amount">
-          Total: <strong>${((selectedType.price_cents * quantity) / 100).toLocaleString()}</strong>
+          Total: <strong>${((ticketTotal + tip) / 100).toLocaleString()}</strong>
         </p>
       )}
 
