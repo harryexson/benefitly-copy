@@ -26,10 +26,11 @@ part of this repository's own test process -- not just typechecked.
 0017_optional_platform_fees.sql
 0018_subscription_billing.sql
 0019_plan_feature_gating.sql
+0020_growth_scale_features.sql
 ```
 
 Test suites, run after the migrations, as the owner role (fixtures) then `benefitly_app`:
-`bootstrap.sql` + `integration.sql`, then `members_fixtures.sql` + `members_integration.sql`, then `fees_integration.sql`, `billing_integration.sql`, and `plan_gating_integration.sql`.
+`bootstrap.sql` + `integration.sql`, then `members_fixtures.sql` + `members_integration.sql`, then `fees_integration.sql`, `billing_integration.sql`, `plan_gating_integration.sql`, and `growth_features_integration.sql` (the last after `members_integration.sql`).
 
 No migration runner exists yet; apply each file with `psql -f` (or the Neon SQL editor) in this
 order, as the database's default/owner role.

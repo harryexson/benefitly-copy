@@ -83,3 +83,11 @@ The app deploys to Vercel with `output: "standalone"` mode. Environment variable
   `database/migrations/0018_subscription_billing.sql`.
 - The Stripe webhook endpoint must subscribe to `checkout.session.completed` and the
   `customer.subscription.*` events, in addition to the payment events it already receives.
+
+## Scheduled reports and API keys
+
+- `CRON_SECRET`: shared secret for `/api/cron/reports`. Vercel Cron sends it as a bearer token
+  (`vercel.json` runs the job daily at 08:00 UTC). Set it in the Vercel project; without it the job
+  refuses every request.
+- Scheduled report and dues reminder emails need `RESEND_API_KEY` and `RESEND_FROM_EMAIL`.
+- API keys are shown once when created; only their hash is stored. Keys are read-only.

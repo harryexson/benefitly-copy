@@ -115,3 +115,27 @@ export async function sendOrganizationInvitationEmail(input: { to: string; organ
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
 }
+
+export async function sendDuesReminderEmail(input: { to: string; subject: string; text: string }) {
+  const client = await getClient();
+  if (!client) throw new Error("Email is not configured on this server.");
+  const from = process.env.RESEND_FROM_EMAIL || "share@benefitly.app";
+  const html = input.text
+    .split("\n")
+    .map((line) => `<p>${escapeHtml(line)}</p>`)
+    .join("");
+  await client.emails.send({ from: `Benefitly <${from}>`, to: input.to, subject: input.subject, html, text: input.text });
+}
+
+export async function sendReportEmail(input: { to: string; subject: string; filename: string; csv: string }) {
+  const client = await getClient();
+  if (!client) throw new Error("Email is not configured on this server.");
+  const from = process.env.RESEND_FROM_EMAIL || "share@benefitly.app";
+  await client.emails.send({
+    from: `Benefitly <${from}>`,
+    to: input.to,
+    subject: input.subject,
+    text: "Your scheduled report is attached.",
+    attachments: [{ filename: input.filename, content: Buffer.from(input.csv, "utf8").toString("base64") }],
+  });
+}

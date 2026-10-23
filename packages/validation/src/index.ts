@@ -237,3 +237,43 @@ export const billingCheckoutSchema = z.object({
   tier: z.enum(["starter", "growth", "scale"]),
   interval: z.enum(["monthly", "annual"]),
 });
+
+export const reportKindSchema = z.enum(["members", "dues", "benefit_claims", "payouts"]);
+
+export const emailTemplateSchema = z.object({
+  subject: z.string().trim().min(1).max(200),
+  body: z.string().trim().min(1).max(5000),
+});
+
+export const volunteerOpportunitySchema = z
+  .object({
+    title: z.string().trim().min(3).max(160),
+    description: z.string().trim().max(2000).optional(),
+    startsAt: z.string().datetime(),
+    endsAt: z.string().datetime().optional(),
+    location: z.string().trim().max(200).optional(),
+    capacity: z.number().int().min(1).max(10000).nullable().optional(),
+  })
+  .refine((value) => !value.endsAt || new Date(value.endsAt) > new Date(value.startsAt), "endsAt must be after startsAt");
+
+export const volunteerSignupSchema = z.object({ memberId: z.string().uuid() });
+
+export const bulkPayoutSchema = z.object({
+  claimIds: z.array(z.string().uuid()).min(1).max(100),
+  sourceAccountId: z.string().uuid(),
+});
+
+export const organizationRoleSchema = z.object({
+  name: z.string().trim().min(2).max(60),
+  permissions: z.array(z.enum(organizationPermissions)).min(1),
+});
+
+export const assignRoleSchema = z.object({ userId: z.string().uuid(), roleId: z.string().uuid() });
+
+export const reportScheduleSchema = z.object({
+  reportKind: reportKindSchema,
+  recipientEmail: z.string().trim().toLowerCase().email().max(254),
+  frequency: z.enum(["weekly", "monthly"]),
+});
+
+export const apiKeySchema = z.object({ name: z.string().trim().min(2).max(80) });
