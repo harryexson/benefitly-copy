@@ -72,4 +72,14 @@ exception when others then
   if sqlerrm not like '%organization not found%' then raise exception 'wrong failure: %', sqlerrm; end if;
 end $$;
 
+-- The platform-admin override refuses an unknown organization instead of succeeding silently
+select set_config('app.user_id', '22222222-2222-2222-2222-222222222222', false);
+do $$ begin
+  perform * from public.admin_set_organization_plan('00000000-0000-0000-0000-000000000000'::uuid, 'growth');
+  raise exception 'EXPECTED FAILURE NOT RAISED';
+exception when others then
+  if sqlerrm like 'EXPECTED FAILURE%' then raise; end if;
+  if sqlerrm not like '%organization not found%' then raise exception 'wrong failure: %', sqlerrm; end if;
+end $$;
+
 select 'BILLING INTEGRATION TESTS PASSED' as final_result;
