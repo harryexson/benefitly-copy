@@ -3,6 +3,7 @@ import { notFound, redirect } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { getOrganizationBySlug, listSubscriptionPlans } from "@/lib/associations";
 import { loadBillingContext, sellablePlanTiers } from "@/lib/billing";
+import { withUserContext as withFounderContext } from "@/lib/database";
 import { requireSession } from "@/lib/session";
 import { BillingActions } from "./billing-actions";
 
@@ -38,6 +39,8 @@ export default async function OrganizationBillingPage({ params, searchParams }: 
   }
 
   const plans = await listSubscriptionPlans();
+  const [[slotRow]] = await withFounderContext(session.user.id, (tx) => [tx`select public.founder_slots_remaining() as remaining`]);
+  const founderSlots = (slotRow as { remaining: number }).remaining;
   const currentName = plans.find((p) => p.tier === context.plan_tier)?.name ?? context.plan_tier;
   const subscribed = context.subscription_status === "active";
 
@@ -48,6 +51,12 @@ export default async function OrganizationBillingPage({ params, searchParams }: 
         <p className="kicker">{context.org_name}</p>
         <h1>Plan &amp; billing</h1>
         {checkout === "success" && <p role="status">Thanks. Your plan updates as soon as Stripe confirms the payment.</p>}
+        {(context.founder_pricing || founderSlots > 0) && sellablePlanTiers().includes("starter") && (
+          <p role="status">
+            Founder offer: Starter is $29/mo ($290/yr) for the first 100 organizations to subscribe.{" "}
+            {context.founder_pricing ? "Your organization has it." : `${founderSlots} of 100 places left.`}
+          </p>
+        )}
         {checkout === "canceled" && <p className="muted">Checkout was canceled. Your plan is unchanged.</p>}
         <p>
           Current plan: <strong>{currentName}</strong>

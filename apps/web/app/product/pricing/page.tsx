@@ -7,10 +7,10 @@ export const metadata = { title: "Pricing" };
 export const dynamic = "force-dynamic";
 
 const FALLBACK_PLANS: SubscriptionPlan[] = [
-  { tier: "free", name: "Free", member_limit: 25, monthly_price_cents: 0, annual_price_cents: 0, sort_order: 0, features: ["Up to 25 members", "Member invitations by email", "Donations with optional donor tips", "Campaigns, events and ticket sales", "Community email support"] },
-  { tier: "starter", name: "Starter", member_limit: 100, monthly_price_cents: 2900, annual_price_cents: 29000, sort_order: 1, features: ["Up to 100 members", "Everything in Free, plus:", "Member dues collection through Stripe", "Benefit programs and approved payouts"] },
-  { tier: "growth", name: "Growth", member_limit: 500, monthly_price_cents: 7900, annual_price_cents: 79000, sort_order: 2, features: ["Up to 500 members", "Everything in Starter, plus:", "CSV exports", "Email reminders and custom email templates", "Volunteer management", "Bulk benefit payouts", "Advanced roles", "Priority email support"] },
-  { tier: "scale", name: "Scale", member_limit: 2000, monthly_price_cents: 19900, annual_price_cents: 199000, sort_order: 3, features: ["Up to 2,000 members", "Everything in Growth, plus:", "Scheduled report emails", "API access"] },
+  { tier: "free", name: "Free", member_limit: 50, monthly_price_cents: 0, annual_price_cents: 0, sort_order: 0, features: ["Up to 50 members", "Member invitations by email", "Donations with optional donor tips", "Campaigns, events and ticket sales", "Community email support"] },
+  { tier: "starter", name: "Starter", member_limit: 150, monthly_price_cents: 3900, annual_price_cents: 39000, sort_order: 1, features: ["Up to 150 members", "Everything in Free, plus:", "Member dues collection through Stripe", "Benefit programs and approved payouts"] },
+  { tier: "growth", name: "Growth", member_limit: 500, monthly_price_cents: 9900, annual_price_cents: 99000, sort_order: 2, features: ["Up to 500 members", "Everything in Starter, plus:", "CSV exports", "Email reminders and custom email templates", "Volunteer management", "Bulk benefit payouts", "Advanced roles", "Priority email support"] },
+  { tier: "scale", name: "Scale", member_limit: 2000, monthly_price_cents: 24900, annual_price_cents: 249000, sort_order: 3, features: ["Up to 2,000 members", "Everything in Growth, plus:", "Scheduled report emails", "API access"] },
   { tier: "enterprise", name: "Enterprise", member_limit: null, monthly_price_cents: null, annual_price_cents: null, sort_order: 4, features: ["Unlimited members", "Everything in Scale", "Custom contract terms"] },
 ];
 

@@ -34,16 +34,18 @@ export class StripeBilling {
     priceId: string;
     organizationId: string;
     tier: string;
+    founder: boolean;
     successUrl: string;
     cancelUrl: string;
   }): Promise<string> {
+    const metadata = { organizationId: input.organizationId, tier: input.tier, founder: input.founder ? "true" : "false" };
     const session = await this.client.checkout.sessions.create({
       mode: "subscription",
       customer: input.customerId,
       line_items: [{ price: input.priceId, quantity: 1 }],
       client_reference_id: input.organizationId,
-      metadata: { organizationId: input.organizationId, tier: input.tier },
-      subscription_data: { metadata: { organizationId: input.organizationId, tier: input.tier } },
+      metadata,
+      subscription_data: { metadata },
       allow_promotion_codes: true,
       success_url: input.successUrl,
       cancel_url: input.cancelUrl,

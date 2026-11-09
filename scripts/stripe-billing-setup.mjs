@@ -1,7 +1,7 @@
 // Creates the Stripe products and recurring prices that organization subscriptions check out with.
 // Idempotent: a price whose amount already matches is reused; a changed amount creates a new price
 // and moves the lookup key onto it. Keep billing-prices.json in step with
-// database/migrations/0018_subscription_billing.sql, which shows the same prices to organizers.
+// database/migrations/0025_approved_pricing.sql, which shows the same prices to organizers.
 //
 //   STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-billing-setup.mjs
 
@@ -22,12 +22,12 @@ const intervals = [
 ];
 
 for (const plan of plans) {
-  const productName = `Benefitly ${plan.name}`;
+  const productName = `Benefitly ${plan.name.replace(" (founder)", "")}`;
   const existing = await stripe.products.search({ query: `metadata['benefitly_tier']:'${plan.tier}' AND active:'true'` });
   const product = existing.data[0] ?? (await stripe.products.create({ name: productName, metadata: { benefitly_tier: plan.tier } }));
 
   for (const interval of intervals) {
-    const lookupKey = `benefitly_${plan.tier}_${interval.name}`;
+    const lookupKey = `benefitly_${plan.lookupTier ?? plan.tier}_${interval.name}`;
     const unitAmount = plan[interval.key];
     const current = await stripe.prices.list({ lookup_keys: [lookupKey], active: true, limit: 1 });
     if (current.data[0]?.unit_amount === unitAmount) {

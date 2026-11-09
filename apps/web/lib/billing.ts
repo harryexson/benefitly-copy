@@ -26,6 +26,7 @@ export type BillingContext = {
   subscription_status: string;
   stripe_customer_id: string | null;
   stripe_subscription_id: string | null;
+  founder_pricing: boolean;
 };
 
 /** Throws "not authorized to manage billing" unless the caller holds organization.manage. */

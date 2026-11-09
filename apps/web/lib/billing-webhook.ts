@@ -6,6 +6,8 @@ export type SubscriptionUpdate = {
   tier: string;
   status: "active" | "past_due" | "canceled";
   subscriptionId: string | null;
+  /** Set only on the first paid checkout, which is what claims a founder slot. */
+  claimsFounderSlot?: boolean;
 };
 
 /**
@@ -18,7 +20,7 @@ export function subscriptionUpdateFromEvent(event: WebhookEvent): SubscriptionUp
   if (event.type === "checkout.session.completed") {
     const { organizationId, tier } = { organizationId: object.metadata?.organizationId, tier: object.metadata?.tier };
     if (object.mode !== "subscription" || !organizationId || !tier || !object.subscription) return null;
-    return { organizationId, tier, status: "active", subscriptionId: object.subscription };
+    return { organizationId, tier, status: "active", subscriptionId: object.subscription, claimsFounderSlot: object.metadata?.founder === "true" };
   }
 
   if (event.type === "customer.subscription.deleted") {

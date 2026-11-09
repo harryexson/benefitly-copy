@@ -80,7 +80,7 @@ The app deploys to Vercel with `output: "standalone"` mode. Environment variable
   ```
 
   Prices come from `scripts/billing-prices.json`, which must match the prices in
-  `database/migrations/0018_subscription_billing.sql`.
+  `database/migrations/0025_approved_pricing.sql`.
 - The Stripe webhook endpoint must subscribe to `checkout.session.completed` and the
   `customer.subscription.*` events, in addition to the payment events it already receives.
 

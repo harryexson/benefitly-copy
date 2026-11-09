@@ -40,12 +40,15 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
     customerId = (saved as { customer_id: string }).customer_id;
   }
 
-  const priceId = await billing.priceIdFor(parsed.data.tier, parsed.data.interval);
+  const [[slots]] = await withUserContext(session.user.id, (tx) => [tx`select public.founder_slots_remaining() as remaining`]);
+  const founder = parsed.data.tier === "starter" && (context.founder_pricing || (slots as { remaining: number }).remaining > 0);
+  const priceId = await billing.priceIdFor(founder ? "starter_founder" : parsed.data.tier, parsed.data.interval);
   const url = await billing.createSubscriptionCheckout({
     customerId,
     priceId,
     organizationId: id,
     tier: parsed.data.tier,
+    founder,
     successUrl: billingReturnUrl(context.org_slug, "success"),
     cancelUrl: billingReturnUrl(context.org_slug, "canceled"),
   });

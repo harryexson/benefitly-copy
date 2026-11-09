@@ -82,4 +82,13 @@ exception when others then
   if sqlerrm not like '%organization not found%' then raise exception 'wrong failure: %', sqlerrm; end if;
 end $$;
 
+-- Founder pricing: a claim is only granted under the cap, and a repeat claim for the same organization is idempotent
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
+select id as founder_org_b from public.create_organization('Founder Test Association', 'founder-test-assoc') \gset
+select set_config('app.user_id', '', false);
+select public.mark_founder_pricing(current_setting('test.billing_org')::uuid, 1) as first_founder_claim;
+select public.mark_founder_pricing(current_setting('test.billing_org')::uuid, 1) as repeat_claim_same_org;
+select public.mark_founder_pricing(:'founder_org_b'::uuid, 1) as second_org_over_cap;
+select public.founder_slots_remaining(1) as no_slots_left;
+
 select 'BILLING INTEGRATION TESTS PASSED' as final_result;

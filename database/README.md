@@ -31,6 +31,7 @@ part of this repository's own test process -- not just typechecked.
 0022_rate_limits.sql
 0023_support_tickets.sql
 0024_member_self_service.sql
+0025_approved_pricing.sql
 ```
 
 Test suites, run after the migrations, as the owner role (fixtures) then `benefitly_app`:
