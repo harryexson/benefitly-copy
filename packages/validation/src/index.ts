@@ -277,3 +277,14 @@ export const reportScheduleSchema = z.object({
 });
 
 export const apiKeySchema = z.object({ name: z.string().trim().min(2).max(80) });
+
+export const supportTicketSchema = z.object({
+  subject: z.string().trim().min(3).max(160),
+  body: z.string().trim().min(10).max(5000),
+  organizationId: z.string().uuid().nullable().optional(),
+});
+
+export const supportTicketUpdateSchema = z.object({
+  status: z.enum(["open", "in_progress", "resolved", "closed"]),
+  note: z.string().trim().max(2000).nullable().optional(),
+});

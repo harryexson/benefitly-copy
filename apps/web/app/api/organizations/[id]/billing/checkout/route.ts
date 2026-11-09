@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { billingCheckoutSchema } from "@benefitly/validation";
 import { withUserContext } from "@/lib/database";
-import { billingReturnUrl, getStripeBilling, loadBillingContext } from "@/lib/billing";
+import { billingReturnUrl, getStripeBilling, loadBillingContext, sellablePlanTiers } from "@/lib/billing";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
 
@@ -22,6 +22,9 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
   } catch (error) {
     const message = error instanceof Error ? error.message : "Could not load billing";
     return NextResponse.json({ error: { code: message.includes("not authorized") ? "FORBIDDEN" : "BILLING_FAILED", message } }, { status: message.includes("not authorized") ? 403 : 400 });
+  }
+  if (!sellablePlanTiers().includes(parsed.data.tier)) {
+    return NextResponse.json({ error: { code: "PLAN_NOT_AVAILABLE", message: "This plan is not available to buy yet." } }, { status: 409 });
   }
   if (context.subscription_status === "active") {
     return NextResponse.json({ error: { code: "ALREADY_SUBSCRIBED", message: "This organization already has an active subscription. Use Manage billing to change or cancel it." } }, { status: 409 });

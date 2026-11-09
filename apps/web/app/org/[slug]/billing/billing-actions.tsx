@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-export function BillingActions({ orgId, planTier, canOpenPortal }: { orgId: string; planTier: string; canOpenPortal: boolean }) {
+export function BillingActions({ orgId, planTier, canOpenPortal, sellable }: { orgId: string; planTier: string; canOpenPortal: boolean; sellable: string[] }) {
   const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState("");
 
@@ -29,7 +29,7 @@ export function BillingActions({ orgId, planTier, canOpenPortal }: { orgId: stri
     }
   }
 
-  const paidTiers = ["starter", "growth", "scale"] as const;
+  const paidTiers = ["starter", "growth", "scale"].filter((tier) => sellable.includes(tier));
   const label = (tier: string) => tier.charAt(0).toUpperCase() + tier.slice(1);
   return (
     <div>

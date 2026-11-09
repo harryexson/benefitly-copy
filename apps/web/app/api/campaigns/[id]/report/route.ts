@@ -3,11 +3,14 @@ import { reportCampaignSchema } from "@benefitly/validation";
 import { sql, withUserContext } from "@/lib/database";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
+import { rateLimited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export const POST = withRouteErrorHandling(async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: campaignId } = await params;
+  const limited = await rateLimited(request, "campaign-report", 5, 3600);
+  if (limited) return limited;
   const body = await request.json().catch(() => null);
   const parsed = reportCampaignSchema.safeParse({ ...body, campaignId });
   if (!parsed.success) {

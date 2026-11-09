@@ -27,6 +27,10 @@ part of this repository's own test process -- not just typechecked.
 0018_subscription_billing.sql
 0019_plan_feature_gating.sql
 0020_growth_scale_features.sql
+0021_admin_plan_not_found.sql
+0022_rate_limits.sql
+0023_support_tickets.sql
+0024_member_self_service.sql
 ```
 
 Test suites, run after the migrations, as the owner role (fixtures) then `benefitly_app`:

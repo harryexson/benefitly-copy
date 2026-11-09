@@ -6,10 +6,13 @@ import { sql } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
+import { rateLimited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 export const POST = withRouteErrorHandling(async function POST(request: NextRequest) {
+  const limited = await rateLimited(request, "donations", 20, 600);
+  if (limited) return limited;
   const body = await request.json().catch(() => null);
   const parsed = donationIntentSchema.safeParse(body);
   if (!parsed.success) {

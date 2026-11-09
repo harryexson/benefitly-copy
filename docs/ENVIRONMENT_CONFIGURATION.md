@@ -91,3 +91,15 @@ The app deploys to Vercel with `output: "standalone"` mode. Environment variable
   refuses every request.
 - Scheduled report and dues reminder emails need `RESEND_API_KEY` and `RESEND_FROM_EMAIL`.
 - API keys are shown once when created; only their hash is stored. Keys are read-only.
+
+## Monitoring, rate limits and plan availability
+
+- `ERROR_REPORT_WEBHOOK_URL` (optional): every unhandled route error is POSTed here as JSON, with
+  emails and API keys redacted. Point it at your error tracker's webhook or an ingestion endpoint.
+  Errors are always written to the platform log (Vercel captures stdout and stderr) regardless.
+- `/api/health` returns 503 when the database does not answer. Point an uptime monitor at it.
+- Public write endpoints are rate limited per client address, using the `rate_limit_buckets` counters in
+  the database: donations and tickets (20 per 10 minutes), check-in (10 per minute), campaign reports
+  (5 per hour), invitation acceptance (10 per 10 minutes), and support tickets (10 per hour).
+- `SELLABLE_PLAN_TIERS` (optional, comma-separated): paid tiers that can be bought. Defaults to
+  `starter`. Growth, Scale and Enterprise stay unsellable until their feature lists are confirmed.

@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { checkInSchema } from "@benefitly/validation";
 import { selfCheckInTicket } from "@/lib/tickets";
 import { withRouteErrorHandling } from "@/lib/api-errors";
+import { rateLimited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 // Public, no auth: a ticket's own code is the authorization (see self_check_in_ticket in
 // database/migrations/0014_ticketed_events.sql), matching the self-service NFC-tag/QR flow.
 export const POST = withRouteErrorHandling(async function POST(request: NextRequest) {
+  const limited = await rateLimited(request, "checkin", 10, 60);
+  if (limited) return limited;
   const body = await request.json().catch(() => null);
   const parsed = checkInSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: { code: "INVALID_BODY", message: parsed.error.message } }, { status: 400 });

@@ -1,6 +1,15 @@
 import { StripeBilling } from "@benefitly/payments";
 import { withUserContext } from "@/lib/database";
 
+/**
+ * Paid tiers that can be bought. Only Starter is sellable until the feature list for each higher
+ * tier has been confirmed. Set SELLABLE_PLAN_TIERS (comma-separated) to open more tiers.
+ */
+export function sellablePlanTiers(): string[] {
+  const configured = process.env.SELLABLE_PLAN_TIERS?.split(",").map((tier) => tier.trim()).filter(Boolean);
+  return configured && configured.length > 0 ? configured : ["starter"];
+}
+
 let cachedBilling: StripeBilling | null | undefined;
 
 export function getStripeBilling(): StripeBilling | null {

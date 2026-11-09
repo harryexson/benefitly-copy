@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { getOrganizationBySlug, listSubscriptionPlans } from "@/lib/associations";
-import { loadBillingContext } from "@/lib/billing";
+import { loadBillingContext, sellablePlanTiers } from "@/lib/billing";
 import { requireSession } from "@/lib/session";
 import { BillingActions } from "./billing-actions";
 
@@ -81,7 +81,10 @@ export default async function OrganizationBillingPage({ params, searchParams }: 
           Need Enterprise? <Link href="/resources/contact">Contact us</Link>.
         </p>
 
-        <BillingActions orgId={org.id} planTier={context.plan_tier} canOpenPortal={context.stripe_customer_id != null} />
+        <BillingActions orgId={org.id} planTier={context.plan_tier} canOpenPortal={context.stripe_customer_id != null} sellable={sellablePlanTiers()} />
+        {sellablePlanTiers().length < 3 && (
+          <p className="muted">Growth and Scale are coming soon. <Link href="/resources/contact">Ask us about them</Link>.</p>
+        )}
       </main>
     </>
   );

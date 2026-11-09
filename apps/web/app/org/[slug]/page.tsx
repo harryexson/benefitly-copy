@@ -85,6 +85,7 @@ export default async function OrganizationWorkspacePage({ params }: { params: Pr
         <section className="section" style={{ padding: "24px 0" }}>
           <h2>Members ({members.length})</h2>
           <p><a href={`/org/${org.slug}/operations`}>Operations: reports, reminders, volunteers, roles, API keys</a></p>
+          <p><a href={`/org/${org.slug}/dues`}>Dues: who has paid</a></p>
           {canManageFinance && (
             <p className="muted">
               <Link href={`/org/${slug}/donors`}>View donor CRM →</Link>
