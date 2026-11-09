@@ -8,6 +8,14 @@ const databaseUrl = process.env.DATABASE_URL;
 
 export const auth = betterAuth({
   appName: "Benefitly",
+  // Preview deployments receive a unique Vercel hostname. Resolve the public origin per
+  // request, but only from the explicit host allowlist so callback and CSRF validation remain
+  // fail-closed for arbitrary hosts.
+  baseURL: {
+    allowedHosts: ["benefitly-web-*-boldintelligentsolutions-9587-274be8fa.vercel.app", "localhost:*"],
+    protocol: "auto",
+    fallback: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  },
   // better-auth's Kysely Postgres dialect issues plain `sql(text, params)` calls, a calling
   // convention the neon() HTTP tagged-template function dropped in @neondatabase/serverless v1.
   // A node-postgres-compatible Pool is the supported bridge between the two.
@@ -20,7 +28,12 @@ export const auth = betterAuth({
   // The Expo app has no cookie jar, so better-auth's expo() plugin issues a bearer token instead
   // and stores it in SecureStore; "benefitly://" is the app's deep-link scheme (apps/mobile/app.json).
   plugins: [expo()],
-  trustedOrigins: [...(process.env.BETTER_AUTH_TRUSTED_ORIGINS || "http://localhost:3000").split(","), "benefitly://"],
+  trustedOrigins: [
+    ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS || "http://localhost:3000").split(","),
+    "https://benefitly-web-*-boldintelligentsolutions-9587-274be8fa.vercel.app",
+    "benefitly://",
+    "exp://**",
+  ],
   rateLimit: { enabled: true, storage: "database", customRules: { "/sign-in/email": { window: 60, max: 5 }, "/sign-up/email": { window: 60, max: 3 } } },
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",

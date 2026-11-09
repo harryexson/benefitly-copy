@@ -16,13 +16,15 @@
 ### Application
 | Variable | Example | Description |
 |----------|---------|-------------|
-| `NEXT_PUBLIC_APP_URL` | `https://benefitly-web.vercel.app` | Public-facing URL. Used for email links, QR codes, ticket confirmation URLs. |
+| `NEXT_PUBLIC_APP_URL` | `https://benefitly-web.vercel.app` | Public-facing URL. Used for email links, QR codes, ticket confirmation URLs. Do not set it on Vercel Preview deployments; Better Auth should use each preview's current hostname. |
 
 ### Payments (Stripe Connect)
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `STRIPE_SECRET_KEY` | Yes (for payments) | Stripe API secret key |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Yes (for embedded checkout) | Stripe publishable key used by Stripe.js in the browser |
 | `STRIPE_WEBHOOK_SECRET` | Yes (for webhooks) | Stripe webhook endpoint signing secret |
+| `STRIPE_CONNECT_ACCOUNT_TYPE` | No | `express` (default) or `standard` |
 
 ### Payments (Adyen — optional)
 | Variable | Required | Description |
@@ -35,9 +37,9 @@
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `RESEND_API_KEY` | For email | Resend API key for transactional emails |
-| `TWILIO_ACCOUNT_SID` | For SMS | Twilio account SID |
-| `TWILIO_AUTH_TOKEN` | For SMS | Twilio auth token |
-| `TWILIO_PHONE_NUMBER` | For SMS | Twilio sender phone number |
+| `SIGNALHOUSE_API_KEY` | For SMS | SignalHouse API key |
+| `SIGNALHOUSE_FROM_NUMBER` | For SMS | SignalHouse sender number |
+| `BLOB_READ_WRITE_TOKEN` | For media uploads | Vercel Blob read/write token |
 
 ## Local Development
 
@@ -49,7 +51,8 @@ cp apps/web/.env.local.example apps/web/.env.local
 # DATABASE_URL should point to a local Neon branch or local PostgreSQL
 ```
 
-The `.env.local` file in the repository contains safe local-dev defaults (not real credentials).
+The committed `.env.local.example` file contains placeholders only. Copy it to `.env.local` and
+replace the placeholders locally; `.env.local` is ignored by Git and must never be committed.
 
 ## Database Setup
 
