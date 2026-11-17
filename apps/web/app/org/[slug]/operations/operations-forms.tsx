@@ -133,7 +133,7 @@ export function AssignRoleForm({ orgId, roles }: { orgId: string; roles: { id: s
       const res = await post(`/api/organizations/${orgId}/roles/assign`, { userId, roleId });
       setOutcome({ ok: res.ok, message: res.message });
     }}>
-      <label htmlFor="assign-user">Member's account ID</label>
+      <label htmlFor="assign-user">Member&apos;s account ID</label>
       <input id="assign-user" required value={userId} onChange={(e) => setUserId(e.target.value)} />
       <label htmlFor="assign-role">Role</label>
       <select id="assign-role" value={roleId} onChange={(e) => setRoleId(e.target.value)}>
