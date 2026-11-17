@@ -71,3 +71,38 @@ The app deploys to Vercel with `output: "standalone"` mode. Environment variable
 - `BETTER_AUTH_SECRET` must be unique per environment and cryptographically random
 - Stripe webhook secrets are per-endpoint — the production secret differs from staging
 - The `DATABASE_URL` must use the `benefitly_app` role, never `neondb_owner`, in production
+
+## Organization subscriptions (Stripe Billing)
+
+- `STRIPE_SECRET_KEY`: the platform's Stripe secret key. Subscriptions are billed to the platform's
+  own Stripe account; donor and member money never flows through it.
+- Create the subscription products and prices once per Stripe account (idempotent):
+
+  ```bash
+  STRIPE_SECRET_KEY=sk_test_... node scripts/stripe-billing-setup.mjs
+  ```
+
+  Prices come from `scripts/billing-prices.json`, which must match the prices in
+  `database/migrations/0025_approved_pricing.sql`.
+- The Stripe webhook endpoint must subscribe to `checkout.session.completed` and the
+  `customer.subscription.*` events, in addition to the payment events it already receives.
+
+## Scheduled reports and API keys
+
+- `CRON_SECRET`: shared secret for `/api/cron/reports`. Vercel Cron sends it as a bearer token
+  (`vercel.json` runs the job daily at 08:00 UTC). Set it in the Vercel project; without it the job
+  refuses every request.
+- Scheduled report and dues reminder emails need `RESEND_API_KEY` and `RESEND_FROM_EMAIL`.
+- API keys are shown once when created; only their hash is stored. Keys are read-only.
+
+## Monitoring, rate limits and plan availability
+
+- `ERROR_REPORT_WEBHOOK_URL` (optional): every unhandled route error is POSTed here as JSON, with
+  emails and API keys redacted. Point it at your error tracker's webhook or an ingestion endpoint.
+  Errors are always written to the platform log (Vercel captures stdout and stderr) regardless.
+- `/api/health` returns 503 when the database does not answer. Point an uptime monitor at it.
+- Public write endpoints are rate limited per client address, using the `rate_limit_buckets` counters in
+  the database: donations and tickets (20 per 10 minutes), check-in (10 per minute), campaign reports
+  (5 per hour), invitation acceptance (10 per 10 minutes), and support tickets (10 per hour).
+- `SELLABLE_PLAN_TIERS` (optional, comma-separated): paid tiers that can be bought. Defaults to
+  `starter`. Growth, Scale and Enterprise stay unsellable until their feature lists are confirmed.

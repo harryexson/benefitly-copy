@@ -17,6 +17,11 @@
 select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
 select id as org_id from public.create_organization('Members Test Association', 'members-test-assoc') \gset
 select set_config('test.org_id', :'org_id', false);
+-- Benefit programs and dues checkout are Starter features; grant the test organization Starter
+-- the way a comped account is granted, through the platform-admin override.
+select set_config('app.user_id', '22222222-2222-2222-2222-222222222222', false);
+select plan_tier as comped_plan from public.admin_set_organization_plan(current_setting('test.org_id')::uuid, 'starter');
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
 
 -- ===== Invitations =====
 -- Eve (no permissions) cannot invite

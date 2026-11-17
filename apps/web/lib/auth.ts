@@ -12,7 +12,7 @@ export const auth = betterAuth({
   // request, but only from the explicit host allowlist so callback and CSRF validation remain
   // fail-closed for arbitrary hosts.
   baseURL: {
-    allowedHosts: ["*.vercel.app", "localhost:*"],
+    allowedHosts: ["benefitly-web-*-boldintelligentsolutions-9587-274be8fa.vercel.app", "localhost:*"],
     protocol: "auto",
     fallback: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   },
@@ -30,7 +30,7 @@ export const auth = betterAuth({
   plugins: [expo()],
   trustedOrigins: [
     ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS || "http://localhost:3000").split(","),
-    "https://*.vercel.app",
+    "https://benefitly-web-*-boldintelligentsolutions-9587-274be8fa.vercel.app",
     "benefitly://",
     "exp://**",
   ],

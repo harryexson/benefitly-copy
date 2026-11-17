@@ -127,7 +127,9 @@ select member_count, member_limit, plan_tier from public.organization_member_usa
 
 -- Downgrade to a plan whose member_limit (1) exactly matches the current active member count, then
 -- confirm a second member is rejected while the org is on it.
-select plan_tier from public.set_organization_plan(:'org_id', 'test_tiny');
+select set_config('app.user_id', '22222222-2222-2222-2222-222222222222', false);
+select plan_tier from public.admin_set_organization_plan(:'org_id', 'test_tiny');
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
 do $$
 begin
   begin
@@ -140,21 +142,26 @@ begin
 end $$;
 
 -- Back on a plan with room, the same add_member call succeeds.
-select plan_tier from public.set_organization_plan(:'org_id', 'starter');
+select set_config('app.user_id', '22222222-2222-2222-2222-222222222222', false);
+select plan_tier from public.admin_set_organization_plan(:'org_id', 'starter');
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
 select id as member2_id from public.add_member(:'org_id', '22222222-2222-2222-2222-222222222222', 'M-002', 'Standard', '{}'::jsonb) \gset
 select member_number, status from public.members where id = :'member2_id';
 
 -- A downgrade that would put the org over the new plan's limit is rejected.
+select set_config('app.user_id', '22222222-2222-2222-2222-222222222222', false);
+select set_config('test.downgrade_org', :'org_id', false);
 do $$
 begin
   begin
-    perform public.set_organization_plan((select id from public.organizations where slug = 'springfield-neighbors-xyz'), 'test_tiny');
+    perform public.admin_set_organization_plan(current_setting('test.downgrade_org')::uuid, 'test_tiny');
     raise exception 'SHOULD HAVE FAILED: downgrade below current member count';
   exception when others then
     if sqlerrm not like '%cannot downgrade%' then raise; end if;
-    raise notice 'OK: set_organization_plan blocked a downgrade below current member count';
+    raise notice 'OK: admin_set_organization_plan blocked a downgrade below current member count';
   end;
 end $$;
+select set_config('app.user_id', '11111111-1111-1111-1111-111111111111', false);
 
 select id as program_id from public.create_benefit_program(:'org_id', 'Emergency Assistance', 'Help for members in crisis', 'Active members', 100000, 30) \gset
 

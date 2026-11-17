@@ -6,6 +6,7 @@ import { sql, withUserContext } from "@/lib/database";
 import { paymentProviderRouter } from "@/lib/payments";
 import { requireSession } from "@/lib/session";
 import { withRouteErrorHandling } from "@/lib/api-errors";
+import { rateLimited } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +19,8 @@ export const dynamic = "force-dynamic";
  */
 export const POST = withRouteErrorHandling(async function POST(request: NextRequest, { params }: { params: Promise<{ id: string; eventId: string }> }) {
   const { id: campaignId, eventId } = await params;
+  const limited = await rateLimited(request, "ticket-purchase", 20, 600);
+  if (limited) return limited;
   const body = await request.json().catch(() => null);
   const parsed = purchaseTicketsSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: { code: "INVALID_BODY", message: parsed.error.message } }, { status: 400 });
@@ -33,9 +36,8 @@ export const POST = withRouteErrorHandling(async function POST(request: NextRequ
     return NextResponse.json({ error: { code: "PROVIDER_UNAVAILABLE", message: `${provider} is not configured on this server.` } }, { status: 503 });
   }
 
-  // Platform fees are optional tips. Organizations on an active paid subscription pay none.
-  const [waiver] = await sql`select public.campaign_platform_fee_waived(${campaignId}) as waived`;
-  const platformContribution = waiver?.waived ? 0 : input.platformContribution;
+  // The donor's optional tip is offered on every paid ticket, whatever the organization's plan.
+  const platformContribution = input.platformContribution;
   const ticketAmount = (ticketType.price_cents as number) * input.quantity;
   const split = ticketAmount > 0
     ? computeDonationSplit({ donationAmount: ticketAmount, platformContribution, currency: ticketType.currency as string })

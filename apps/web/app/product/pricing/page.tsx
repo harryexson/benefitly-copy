@@ -7,11 +7,11 @@ export const metadata = { title: "Pricing" };
 export const dynamic = "force-dynamic";
 
 const FALLBACK_PLANS: SubscriptionPlan[] = [
-  { tier: "community", name: "Community", member_limit: 50, monthly_price_cents: 3500, annual_price_cents: 35000, sort_order: 1, features: ["Up to 50 members", "Member & event management", "Contribution collection", "Basic benefit payouts", "Standard reports", "Email support"] },
-  { tier: "starter", name: "Starter", member_limit: 100, monthly_price_cents: 3300, annual_price_cents: 33000, sort_order: 2, features: ["Up to 100 members", "All Community features, plus:", "Advanced payout management", "PDF & CSV reports", "Stripe integration", "Email reminders"] },
-  { tier: "growth", name: "Growth", member_limit: 300, monthly_price_cents: 6600, annual_price_cents: 66000, sort_order: 3, features: ["Up to 300 members", "All Starter features, plus:", "Volunteer management", "Bulk payout processing", "Custom email templates", "Advanced user roles", "Priority support"] },
-  { tier: "scale", name: "Scale", member_limit: 1000, monthly_price_cents: 16500, annual_price_cents: 165000, sort_order: 4, features: ["Up to 1,000 members", "All Growth features, plus:", "Automated report delivery", "White-glove onboarding", "Dedicated account manager", "API access", "Phone & email support"] },
-  { tier: "enterprise", name: "Enterprise", member_limit: null, monthly_price_cents: null, annual_price_cents: null, sort_order: 5, features: ["Over 1,000 members", "All Scale features, plus:", "Dedicated infrastructure", "Custom integrations", "Custom SSO integration", "24/7 phone support", "SLA guarantee"] },
+  { tier: "free", name: "Free", member_limit: 50, monthly_price_cents: 0, annual_price_cents: 0, sort_order: 0, features: ["Up to 50 members", "Member invitations by email", "Donations with optional donor tips", "Campaigns, events and ticket sales", "Community email support"] },
+  { tier: "starter", name: "Starter", member_limit: 150, monthly_price_cents: 3900, annual_price_cents: 39000, sort_order: 1, features: ["Up to 150 members", "Everything in Free, plus:", "Member dues collection through Stripe", "Benefit programs and approved payouts"] },
+  { tier: "growth", name: "Growth", member_limit: 500, monthly_price_cents: 9900, annual_price_cents: 99000, sort_order: 2, features: ["Up to 500 members", "Everything in Starter, plus:", "CSV exports", "Email reminders and custom email templates", "Volunteer management", "Bulk benefit payouts", "Advanced roles", "Priority email support"] },
+  { tier: "scale", name: "Scale", member_limit: 2000, monthly_price_cents: 24900, annual_price_cents: 249000, sort_order: 3, features: ["Up to 2,000 members", "Everything in Growth, plus:", "Scheduled report emails", "API access"] },
+  { tier: "enterprise", name: "Enterprise", member_limit: null, monthly_price_cents: null, annual_price_cents: null, sort_order: 4, features: ["Unlimited members", "Everything in Scale", "Custom contract terms"] },
 ];
 
 const trustPoints = [

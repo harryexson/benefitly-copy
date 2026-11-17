@@ -81,3 +81,10 @@ async function notifyDonationReceived(campaignId: string, amount: number) {
   if (!campaign) return;
   await notify(campaign.owner_id as string, campaign.organization_id as string | null, "donation_received", { amount, campaignTitle: campaign.title });
 }
+
+export async function processSubscriptionUpdate(event: WebhookEvent, update: { organizationId: string; tier: string; status: string; subscriptionId: string | null; claimsFounderSlot?: boolean }) {
+  return applyOnce("stripe_connect", event, async () => {
+    await sql`select public.apply_organization_subscription(${update.organizationId}, ${update.tier}, ${update.status}, ${update.subscriptionId})`;
+    if (update.claimsFounderSlot) await sql`select public.mark_founder_pricing(${update.organizationId})`;
+  });
+}

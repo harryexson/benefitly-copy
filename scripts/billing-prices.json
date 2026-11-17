@@ -1,0 +1,6 @@
+[
+  { "tier": "starter", "name": "Starter", "monthlyCents": 3900, "annualCents": 39000 },
+  { "tier": "starter", "lookupTier": "starter_founder", "name": "Starter (founder)", "monthlyCents": 2900, "annualCents": 29000 },
+  { "tier": "growth", "name": "Growth", "monthlyCents": 9900, "annualCents": 99000 },
+  { "tier": "scale", "name": "Scale", "monthlyCents": 24900, "annualCents": 249000 }
+]

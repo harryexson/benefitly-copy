@@ -3,7 +3,6 @@ import type { CampaignCategory, CampaignStatus } from "@benefitly/domain";
 
 export type CampaignRow = {
   id: string;
-  platform_fee_waived: boolean;
   slug: string;
   title: string;
   story: string;
@@ -24,7 +23,6 @@ export async function listPublishedCampaigns(input: { q?: string; category?: str
   const rows = await sql`
     select c.id, c.slug, c.title, c.story, c.category, c.location, c.currency, c.goal_amount, c.raised_amount, c.supporter_count, c.status,
       coalesce(o.name, p.name, 'Benefitly organizer') as organizer,
-      coalesce(public.campaign_platform_fee_waived(c.id), false) as platform_fee_waived,
       (select m.storage_key from public.campaign_media m where m.campaign_id = c.id order by m.position asc limit 1) as image
     from public.campaigns c
     left join public.profiles p on p.id = c.owner_id

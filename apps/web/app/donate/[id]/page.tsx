@@ -28,7 +28,7 @@ export default async function DonatePage({ params }: { params: Promise<{ id: str
             <strong>${(campaign.raised_amount / 100).toLocaleString()}</strong> raised of ${(campaign.goal_amount / 100).toLocaleString()}
           </p>
         </section>
-        <DonateForm campaignId={campaign.id} currency={campaign.currency} platformFeeWaived={campaign.platform_fee_waived} />
+        <DonateForm campaignId={campaign.id} currency={campaign.currency} />
       </main>
     </>
   );
