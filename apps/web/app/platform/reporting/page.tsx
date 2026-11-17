@@ -18,7 +18,7 @@ export default function ReportingPage() {
         </p>
 
         <section className="section legal-section">
-          <h2>What's tracked</h2>
+          <h2>What&apos;s tracked</h2>
           <ul>
             <li>Member dues and one-off contributions, per member</li>
             <li>Benefit claims: submission, decision, decision reason, and decider</li>

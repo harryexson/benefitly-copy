@@ -112,6 +112,24 @@ export async function sendOrganizationInvitationEmail(input: { to: string; organ
   });
 }
 
+export async function sendPasswordResetEmail(input: { to: string; name: string | null; resetUrl: string }) {
+  const client = await getClient();
+  if (!client) throw new Error("Email is not configured on this server.");
+  const from = process.env.RESEND_FROM_EMAIL || "share@benefitly.app";
+  const greeting = input.name ? `Hi ${escapeHtml(input.name)},` : "Hi,";
+  await client.emails.send({
+    from: `Benefitly <${from}>`,
+    to: input.to,
+    subject: "Reset your Benefitly password",
+    html: `
+      <p>${greeting}</p>
+      <p>We received a request to reset the password for your Benefitly account. This applies to individual accounts and organization accounts alike.</p>
+      <p><a href="${escapeHtml(input.resetUrl)}">Choose a new password</a></p>
+      <p>The link works once and expires in one hour. If you didn't ask for this, you can ignore this email and your password will stay the same.</p>
+    `,
+  });
+}
+
 function escapeHtml(value: string): string {
   return value.replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]!);
 }

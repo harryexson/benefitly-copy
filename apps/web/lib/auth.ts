@@ -2,6 +2,7 @@ import { Pool } from "@neondatabase/serverless";
 import { betterAuth } from "better-auth";
 import { expo } from "@better-auth/expo";
 import { sql } from "@/lib/database";
+import { sendPasswordResetEmail } from "@/lib/email";
 
 const databaseUrl = process.env.DATABASE_URL;
 // See lib/database.ts: this must not throw at module scope, or `next build` fails outright.
@@ -12,7 +13,14 @@ export const auth = betterAuth({
   // request, but only from the explicit host allowlist so callback and CSRF validation remain
   // fail-closed for arbitrary hosts.
   baseURL: {
-    allowedHosts: ["benefitly-web-*-boldintelligentsolutions-9587-274be8fa.vercel.app", "localhost:*"],
+    allowedHosts: [
+      "benefitly-web.vercel.app",
+      "benefitly-web-boldintelligentsolutions-9587-274be8fa.vercel.app",
+      "benefitly-web-*-boldintelligentsolutions-9587-274be8fa.vercel.app",
+      "benefitly.app",
+      "www.benefitly.app",
+      "localhost:*",
+    ],
     protocol: "auto",
     fallback: process.env.BETTER_AUTH_URL || "http://localhost:3000",
   },
@@ -24,17 +32,37 @@ export const auth = betterAuth({
   // itself (see lib/database.ts). The placeholder below is exactly as unusable for real auth as
   // the placeholder DATABASE_URL above -- BETTER_AUTH_SECRET is still required at deploy time.
   secret: process.env.BETTER_AUTH_SECRET || "insecure-build-placeholder-set-BETTER_AUTH_SECRET",
-  emailAndPassword: { enabled: true },
+  // Individuals and organization owners both sign in with these accounts, so one reset flow serves
+  // both. The link is single-use and expires after an hour; it is sent through Resend (lib/email.ts).
+  emailAndPassword: {
+    enabled: true,
+    resetPasswordTokenExpiresIn: 60 * 60,
+    sendResetPassword: async ({ user, url }) => {
+      await sendPasswordResetEmail({ to: user.email, name: user.name, resetUrl: url });
+    },
+  },
   // The Expo app has no cookie jar, so better-auth's expo() plugin issues a bearer token instead
   // and stores it in SecureStore; "benefitly://" is the app's deep-link scheme (apps/mobile/app.json).
   plugins: [expo()],
   trustedOrigins: [
     ...(process.env.BETTER_AUTH_TRUSTED_ORIGINS || "http://localhost:3000").split(","),
+    "https://benefitly-web.vercel.app",
+    "https://benefitly-web-boldintelligentsolutions-9587-274be8fa.vercel.app",
     "https://benefitly-web-*-boldintelligentsolutions-9587-274be8fa.vercel.app",
+    "https://benefitly.app",
+    "https://www.benefitly.app",
     "benefitly://",
     "exp://**",
   ],
-  rateLimit: { enabled: true, storage: "database", customRules: { "/sign-in/email": { window: 60, max: 5 }, "/sign-up/email": { window: 60, max: 3 } } },
+  rateLimit: {
+    enabled: true,
+    storage: "database",
+    customRules: {
+      "/sign-in/email": { window: 60, max: 5 },
+      "/sign-up/email": { window: 60, max: 3 },
+      "/request-password-reset": { window: 60, max: 3 },
+    },
+  },
   advanced: {
     useSecureCookies: process.env.NODE_ENV === "production",
     disableCSRFCheck: false,

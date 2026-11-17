@@ -27,7 +27,7 @@ export default async function CampaignShareKitPage({ params }: { params: Promise
           <h2>Share online</h2>
           <ShareCampaignButtons title={campaign.title} url={campaignUrl} />
           <p className="search" style={{ marginTop: 16 }}>
-            <input readOnly value={campaignUrl} style={{ flex: 1 }} onFocus={(e) => e.currentTarget.select()} />
+            <input readOnly value={campaignUrl} style={{ flex: 1 }} />
           </p>
         </section>
 
@@ -61,7 +61,7 @@ export default async function CampaignShareKitPage({ params }: { params: Promise
             <li>Stick the tag anywhere supporters can tap their phone to it — a table, a flyer, a donation jar.</li>
           </ol>
           <p className="search">
-            <input readOnly value={campaignUrl} style={{ flex: 1 }} onFocus={(e) => e.currentTarget.select()} />
+            <input readOnly value={campaignUrl} style={{ flex: 1 }} />
           </p>
         </section>
       </main>
