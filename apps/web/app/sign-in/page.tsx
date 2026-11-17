@@ -14,6 +14,9 @@ export default async function SignInPage({ searchParams }: { searchParams: Promi
         <h1>Sign in to Benefitly</h1>
         <AuthForm mode="sign-in" redirectTo={redirect} />
         <p className="muted">
+          <Link href="/forgot-password">Forgot your password?</Link>
+        </p>
+        <p className="muted">
           New here? <Link href={redirect ? `/sign-up?redirect=${encodeURIComponent(redirect)}` : "/sign-up"}>Create an account</Link>
         </p>
       </main>
