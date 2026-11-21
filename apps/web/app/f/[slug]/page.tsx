@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { SaveCampaignButton } from "@/components/save-campaign-button";
 import { ShareCampaignButtons } from "@/components/share-campaign-buttons";
+import { EmbedCodeBox } from "@/components/embed-code-box";
 import { FeeTransparencyBanner } from "@/components/fee-transparency-banner";
 import { getPublishedCampaignBySlug, listCampaignMedia, listCampaignUpdates } from "@/lib/campaigns";
 import { mySavedCampaigns } from "@/lib/donor";
@@ -99,6 +100,10 @@ export default async function CampaignPage({ params }: { params: Promise<{ slug:
             Donate
           </a>
           <ShareCampaignButtons title={campaign.title} url={`${process.env.NEXT_PUBLIC_APP_URL || "https://benefitly-web.vercel.app"}/f/${campaign.slug}`} />
+          <EmbedCodeBox
+            title={campaign.title}
+            embedUrl={`${process.env.NEXT_PUBLIC_APP_URL || "https://benefitly-web.vercel.app"}/f/${campaign.slug}/embed`}
+          />
           <a className="share" href={`/f/${campaign.slug}/share`}>
             QR code &amp; NFC share kit
           </a>
